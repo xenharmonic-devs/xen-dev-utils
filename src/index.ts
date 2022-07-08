@@ -1,4 +1,4 @@
-import FractionJS from 'fraction.js';
+import FractionJS, {NumeratorDenominator} from 'fraction.js';
 
 // Subclass Fraction to remove default export status.
 /**
@@ -40,13 +40,31 @@ import FractionJS from 'fraction.js';
  */
 export class Fraction extends FractionJS {}
 
+// Explicitly drop [number, number] because it overlaps with monzos
+export type FractionValue =
+  | Fraction
+  | number
+  | string
+  | [string, string]
+  | NumeratorDenominator;
+
+export interface AnyArray {
+  [key: number]: any;
+  length: number;
+}
+
+export interface NumberArray {
+  [key: number]: number;
+  length: number;
+}
+
 /**
  * Check if the contents of two arrays are equal using '==='.
  * @param a The first array.
  * @param b The second array.
  * @returns True if the arrays are component-wise equal.
  */
-export function arraysEqual(a: any[], b: any[]) {
+export function arraysEqual(a: AnyArray, b: AnyArray) {
   if (a === b) {
     return true;
   }
@@ -63,7 +81,7 @@ export function arraysEqual(a: any[], b: any[]) {
 
 // Stolen from fraction.js, because it's not exported.
 /**
- * Greatest common division of two integers.
+ * Greatest common divisor of two integers.
  * @param a The first integer.
  * @param b The second integer.
  * @returns The largest integer that divides a and b.
@@ -100,20 +118,107 @@ export function mmod(a: number, b: number) {
 }
 
 /**
+ * Floor division.
+ * @param a The dividend.
+ * @param b The divisor.
+ * @returns The quotient of Euclidean division of a by b.
+ */
+export function div(a: number, b: number): number {
+  return Math.floor(a / b);
+}
+
+/** Result of the extended Euclidean algorithm. */
+export type ExtendedEuclid = {
+  /** Bézout coefficient of the first parameter.  */
+  coefA: number;
+  /** Bézout coefficient of the second parameter.  */
+  coefB: number;
+  /** Greatest common divisor of the parameters. */
+  gcd: number;
+  /** Quotient of the first parameter when divided by the gcd */
+  quotientA: number;
+  /** Quotient of the second parameter when divided by the gcd */
+  quotientB: number;
+};
+
+// https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm#Pseudocode
+/**
+ * Extended Euclidean algorithm for integers a and b:
+ * Find x and y such that ax + by = gcd(a, b).
+ * ```ts
+ * result.gcd = a * result.coefA + b * result.coefB;  // = gcd(a, b)
+ * result.quotientA = div(a, gcd(a, b));
+ * result.quotientB = div(b, gcd(a, b));
+ * ```
+ * @param a The first integer.
+ * @param b The second integer.
+ * @returns Bézout coefficients, gcd and quotients.
+ */
+export function extendedEuclid(a: number, b: number): ExtendedEuclid {
+  if (isNaN(a) || isNaN(b)) {
+    throw new Error('Invalid input');
+  }
+
+  let [rOld, r] = [a, b];
+  let [sOld, s] = [1, 0];
+  let [tOld, t] = [0, 1];
+
+  while (r !== 0) {
+    const quotient = div(rOld, r);
+    [rOld, r] = [r, rOld - quotient * r];
+    [sOld, s] = [s, sOld - quotient * s];
+    [tOld, t] = [t, tOld - quotient * t];
+  }
+
+  return {
+    coefA: sOld,
+    coefB: tOld,
+    gcd: rOld,
+    quotientA: t,
+    quotientB: Math.abs(s),
+  };
+}
+
+/**
+ * Iterated (extended) Euclidean algorithm.
+ * @param params An iterable of integers.
+ * @returns Bézout coefficients of the parameters.
+ */
+export function iteratedEuclid(params: Iterable<number>) {
+  const coefs = [];
+  let a: number | undefined = undefined;
+  for (const param of params) {
+    if (a === undefined) {
+      a = param;
+      coefs.push(1);
+      continue;
+    }
+    const ee = extendedEuclid(a, param);
+    for (let j = 0; j < coefs.length; ++j) {
+      coefs[j] *= ee.coefA;
+    }
+    a = ee.gcd;
+    coefs.push(ee.coefB);
+  }
+  return coefs;
+}
+
+/**
  * Calculate best rational approximations to a given fraction that are
  * closer than any approximation with a smaller or equal denominator.
- * @param x The fraction to simplify.
+ * @param value The fraction to simplify.
  * @param maxDenominator Maximum denominator to include.
  * @param maxLength Maximum length of the array of approximations.
  * @param includeNonMonotonic Include non-monotonically improving approximations.
  * @returns An array of semiconvergents.
  */
 export function getSemiconvergents(
-  x: Fraction,
+  value: FractionValue,
   maxDenominator?: number,
   maxLength?: number,
   includeNonMonotonic = false
 ) {
+  const value_ = new Fraction(value);
   /*
     Glossary
       cfDigit : the continued fraction digit
@@ -124,7 +229,7 @@ export function getSemiconvergents(
       cind : tracks indicies of convergents
   */
   const result: Fraction[] = [];
-  const cf = x.toContinued();
+  const cf = value_.toContinued();
   const cind: number[] = [];
   for (let d = 0; d < cf.length; d++) {
     const cfDigit = cf[d];
@@ -151,9 +256,9 @@ export function getSemiconvergents(
             result.push(convergent);
           } else if (
             convergent
-              .sub(x)
+              .sub(value_)
               .abs()
-              .compare(result[result.length - 1].sub(x).abs()) < 0
+              .compare(result[result.length - 1].sub(value_).abs()) < 0
           ) {
             result.push(convergent);
           }
@@ -217,4 +322,39 @@ export class FractionSet extends Set<Fraction> {
     }
     return false;
   }
+}
+
+// https://stackoverflow.com/a/37716142
+// step 1: a basic LUT with a few steps of Pascal's triangle
+const BINOMIALS = [
+  [1],
+  [1, 1],
+  [1, 2, 1],
+  [1, 3, 3, 1],
+  [1, 4, 6, 4, 1],
+  [1, 5, 10, 10, 5, 1],
+  [1, 6, 15, 20, 15, 6, 1],
+  [1, 7, 21, 35, 35, 21, 7, 1],
+  [1, 8, 28, 56, 70, 56, 28, 8, 1],
+];
+
+// step 2: a function that builds out the LUT if it needs to.
+/**
+ * Calculate the Binomial coefficient *n choose k*.
+ * @param n Size of the set to choose from.
+ * @param k Number of elements to choose.
+ * @returns The number of ways to choose `k` (unordered) elements from a set size `n`.
+ */
+export function binomial(n: number, k: number) {
+  while (n >= BINOMIALS.length) {
+    const s = BINOMIALS.length;
+    const lastRow = BINOMIALS[s - 1];
+    const nextRow = [1];
+    for (let i = 1; i < s; i++) {
+      nextRow.push(lastRow[i - 1] + lastRow[i]);
+    }
+    nextRow.push(1);
+    BINOMIALS.push(nextRow);
+  }
+  return BINOMIALS[n][k];
 }
