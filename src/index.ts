@@ -1,5 +1,7 @@
 import FractionJS, {NumeratorDenominator} from 'fraction.js';
 
+export * from './primes';
+
 // Subclass Fraction to remove default export status.
 /**
  *
