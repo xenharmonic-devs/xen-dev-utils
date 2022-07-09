@@ -361,3 +361,20 @@ export function binomial(n: number, k: number) {
   }
   return BINOMIALS[n][k];
 }
+
+/**
+ * Clamp a value to a finite range.
+ * @param minValue Lower bound.
+ * @param maxValue Upper bound.
+ * @param value Value to clamp between bounds.
+ * @returns Clamped value.
+ */
+export function clamp(minValue: number, maxValue: number, value: number) {
+  if (value < minValue) {
+    return minValue;
+  }
+  if (value > maxValue) {
+    return maxValue;
+  }
+  return value;
+}

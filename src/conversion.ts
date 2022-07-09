@@ -69,3 +69,39 @@ export function ftom(frequency: number): [number, number] {
   const centsOffset = (semitones - midiNoteNumber) * 100;
   return [midiNoteNumber, centsOffset];
 }
+
+/**
+ * Convert cents to natural units.
+ * @param cents Musical interval in cents.
+ * @returns Musical interval in natural units.
+ */
+export function centsToNats(cents: number) {
+  return (cents / 1200) * Math.LN2;
+}
+
+/**
+ * Convert natural units to cents.
+ * @param nats Musical interval in natural units.
+ * @returns Musical interval in cents.
+ */
+export function natsToCents(nats: number) {
+  return (nats / Math.LN2) * 1200;
+}
+
+/**
+ * Convert semitones to natural units.
+ * @param semitones Musical interval in semitones.
+ * @returns Musical interval in natural units.
+ */
+export function semitonesToNats(semitones: number) {
+  return (semitones / 12) * Math.LN2;
+}
+
+/**
+ * Convert natural units to cents.
+ * @param nats Musical interval in natural units.
+ * @returns Musical interval in semitones.
+ */
+export function natsToSemitones(nats: number) {
+  return (nats / Math.LN2) * 12;
+}
