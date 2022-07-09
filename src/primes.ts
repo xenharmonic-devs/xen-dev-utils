@@ -1,4 +1,7 @@
 // prettier-ignore
+/**
+ * Prime numbers up to 7919.
+ */
 export const PRIMES = [
   2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97,
   101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199,
@@ -82,8 +85,14 @@ export const PRIMES = [
   7901, 7907, 7919
 ];
 
+/**
+ * Logarithms of prime numbers up to ln(7919).
+ */
 export const LOG_PRIMES = PRIMES.map(Math.log);
 
 const NATS_TO_CENTS = 1200 / Math.LN2;
+/**
+ * Prime number harmonics in additive representation measured in cents up to harmonic 7919 ≈ 15541.3 cents.
+ */
 export const PRIME_CENTS = LOG_PRIMES.map(logPrime => logPrime * NATS_TO_CENTS);
 PRIME_CENTS[0] = 1200; // Ensure that octaves are exact.
