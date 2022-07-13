@@ -1,5 +1,6 @@
 import {describe, it, expect} from 'vitest';
 import {
+  approximateOddLimit,
   arraysEqual,
   binomial,
   div,
@@ -8,6 +9,7 @@ import {
   iteratedEuclid,
   lcm,
   mmod,
+  valueToCents,
 } from '../index';
 
 describe('Array equality tester', () => {
@@ -84,5 +86,21 @@ describe('binomial coefficient', () => {
 
   it('calculates 11 choose 7', () => {
     expect(binomial(11, 7)).toBe(330);
+  });
+});
+
+describe('Odd limit approximator', () => {
+  it('can approximate tau in the 15-odd-limit', () => {
+    const approximation = approximateOddLimit(valueToCents(2 * Math.PI), 15)[0];
+    expect(approximation.equals('44/7')).toBeTruthy();
+    expect(approximation.valueOf()).toBeCloseTo(2 * Math.PI);
+  });
+
+  it('can approximate e in the 21-odd-limit', () => {
+    const approximations = approximateOddLimit(valueToCents(Math.E), 21);
+    expect(approximations[0].equals('19/7')).toBeTruthy();
+    expect(approximations[0].valueOf()).toBeCloseTo(Math.E);
+    expect(approximations[7].equals('21/8')).toBeTruthy();
+    expect(approximations[7].valueOf()).toBeCloseTo(Math.E, 0);
   });
 });

@@ -1,4 +1,6 @@
 import FractionJS, {NumeratorDenominator} from 'fraction.js';
+import {valueToCents} from './conversion';
+import {PRIME_CENTS} from './primes';
 
 export * from './primes';
 export * from './conversion';
@@ -378,4 +380,97 @@ export function clamp(minValue: number, maxValue: number, value: number) {
     return maxValue;
   }
   return value;
+}
+
+// Cache of odd limit fractions. Expanded as necessary.
+const ODD_FRACTIONS = [new Fraction(1), new Fraction(1, 3), new Fraction(3)];
+const ODD_CENTS = [0, -PRIME_CENTS[1], PRIME_CENTS[1]];
+const ODD_BREAKPOINTS = [1, 3];
+const TWO = new Fraction(2);
+
+/**
+ * Approximate a musical interval by ratios of which neither the numerator or denominator
+ * exceeds a specified limit, once all powers of 2 are removed.
+ * @param cents Size of the musical interval measured in cents.
+ * @param limit Maximum odd limit.
+ * @param keepErrors Preserve cent offsets calculated during sorting.
+ * @returns All odd limit fractions within 600 cents of the input value sorted by closeness.
+ */
+function approximateOddLimit_(
+  cents: number,
+  limit: number,
+  keepErrors = false
+) {
+  const breakpointIndex = (limit - 1) / 2;
+  // Expand cache.
+  while (ODD_BREAKPOINTS.length <= breakpointIndex) {
+    const newLimit = ODD_BREAKPOINTS.length * 2 + 1;
+    for (let numerator = 1; numerator <= newLimit; numerator += 2) {
+      for (let denominator = 1; denominator <= newLimit; denominator += 2) {
+        const fraction = new Fraction(numerator, denominator);
+        let novel = true;
+        for (let i = 0; i < ODD_FRACTIONS.length; ++i) {
+          if (fraction.equals(ODD_FRACTIONS[i])) {
+            novel = false;
+            break;
+          }
+        }
+        if (novel) {
+          ODD_FRACTIONS.push(fraction);
+          ODD_CENTS.push(valueToCents(fraction.valueOf()));
+        }
+      }
+    }
+    ODD_BREAKPOINTS.push(ODD_FRACTIONS.length);
+  }
+
+  // Find closest odd limit fractions modulo octaves.
+  const results: [number, Fraction][] = [];
+  for (let i = 0; i < ODD_BREAKPOINTS[breakpointIndex]; ++i) {
+    const oddCents = ODD_CENTS[i];
+    const remainder = mmod(cents - oddCents, 1200);
+    // Overshot
+    if (remainder <= 600) {
+      // Rounding done to eliminate floating point jitter.
+      const exponent = Math.round((cents - oddCents - remainder) / 1200);
+      const error = remainder;
+      // Exponentiate to add the required number of octaves.
+      results.push([error, ODD_FRACTIONS[i].mul(TWO.pow(exponent))]);
+    }
+    // Undershot
+    else {
+      const exponent = Math.round((cents - oddCents - remainder) / 1200) + 1;
+      const error = 1200 - remainder;
+      results.push([error, ODD_FRACTIONS[i].mul(TWO.pow(exponent))]);
+    }
+  }
+
+  results.sort((a, b) => a[0] - b[0]);
+
+  if (keepErrors) {
+    return results;
+  }
+  return results.map(result => result[1]);
+}
+
+/**
+ * Approximate a musical interval by ratios of which neither the numerator or denominator
+ * exceeds a specified limit, once all powers of 2 are removed.
+ * @param cents Size of the musical interval measured in cents.
+ * @param limit Maximum odd limit.
+ * @returns All odd limit fractions within 600 cents of the input value sorted by closeness.
+ */
+export function approximateOddLimit(cents: number, limit: number) {
+  return approximateOddLimit_(cents, limit) as Fraction[];
+}
+
+/**
+ * Approximate a musical interval by ratios of which neither the numerator or denominator
+ * exceeds a specified limit, once all powers of 2 are removed.
+ * @param cents Size of the musical interval measured in cents.
+ * @param limit Maximum odd limit.
+ * @returns All odd limit fractions within 600 cents of the input value sorted by closeness with cent offsets attached.
+ */
+export function approximateOddLimitWithErrors(cents: number, limit: number) {
+  return approximateOddLimit_(cents, limit, true) as [number, Fraction][];
 }
