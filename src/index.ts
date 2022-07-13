@@ -538,3 +538,48 @@ export function approximatePrimeLimit(
     maxError
   ).map(result => result[0]);
 }
+
+/**
+ * Calculate the prime limit of an integer or a fraction.
+ * @param n Integer or fraction to calculate prime limit for.
+ * @param maxLimit Maximum prime limit to consider.
+ * @returns The largest prime in the factorization of the input. `Infinity` if above the maximum limit. `NaN` if not applicable.
+ */
+export function primeLimit(n: FractionValue, maxLimit = 7919): number {
+  if (typeof n !== 'number') {
+    n = new Fraction(n);
+    return Math.max(primeLimit(n.n), primeLimit(n.d));
+  }
+  if (n < 1 || Math.round(n) !== n) {
+    return NaN;
+  }
+  if (n === 1) {
+    return 1;
+  }
+  // Bit-magic for 2-limit
+  while (!(n & 1)) {
+    n >>= 1;
+  }
+  if (n === 1) {
+    return 2;
+  }
+
+  // Accumulate increasingly complex factors into the probe
+  // until it reaches the input value with factors of two removed.
+  let probe = 1;
+  let limitIndex = 1;
+
+  while (true) {
+    const lastProbe = probe;
+    probe *= PRIMES[limitIndex];
+    if (n % probe) {
+      probe = lastProbe;
+      limitIndex++;
+      if (limitIndex >= PRIMES.length || PRIMES[limitIndex] > maxLimit) {
+        return Infinity;
+      }
+    } else if (n === probe) {
+      return PRIMES[limitIndex];
+    }
+  }
+}
