@@ -7,6 +7,7 @@ import {
   binomial,
   div,
   extendedEuclid,
+  Fraction,
   gcd,
   getConvergents,
   iteratedEuclid,
@@ -121,6 +122,17 @@ describe('Prime limit approximator', () => {
     expect(approximation.valueOf()).toBeCloseTo(Math.PI);
   });
 
+  it('can approximate pi in the 13-limit with a small sized result', () => {
+    const approximations = approximatePrimeLimit(
+      valueToCents(Math.PI),
+      PRIMES.indexOf(13),
+      3,
+      15,
+      4
+    );
+    expect(approximations).toHaveLength(4);
+  });
+
   it('can approximate the square root of two in the 7-limit within maximum error', () => {
     const approximationsAndErrors = approximatePrimeLimitWithErrors(
       600,
@@ -160,7 +172,13 @@ describe('Prime limit calculator', () => {
   });
 
   it('stays within the given limit', () => {
-    const limit = primeLimit(Math.ceil(Math.random() * 10000), 97);
+    const limit = primeLimit(
+      new Fraction(
+        Math.ceil(Math.random() * 10000),
+        Math.ceil(Math.random() * 10000)
+      ),
+      97
+    );
     if (limit < Infinity) {
       expect(limit).toBeLessThanOrEqual(97);
     } else {

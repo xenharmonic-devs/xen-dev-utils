@@ -465,18 +465,41 @@ export function approximateOddLimit(cents: number, limit: number) {
  * @param cents Size of the musical interval measured in cents.
  * @param limitIndex The ordinal of the prime of the limit.
  * @param maxError Maximum error from the interval for inclusion in the result.
+ * @param maxLength Maximum number of approximations to return.
  * @returns All valid fractions within `maxError` cents of the input value sorted by closeness with cent offsets attached.
  */
 export function approximatePrimeLimitWithErrors(
   cents: number,
   limitIndex: number,
   maxExponent: number,
-  maxError = 600
+  maxError = 600,
+  maxLength?: number
 ) {
   if (maxError > 600) {
     throw new Error('Maximum search distance is 600 cents');
   }
   const results: [Fraction, number][] = [];
+
+  function push(error: number, generator: () => Fraction) {
+    if (maxLength === undefined || results.length < maxLength) {
+      results.push([generator(), error]);
+      if (results.length === maxLength) {
+        results.sort((a, b) => a[1] - b[1]);
+      }
+    } else {
+      if (error > results[results.length - 1][1]) {
+        return;
+      }
+      for (let index = results.length - 1; ; index--) {
+        if (error <= results[index][1]) {
+          results.splice(index, 0, [generator(), error]);
+          break;
+        }
+      }
+      results.pop();
+    }
+  }
+
   function accumulate(
     approximation: Fraction,
     approximationCents: number,
@@ -490,18 +513,23 @@ export function approximatePrimeLimitWithErrors(
         if (error > maxError) {
           return;
         }
-        const exponent = Math.round(
-          (cents - approximationCents - remainder) / 1200
+        push(error, () =>
+          approximation.mul(
+            TWO.pow(Math.round((cents - approximationCents - remainder) / 1200))
+          )
         );
-        results.push([approximation.mul(TWO.pow(exponent)), error]);
       } else {
         const error = 1200 - remainder;
         if (error > maxError) {
           return;
         }
-        const exponent =
-          Math.round((cents - approximationCents - remainder) / 1200) + 1;
-        results.push([approximation.mul(TWO.pow(exponent)), error]);
+        push(error, () =>
+          approximation.mul(
+            TWO.pow(
+              Math.round((cents - approximationCents - remainder) / 1200) + 1
+            )
+          )
+        );
       }
       return;
     }
@@ -526,19 +554,22 @@ export function approximatePrimeLimitWithErrors(
  * @param cents Size of the musical interval measured in cents.
  * @param limitIndex The ordinal of the prime of the limit.
  * @param maxError Maximum error from the interval for inclusion in the result.
+ * @param maxLength Maximum number of approximations to return.
  * @returns All valid fractions within `maxError` cents of the input value sorted by closenesss.
  */
 export function approximatePrimeLimit(
   cents: number,
   limitIndex: number,
   maxExponent: number,
-  maxError = 600
+  maxError = 600,
+  maxLength?: number
 ) {
   return approximatePrimeLimitWithErrors(
     cents,
     limitIndex,
     maxExponent,
-    maxError
+    maxError,
+    maxLength
   ).map(result => result[0]);
 }
 
@@ -551,7 +582,7 @@ export function approximatePrimeLimit(
 export function primeLimit(n: FractionValue, maxLimit = 7919): number {
   if (typeof n !== 'number') {
     n = new Fraction(n);
-    return Math.max(primeLimit(n.n), primeLimit(n.d));
+    return Math.max(primeLimit(n.n, maxLimit), primeLimit(n.d, maxLimit));
   }
   if (n < 1 || Math.round(n) !== n) {
     return NaN;
