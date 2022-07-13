@@ -538,3 +538,7 @@ export function approximatePrimeLimit(
     maxError
   ).map(result => result[0]);
 }
+
+export function testExport(message: string) {
+  console.log(`Hello, ${message}!`);
+}
