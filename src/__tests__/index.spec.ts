@@ -1,6 +1,8 @@
 import {describe, it, expect} from 'vitest';
 import {
   approximateOddLimit,
+  approximatePrimeLimit,
+  approximatePrimeLimitWithErrors,
   arraysEqual,
   binomial,
   div,
@@ -9,6 +11,7 @@ import {
   iteratedEuclid,
   lcm,
   mmod,
+  PRIMES,
   valueToCents,
 } from '../index';
 
@@ -102,5 +105,33 @@ describe('Odd limit approximator', () => {
     expect(approximations[0].valueOf()).toBeCloseTo(Math.E);
     expect(approximations[7].equals('21/8')).toBeTruthy();
     expect(approximations[7].valueOf()).toBeCloseTo(Math.E, 0);
+  });
+});
+
+describe('Prime limit approximator', () => {
+  it('can approximate pi in the 11-limit', () => {
+    const approximation = approximatePrimeLimit(
+      valueToCents(Math.PI),
+      PRIMES.indexOf(11),
+      3
+    )[0];
+    expect(approximation.equals('12544/3993')).toBeTruthy();
+    expect(approximation.valueOf()).toBeCloseTo(Math.PI);
+  });
+
+  it('can approximate the square root of two in the 7-limit within maximum error', () => {
+    const approximationsAndErrors = approximatePrimeLimitWithErrors(
+      600,
+      PRIMES.indexOf(7),
+      5,
+      10
+    );
+    expect(approximationsAndErrors).toHaveLength(28);
+    approximationsAndErrors.forEach(([approximation, error]) => {
+      const cents = valueToCents(approximation.valueOf());
+      const calculatedError = Math.abs(cents - 600);
+      expect(error).toBeCloseTo(calculatedError);
+      expect(calculatedError).toBeLessThanOrEqual(10);
+    });
   });
 });
