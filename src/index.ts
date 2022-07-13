@@ -211,17 +211,20 @@ export function iteratedEuclid(params: Iterable<number>) {
 
 /**
  * Calculate best rational approximations to a given fraction that are
- * closer than any approximation with a smaller or equal denominator.
+ * closer than any approximation with a smaller or equal denominator
+ * unless non-monotonic approximations are requested as well.
  * @param value The fraction to simplify.
  * @param maxDenominator Maximum denominator to include.
  * @param maxLength Maximum length of the array of approximations.
+ * @param includeSemiconvergents Include semiconvergents.
  * @param includeNonMonotonic Include non-monotonically improving approximations.
- * @returns An array of semiconvergents.
+ * @returns An array of (semi)convergents.
  */
-export function getSemiconvergents(
+export function getConvergents(
   value: FractionValue,
   maxDenominator?: number,
   maxLength?: number,
+  includeSemiconvergents = false,
   includeNonMonotonic = false
 ) {
   const value_ = new Fraction(value);
@@ -241,12 +244,12 @@ export function getSemiconvergents(
     const cfDigit = cf[d];
     let num = cfDigit;
     let den = 1;
-    // calculate the convergent
+    // Calculate the convergent.
     for (let i = d; i > 0; i--) {
       [den, num] = [num, den];
       num += den * cf[i - 1];
     }
-    if (d > 0) {
+    if (includeSemiconvergents && d > 0) {
       const lowerBound = includeNonMonotonic ? 1 : Math.ceil(cfDigit / 2);
       for (let i = lowerBound; i < cfDigit; i++) {
         const scnum = num - (cfDigit - i) * result[cind[d - 1]].n;

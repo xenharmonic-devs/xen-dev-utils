@@ -8,6 +8,7 @@ import {
   div,
   extendedEuclid,
   gcd,
+  getConvergents,
   iteratedEuclid,
   lcm,
   mmod,
@@ -156,5 +157,57 @@ describe('Prime limit calculator', () => {
 
   it('returns infinity when going beyond the given limit', () => {
     expect(primeLimit(123456789, 97)).toBe(Infinity);
+  });
+});
+
+describe('Convergent calculator', () => {
+  it('calculates the convergents of pi', () => {
+    const convergents = getConvergents(Math.PI, undefined, 10);
+    expect(convergents).toHaveLength(10);
+    expect(convergents[0].equals(3)).toBeTruthy();
+    expect(convergents[1].equals('22/7')).toBeTruthy();
+    expect(convergents[2].equals('333/106')).toBeTruthy();
+    expect(convergents[3].equals('355/113')).toBeTruthy();
+    expect(convergents[4].equals('103993/33102')).toBeTruthy();
+    expect(convergents[5].equals('104348/33215')).toBeTruthy();
+    expect(convergents[6].equals('208341/66317')).toBeTruthy();
+    expect(convergents[7].equals('312689/99532')).toBeTruthy();
+    expect(convergents[8].equals('833719/265381')).toBeTruthy();
+    expect(convergents[9].equals('1146408/364913')).toBeTruthy();
+  });
+
+  it('calculates the semiconvergents of pi', () => {
+    const semiconvergents = getConvergents(Math.PI, undefined, 13, true);
+    expect(semiconvergents).toHaveLength(13);
+    expect(semiconvergents[0].equals(3)).toBeTruthy();
+    expect(semiconvergents[1].equals('13/4')).toBeTruthy();
+    expect(semiconvergents[2].equals('16/5')).toBeTruthy();
+    expect(semiconvergents[3].equals('19/6')).toBeTruthy();
+    expect(semiconvergents[4].equals('22/7')).toBeTruthy();
+    expect(semiconvergents[5].equals('179/57')).toBeTruthy();
+    expect(semiconvergents[6].equals('201/64')).toBeTruthy();
+    expect(semiconvergents[7].equals('223/71')).toBeTruthy();
+    expect(semiconvergents[8].equals('245/78')).toBeTruthy();
+    expect(semiconvergents[9].equals('267/85')).toBeTruthy();
+    expect(semiconvergents[10].equals('289/92')).toBeTruthy();
+    expect(semiconvergents[11].equals('311/99')).toBeTruthy();
+    expect(semiconvergents[12].equals('333/106')).toBeTruthy();
+
+    let error = Infinity;
+    semiconvergents.forEach(semiconvergent => {
+      const newError = Math.abs(Math.PI - semiconvergent.valueOf());
+      expect(newError).toBeLessThan(error);
+      error = newError;
+    });
+  });
+
+  it('calculates the non-monotonic semiconvergents of pi', () => {
+    const semiconvergents = getConvergents(Math.PI, undefined, 5, true, true);
+    expect(semiconvergents).toHaveLength(5);
+    expect(semiconvergents[0].equals(3)).toBeTruthy();
+    expect(semiconvergents[1].equals(4)).toBeTruthy();
+    expect(semiconvergents[2].equals('7/2')).toBeTruthy();
+    expect(semiconvergents[3].equals('10/3')).toBeTruthy();
+    expect(semiconvergents[4].equals('13/4')).toBeTruthy();
   });
 });
