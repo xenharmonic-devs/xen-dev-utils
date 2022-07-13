@@ -590,18 +590,22 @@ export function primeLimit(n: FractionValue, maxLimit = 7919): number {
   if (n === 1) {
     return 1;
   }
-  // Bit-magic for 2-limit
-  while (!(n & 1)) {
-    n >>= 1;
-  }
-  if (n === 1) {
-    return 2;
-  }
 
   // Accumulate increasingly complex factors into the probe
-  // until it reaches the input value with factors of two removed.
+  // until it reaches the input value.
   let probe = 1;
-  let limitIndex = 1;
+  let limitIndex = 0;
+
+  if (n < 0x100000000) {
+    // Bit-magic for small 2-limit
+    while (!(n & 1)) {
+      n >>= 1;
+    }
+    if (n === 1) {
+      return 2;
+    }
+    limitIndex = 1;
+  }
 
   while (true) {
     const lastProbe = probe;

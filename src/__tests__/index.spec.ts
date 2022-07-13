@@ -185,6 +185,11 @@ describe('Prime limit calculator', () => {
       expect(limit).toBe(Infinity);
     }
   });
+
+  it('can handle large inputs', () => {
+    const limit = primeLimit(new Fraction(4294967296, 4006077075));
+    expect(limit).toBe(13);
+  });
 });
 
 describe('Convergent calculator', () => {
