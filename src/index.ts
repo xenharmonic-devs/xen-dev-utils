@@ -398,7 +398,7 @@ const TWO = new Fraction(2);
  * @param limit Maximum odd limit.
  * @returns All odd limit fractions within 600 cents of the input value sorted by closeness with cent offsets attached.
  */
-function approximateOddLimitWithErrors(cents: number, limit: number) {
+export function approximateOddLimitWithErrors(cents: number, limit: number) {
   const breakpointIndex = (limit - 1) / 2;
   // Expand cache.
   while (ODD_BREAKPOINTS.length <= breakpointIndex) {

@@ -158,6 +158,15 @@ describe('Prime limit calculator', () => {
   it('returns infinity when going beyond the given limit', () => {
     expect(primeLimit(123456789, 97)).toBe(Infinity);
   });
+
+  it('stays within the given limit', () => {
+    const limit = primeLimit(Math.ceil(Math.random() * 10000), 97);
+    if (limit < Infinity) {
+      expect(limit).toBeLessThanOrEqual(97);
+    } else {
+      expect(limit).toBe(Infinity);
+    }
+  });
 });
 
 describe('Convergent calculator', () => {
