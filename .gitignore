@@ -105,3 +105,6 @@ dist
 
 # TypeDoc
 docs
+
+# Benchmark
+benchmarks

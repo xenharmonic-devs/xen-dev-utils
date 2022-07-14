@@ -1,10 +1,10 @@
 {
   "extends": "./node_modules/gts/tsconfig-google.json",
   "compilerOptions": {
-    "rootDir": "./src",
-    "outDir": "dist"
+    "rootDir": "./src/",
+    "outDir": "benchmarks"
   },
   "include": [
-    "src/index.ts"
+    "src/__benchmarks__/*"
   ]
 }

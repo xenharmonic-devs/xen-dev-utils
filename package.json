@@ -23,7 +23,9 @@
   ],
   "types": "dist/index.d.ts",
   "devDependencies": {
+    "@types/benchmark": "^2.1.1",
     "@types/node": "^14.11.2",
+    "benchmark": "^2.1.4",
     "gts": "^3.1.0",
     "typedoc": "^0.23.6",
     "typescript": "^4.7.4",
@@ -38,7 +40,9 @@
     "pretest": "npm run compile",
     "posttest": "npm run lint",
     "test": "vitest",
-    "doc": "typedoc --entryPointStrategy packages . --name xen-dev-utils"
+    "doc": "typedoc --entryPointStrategy packages . --name xen-dev-utils",
+    "prebenchmark": "tsc -p tsconfig-benchmark.json",
+    "benchmark": "node benchmarks/__benchmarks__/monzo.mark.js"
   },
   "dependencies": {
     "fraction.js": "^4.2.0"

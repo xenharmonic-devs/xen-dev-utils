@@ -7,13 +7,11 @@ import {
   binomial,
   div,
   extendedEuclid,
-  Fraction,
   gcd,
   getConvergents,
   iteratedEuclid,
   lcm,
   mmod,
-  primeLimit,
   PRIMES,
   valueToCents,
 } from '../index';
@@ -147,48 +145,6 @@ describe('Prime limit approximator', () => {
       expect(error).toBeCloseTo(calculatedError);
       expect(calculatedError).toBeLessThanOrEqual(10);
     });
-  });
-});
-
-describe('Prime limit calculator', () => {
-  it('knows that the limit of 1 is 1', () => {
-    expect(primeLimit(1)).toBe(1);
-  });
-
-  it('knows that the prime limit of 64 is 2', () => {
-    expect(primeLimit(64)).toBe(2);
-  });
-
-  it('knows that the prime limit of 45 is 5', () => {
-    expect(primeLimit(45)).toBe(5);
-  });
-
-  it('knows that the prime limit of 11859211/11859210 is 19', () => {
-    expect(primeLimit('11859211/11859210')).toBe(19);
-  });
-
-  it('returns infinity when going beyond the given limit', () => {
-    expect(primeLimit(123456789, 97)).toBe(Infinity);
-  });
-
-  it('stays within the given limit', () => {
-    const limit = primeLimit(
-      new Fraction(
-        Math.ceil(Math.random() * 10000),
-        Math.ceil(Math.random() * 10000)
-      ),
-      97
-    );
-    if (limit < Infinity) {
-      expect(limit).toBeLessThanOrEqual(97);
-    } else {
-      expect(limit).toBe(Infinity);
-    }
-  });
-
-  it('can handle large inputs', () => {
-    const limit = primeLimit(new Fraction(4294967296, 4006077075));
-    expect(limit).toBe(13);
   });
 });
 

@@ -1,58 +1,12 @@
-import FractionJS, {NumeratorDenominator} from 'fraction.js';
 import {valueToCents} from './conversion';
+import {Fraction, FractionValue} from './fraction';
 import {PRIMES, PRIME_CENTS} from './primes';
 
+export * from './fraction';
 export * from './primes';
 export * from './conversion';
 export * from './combinations';
-
-// Subclass Fraction to remove default export status.
-/**
- *
- * This class offers the possibility to calculate fractions.
- * You can pass a fraction in different formats: either as an array, an integer, a floating point number or a string.
- *
- * Array/Object form
- * ```ts
- * new Fraction([numerator, denominator]);
- * new Fraction(numerator, denominator);
- * ```
- *
- * Integer form
- * ```ts
- * new Fraction(numerator);
- * ```
- *
- * Floating point form
- * ```ts
- * new Fraction(value);
- * ```
- *
- * String form
- * ```ts
- * new Fraction("123.456");  // a simple decimal
- * new Fraction("123/456");  // a string fraction
- * new Fraction("123.'456'");  // repeating decimal places
- * new Fraction("123.(456)");  // synonym
- * new Fraction("123.45'6'");  // repeating last place
- * new Fraction("123.45(6)");  // synonym
- * ```
- * Example:
- * ```ts
- * const fraction = new Fraction("9.4'31'");
- * fraction.mul([-4, 3]).div(4.9)  // -37348/14553
- * ```
- *
- */
-export class Fraction extends FractionJS {}
-
-// Explicitly drop [number, number] because it overlaps with monzos
-export type FractionValue =
-  | Fraction
-  | number
-  | string
-  | [string, string]
-  | NumeratorDenominator;
+export * from './monzo';
 
 export interface AnyArray {
   [key: number]: any;
@@ -574,50 +528,15 @@ export function approximatePrimeLimit(
 }
 
 /**
- * Calculate the prime limit of an integer or a fraction.
- * @param n Integer or fraction to calculate prime limit for.
- * @param maxLimit Maximum prime limit to consider.
- * @returns The largest prime in the factorization of the input. `Infinity` if above the maximum limit. `NaN` if not applicable.
+ * Calculate the inner (dot) product of two arrays of real numbers.
+ * @param a The first array of numbers.
+ * @param b The second array of numbers.
+ * @returns The dot product.
  */
-export function primeLimit(n: FractionValue, maxLimit = 7919): number {
-  if (typeof n !== 'number') {
-    n = new Fraction(n);
-    return Math.max(primeLimit(n.n, maxLimit), primeLimit(n.d, maxLimit));
+export function dot(a: NumberArray, b: NumberArray): number {
+  let result = 0;
+  for (let i = 0; i < Math.min(a.length, b.length); ++i) {
+    result += a[i] * b[i];
   }
-  if (n < 1 || Math.round(n) !== n) {
-    return NaN;
-  }
-  if (n === 1) {
-    return 1;
-  }
-
-  // Accumulate increasingly complex factors into the probe
-  // until it reaches the input value.
-  let probe = 1;
-  let limitIndex = 0;
-
-  if (n < 0x100000000) {
-    // Bit-magic for small 2-limit
-    while (!(n & 1)) {
-      n >>= 1;
-    }
-    if (n === 1) {
-      return 2;
-    }
-    limitIndex = 1;
-  }
-
-  while (true) {
-    const lastProbe = probe;
-    probe *= PRIMES[limitIndex];
-    if (n % probe) {
-      probe = lastProbe;
-      limitIndex++;
-      if (limitIndex >= PRIMES.length || PRIMES[limitIndex] > maxLimit) {
-        return Infinity;
-      }
-    } else if (n === probe) {
-      return PRIMES[limitIndex];
-    }
-  }
+  return result;
 }
