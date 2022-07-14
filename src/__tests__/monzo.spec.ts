@@ -1,6 +1,11 @@
 import {describe, it, expect} from 'vitest';
 import {Fraction} from '../fraction';
-import {primeLimit, toMonzo} from '../monzo';
+import {
+  monzoToFraction,
+  primeLimit,
+  toMonzo,
+  toMonzoAndResidual,
+} from '../monzo';
 
 describe('Monzo converter', () => {
   it('can break down an integer to its prime components', () => {
@@ -22,6 +27,56 @@ describe('Monzo converter', () => {
         .pow(monzo[0])
         .mul(3 ** monzo[1] * 7 ** monzo[3])
         .equals('1029/1024')
+    ).toBeTruthy();
+  });
+
+  it('can break down a fraction to its prime components (5-limit)', () => {
+    const porcupineComma = toMonzo('250/243');
+    expect(porcupineComma.length).toBe(3);
+    expect(porcupineComma[0]).toBe(1);
+    expect(porcupineComma[1]).toBe(-5);
+    expect(porcupineComma[2]).toBe(3);
+  });
+});
+
+describe('Fraction to monzo converter', () => {
+  it('can break down a fraction to its prime components', () => {
+    const [monzo, residual] = toMonzoAndResidual(new Fraction(45, 32), 3);
+    expect(residual.equals(1)).toBeTruthy();
+    expect(monzo[0]).toBe(-5);
+    expect(monzo[1]).toBe(2);
+    expect(monzo[2]).toBe(1);
+    expect(
+      new Fraction(2)
+        .pow(monzo[0])
+        .mul(3 ** monzo[1])
+        .mul(5 ** monzo[2])
+        .equals(new Fraction(45, 32))
+    ).toBeTruthy();
+  });
+
+  it('leaves a residue if everything cannot be converted', () => {
+    const [monzo, residual] = toMonzoAndResidual('12345/678', 3);
+    expect(residual.equals('823/113')).toBeTruthy();
+    expect(monzo).toHaveLength(3);
+    expect(monzo[0]).toBe(-1);
+    expect(monzo[1]).toBe(0);
+    expect(monzo[2]).toBe(1);
+    expect(
+      new Fraction(2)
+        .pow(monzo[0])
+        .mul(3 ** monzo[1])
+        .mul(5 ** monzo[2])
+        .mul(residual)
+        .equals('12345/678')
+    ).toBeTruthy();
+  });
+});
+
+describe('Monzo to fraction converter', () => {
+  it('multiplies the prime components', () => {
+    expect(
+      monzoToFraction([3, -2, -1]).equals(new Fraction(8, 45))
     ).toBeTruthy();
   });
 });

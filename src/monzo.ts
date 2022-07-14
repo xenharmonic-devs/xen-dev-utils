@@ -129,6 +129,71 @@ export function toMonzo(n: FractionValue): Monzo {
 }
 
 /**
+ * Extract the exponents of the prime factors of a rational number.
+ * @param n Rational number to convert to a monzo.
+ * @param numberOfComponents Number of components in the result.
+ * @returns The monzo representing `n` and a multiplicative residue that cannot be represented in the given limit.
+ */
+export function toMonzoAndResidual(
+  n: FractionValue,
+  numberOfComponents: number
+): [Monzo, Fraction] {
+  n = new Fraction(n);
+  const numerator = n.n;
+  const denominator = n.d;
+
+  let nProbe = 1;
+  let dProbe = 1;
+
+  const result = Array(numberOfComponents).fill(-1);
+  for (let i = 0; i < numberOfComponents; ++i) {
+    let lastProbe;
+    do {
+      lastProbe = nProbe;
+      nProbe *= PRIMES[i];
+      result[i]++;
+    } while (numerator % nProbe === 0);
+    nProbe = lastProbe;
+
+    // The fraction is in lowest terms so we know that positive components exclude negative components.
+    if (result[i]) {
+      continue;
+    }
+
+    result[i] = 1;
+    do {
+      lastProbe = dProbe;
+      dProbe *= PRIMES[i];
+      result[i]--;
+    } while (denominator % dProbe === 0);
+    dProbe = lastProbe;
+  }
+
+  return [result, (n as Fraction).div(new Fraction(nProbe, dProbe))];
+}
+
+/**
+ * Convert a monzo to the fraction it represents.
+ * @param monzo Iterable of prime exponents.
+ * @returns Fractional representation of the monzo.
+ */
+export function monzoToFraction(monzo: Iterable<number>) {
+  let numerator = 1;
+  let denominator = 1;
+  let index = 0;
+  for (const component of monzo) {
+    if (component > 0) {
+      numerator *= PRIMES[index] ** component;
+    }
+    if (component < 0) {
+      denominator *= PRIMES[index] ** -component;
+    }
+    index++;
+  }
+  return new Fraction(numerator, denominator);
+}
+
+/**
  * Calculate the prime limit of an integer or a fraction.
  * @param n Integer or fraction to calculate prime limit for.
  * @param maxLimit Maximum prime limit to consider.

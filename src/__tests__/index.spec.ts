@@ -6,6 +6,7 @@ import {
   arraysEqual,
   binomial,
   div,
+  dot,
   extendedEuclid,
   gcd,
   getConvergents,
@@ -197,5 +198,14 @@ describe('Convergent calculator', () => {
     expect(semiconvergents[2].equals('7/2')).toBeTruthy();
     expect(semiconvergents[3].equals('10/3')).toBeTruthy();
     expect(semiconvergents[4].equals('13/4')).toBeTruthy();
+  });
+});
+
+describe('Dot product', () => {
+  it('can be used with all number arrays', () => {
+    const a = new Float32Array([1, 2, 3, 4]);
+    const b = new Int8Array([5, 6, 7]);
+    expect(dot(a, b)).toBe(38);
+    expect(dot(b, a)).toBe(38);
   });
 });
