@@ -98,11 +98,9 @@ export function toMonzo(n: FractionValue): Monzo {
 
   if (n < 0x100000000) {
     // Bit-magic for small 2-limit
-    while (!(n & 1)) {
-      n >>= 1;
-      result[0]++;
-    }
-    if (n === 1) {
+    probe = (n ^ (n - 1)) & n;
+    result[0] = Math.log2(probe);
+    if (n === probe) {
       return result;
     }
     result.push(0);
@@ -218,10 +216,8 @@ export function primeLimit(n: FractionValue, maxLimit = 7919): number {
 
   if (n < 0x100000000) {
     // Bit-magic for small 2-limit
-    while (!(n & 1)) {
-      n >>= 1;
-    }
-    if (n === 1) {
+    probe = (n ^ (n - 1)) & n;
+    if (n === probe) {
       return 2;
     }
     limitIndex = 1;
