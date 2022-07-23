@@ -3,6 +3,7 @@ import {
   centOffsetToFrequency,
   centsToValue,
   frequencyToCentOffset,
+  ftomts,
   ftom,
   mtof,
   valueToCents,
@@ -37,6 +38,12 @@ describe('MIDI to frequency converter', () => {
     expect(mtof(60)).toBeCloseTo(261.625565);
   });
 });
+
+describe('Frequency to MTS converter', () => {
+  it('converts a known value', () => {
+    expect(ftomts(261.625565)).toBeCloseTo(60);
+  })
+})
 
 describe('Frequency to MIDI converter', () => {
   it('converts a known value', () => {

@@ -48,7 +48,7 @@ export function centOffsetToFrequency(offset: number, baseFrequency = 440) {
   return centsToValue(offset) * baseFrequency;
 }
 
-const MIDI_NOTE_NUMBER_OF_A4 = 69;
+export const MIDI_NOTE_NUMBER_OF_A4 = 69;
 /**
  * Convert MIDI note number to frequency.
  * @param index MIDI note number.
@@ -59,12 +59,21 @@ export function mtof(index: number) {
 }
 
 /**
+ * Convert frequency to MTS number (semitones with A440=69).
+ * @param frequency Frequency in Hertz.
+ * @returns MTS value
+ */
+ export function ftomts(frequency: number): number {
+  return MIDI_NOTE_NUMBER_OF_A4 + 12 * Math.log2(frequency / 440);
+}
+
+/**
  * Convert frequency to MIDI note number and pitch offset measured in cents.
  * @param frequency Frequency in Hertz.
  * @returns [MIDI note number, pitch offset in cents]
  */
 export function ftom(frequency: number): [number, number] {
-  const semitones = MIDI_NOTE_NUMBER_OF_A4 + 12 * Math.log2(frequency / 440);
+  const semitones = ftomts(frequency);
   const midiNoteNumber = Math.round(semitones);
   const centsOffset = (semitones - midiNoteNumber) * 100;
   return [midiNoteNumber, centsOffset];
