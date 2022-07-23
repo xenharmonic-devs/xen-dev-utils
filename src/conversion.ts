@@ -51,11 +51,30 @@ export function centOffsetToFrequency(offset: number, baseFrequency = 440) {
 const MIDI_NOTE_NUMBER_OF_A4 = 69;
 /**
  * Convert MIDI note number to frequency.
- * @param index MIDI note number.
+ * @param index MIDI note number or MTS value.
  * @returns Frequency in Hertz.
  */
 export function mtof(index: number) {
   return 440 * Math.pow(2, (index - MIDI_NOTE_NUMBER_OF_A4) / 12);
+}
+
+function mtsRound(mtsValue: number): number {
+  return Math.round(mtsValue * 100000) / 100000;
+}
+/**
+ * Convert frequency to MTS number (semitones with A440=69).
+ * @param frequency Frequency in Hertz.
+ * @returns MTS value
+ */
+export function ftomts(frequency: number, ignoreLimit = false): number {
+  const mts = mtsRound(
+    MIDI_NOTE_NUMBER_OF_A4 + 12 * Math.log2(frequency / 440)
+  );
+  if (mts < 0 && !ignoreLimit) return 0;
+  if (mts > 127.9999 && !ignoreLimit)
+    // Last accepted value - 7F 7F 7F is reserved
+    return 127.9999;
+  return mts;
 }
 
 /**
@@ -68,6 +87,69 @@ export function ftom(frequency: number): [number, number] {
   const midiNoteNumber = Math.round(semitones);
   const centsOffset = (semitones - midiNoteNumber) * 100;
   return [midiNoteNumber, centsOffset];
+}
+
+/**
+ * Convert MTS pitch value to 3-byte representation
+ * @param number MTS pitch value
+ * @returns Uint8Array 3-byte of 7-bit MTS data
+ */
+export function mtsToMtsBytes(mtsValue: number): Uint8Array {
+  const noteNumber = Math.trunc(mtsValue);
+  const fine = Math.round(0x3fff * (mtsValue - noteNumber));
+
+  const data = new Uint8Array(3);
+  data[0] = noteNumber;
+  data[1] = (fine >> 7) & 0x7f;
+  data[2] = fine & 0x7f;
+  return data;
+}
+
+/**
+ * Convert frequency to 3-byte MTS value
+ * @param frequency Frequency in Hertz.
+ * @returns Uint8Array of length 3
+ */
+export function frequencyToMtsBytes(frequency: number): Uint8Array {
+  const mtsValue = ftomts(frequency);
+  return mtsToMtsBytes(mtsValue);
+}
+
+/**
+ * Convert 3-byte MTS value to frequency
+ * @param Uint8Array of 3-bytes of 7-bit MTS values
+ * @returns frequency Frequency in Hertz
+ */
+export function mtsBytesToMts(mtsBytes: Uint8Array): number {
+  const noteNumber = mtsBytes[0];
+
+  const high = (mtsBytes[1] & 0x7f) << 7;
+  const low = mtsBytes[2] & 0x7f;
+  const fine = (high + low) / 0x3fff;
+  return noteNumber + fine;
+}
+
+/**
+ * Convert 3-byte MTS value to frequency
+ * @param Uint8Array of 3-bytes of 7-bit MTS values
+ * @returns frequency Frequency in Hertz
+ */
+export function mtsBytesToFrequency(mtsBytes: Uint8Array): number {
+  const mts = mtsBytesToMts(mtsBytes);
+  return mtof(mts);
+}
+
+/** Convert MTS Data value into readable hex string
+ * @param Uint8Array of 3-bytes of 7-bit MTS values
+ * @returns String representation of MTS value in hexadecimal
+ *          can be used in MIDI messages
+ */
+export function mtsBytesToHex(mtsBytes: Uint8Array): String {
+  return (
+    (mtsBytes[0] & 0x7f).toString(16).padStart(2, '0') +
+    (mtsBytes[1] & 0x7f).toString(16).padStart(2, '0') +
+    (mtsBytes[2] & 0x7f).toString(16).padStart(2, '0')
+  );
 }
 
 /**
