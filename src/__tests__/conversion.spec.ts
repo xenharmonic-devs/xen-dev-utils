@@ -3,9 +3,12 @@ import {
   centOffsetToFrequency,
   centsToValue,
   frequencyToCentOffset,
+  ftomts,
+  frequencyToMtsBytes,
   ftom,
   mtof,
   valueToCents,
+  mtsBytesToHex
 } from '../conversion';
 
 describe('Ratio to cents converter', () => {
@@ -37,6 +40,33 @@ describe('MIDI to frequency converter', () => {
     expect(mtof(60)).toBeCloseTo(261.625565);
   });
 });
+
+describe('Frequency to MTS converter', () => {
+  it('converts a known value', () => {
+    expect(ftomts(261.625565)).toBeCloseTo(60);
+    expect(ftomts(0, false)).toBe(0);
+    expect(ftomts(14080, false)).toBe(127);
+    expect(ftomts(14080, true)).toBeCloseTo(129);
+  })
+})
+
+describe("Frequency to MTS sysex value", () => {
+  it('converts a known value', () => {
+    expect(frequencyToMtsBytes(261.625565)).toMatchObject(new Uint8Array([60, 0, 0]));
+    expect(frequencyToMtsBytes(440)).toMatchObject(new Uint8Array([69, 0, 0]));
+    expect(frequencyToMtsBytes(442)).toMatchObject(new Uint8Array([69, 10, 6]));
+    expect(frequencyToMtsBytes(0)).toMatchObject(new Uint8Array([0, 0, 0]));
+  })
+})
+
+describe("MTS data hex string converter", () => {
+  it('converts a known value', () => {
+    expect(mtsBytesToHex(new Uint8Array([60, 0, 0]))).toEqual("3c0000");
+    expect(mtsBytesToHex(new Uint8Array([69, 0, 0]))).toEqual("450000");
+    expect(mtsBytesToHex(new Uint8Array([69, 10, 6]))).toEqual("450a06");
+    expect(mtsBytesToHex(new Uint8Array([69, 256, 6]))).toEqual("450006");
+  })
+})
 
 describe('Frequency to MIDI converter', () => {
   it('converts a known value', () => {
