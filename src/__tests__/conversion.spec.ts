@@ -4,9 +4,10 @@ import {
   centsToValue,
   frequencyToCentOffset,
   ftomts,
+  ftomtsBytes,
   ftom,
   mtof,
-  valueToCents,
+  valueToCents
 } from '../conversion';
 
 describe('Ratio to cents converter', () => {
@@ -42,6 +43,13 @@ describe('MIDI to frequency converter', () => {
 describe('Frequency to MTS converter', () => {
   it('converts a known value', () => {
     expect(ftomts(261.625565)).toBeCloseTo(60);
+  })
+})
+
+describe("Frequency to MTS sysex value", () => {
+  it('converts a known value', () => {
+    expect(ftomtsBytes(261.625565)).toBe([60, 0, 0]);
+    expect(ftomtsBytes(442)).toBe([69, 10, 32]);
   })
 })
 

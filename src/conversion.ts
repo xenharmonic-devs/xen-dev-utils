@@ -80,6 +80,26 @@ export function ftom(frequency: number): [number, number] {
 }
 
 /**
+ * Convert frequency to 3-byte MTS value
+ * @param frequency Frequency in Hertz.
+ * @returns Uint8Array of length 3
+ */
+ export function ftomtsBytes(frequency: number): Uint8Array {
+  const semitones = ftomts(frequency);
+  const coarse = Math.trunc(semitones);
+  let fine = Math.round(0x8000 * (semitones - coarse));
+  if (fine >= 0x8000)
+    fine = 0x7fff;
+  
+  const data = new Uint8Array(3);
+  data[0] = coarse;
+  data[1] = fine >> 8 & 0x7F;
+  data[2] = fine >> 4 & 0x7F;
+
+ return data;
+}
+
+/**
  * Convert cents to natural units.
  * @param cents Musical interval in cents.
  * @returns Musical interval in natural units.
