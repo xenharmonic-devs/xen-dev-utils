@@ -130,3 +130,63 @@ export function combinations<T>(set: T[]): T[][] {
   }
   return combs;
 }
+
+/**
+ * K-combinations
+ * @param set Array of objects of any type. They are treated as unique.
+ * @param k Size of combinations to search for.
+ * @returns Generator of found combinations, size of a combination is k.
+ */
+export function* iterKCombinations<T>(set: T[], k: number): Generator<T[]> {
+  // There is no way to take e.g. sets of 5 elements from
+  // a set of 4.
+  if (k > set.length || k <= 0) {
+    return 0;
+  }
+
+  // K-sized set has only one K-sized subset.
+  if (k === set.length) {
+    yield set;
+    return 1;
+  }
+
+  // There is N 1-sized subsets in a N-sized set.
+  if (k === 1) {
+    for (let i = 0; i < set.length; i++) {
+      yield [set[i]];
+    }
+    return set.length;
+  }
+
+  // Generic algorithm with recursion.
+  let total = 0;
+  for (let i = 0; i < set.length - k + 1; i++) {
+    // head is a list that includes only our current element.
+    const head = set.slice(i, i + 1);
+    // We take smaller combinations from the subsequent elements
+    // For each (k-1)-combination we join it with the current
+    // and store it to the set of k-combinations.
+    for (const tailComb of iterKCombinations(set.slice(i + 1), k - 1)) {
+      yield head.concat(tailComb);
+      total++;
+    }
+  }
+  return total;
+}
+
+/**
+ * Get all possible combinations of elements in a set.
+ * @param set Array of objects of any type. They are treated as unique.
+ * @returns Generator of arrays representing all possible non-empty combinations of elements in a set.
+ */
+export function* iterCombinations<T>(set: T[]): Generator<T[]> {
+  // Calculate all non-empty k-combinations
+  let total = 0;
+  for (let k = 1; k <= set.length; k++) {
+    for (const kComb of iterKCombinations(set, k)) {
+      yield kComb;
+      total++;
+    }
+  }
+  return total;
+}
