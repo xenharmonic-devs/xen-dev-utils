@@ -52,7 +52,7 @@
  * @param k Size of combinations to search for.
  * @returns Array of found combinations, size of a combination is k.
  */
-export function kCombinations(set: any[], k: number): any[][] {
+export function kCombinations<T>(set: T[], k: number): T[][] {
   // There is no way to take e.g. sets of 5 elements from
   // a set of 4.
   if (k > set.length || k <= 0) {
@@ -66,7 +66,7 @@ export function kCombinations(set: any[], k: number): any[][] {
 
   // There is N 1-sized subsets in a N-sized set.
   if (k === 1) {
-    const combs: any[] = [];
+    const combs: T[][] = [];
     for (let i = 0; i < set.length; i++) {
       combs.push([set[i]]);
     }
@@ -92,7 +92,7 @@ export function kCombinations(set: any[], k: number): any[][] {
   // element so they are already computed and stored. When the length
   // of the subsequent list drops below (k-1), we cannot find any
   // (k-1)-combs, hence the upper limit for the iteration:
-  const combs: any[] = [];
+  const combs: T[][] = [];
   for (let i = 0; i < set.length - k + 1; i++) {
     // head is a list that includes only our current element.
     const head = set.slice(i, i + 1);
@@ -118,8 +118,8 @@ export function kCombinations(set: any[], k: number): any[][] {
  * @param set Array of objects of any type. They are treated as unique.
  * @returns Array of arrays representing all possible non-empty combinations of elements in a set.
  */
-export function combinations(set: any[]): any[][] {
-  const combs: any[] = [];
+export function combinations<T>(set: T[]): T[][] {
+  const combs: T[][] = [];
 
   // Calculate all non-empty k-combinations
   for (let k = 1; k <= set.length; k++) {
