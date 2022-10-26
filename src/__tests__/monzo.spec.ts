@@ -37,6 +37,10 @@ describe('Monzo converter', () => {
     expect(porcupineComma[1]).toBe(-5);
     expect(porcupineComma[2]).toBe(3);
   });
+
+  it('throws for zero', () => {
+    expect(() => toMonzo(0)).toThrow();
+  });
 });
 
 describe('Fraction to monzo converter', () => {
@@ -70,6 +74,14 @@ describe('Fraction to monzo converter', () => {
         .mul(residual)
         .equals('12345/678')
     ).toBeTruthy();
+  });
+
+  it('throws for zero', () => {
+    expect(() => toMonzoAndResidual(0, 1)).toThrow();
+  });
+
+  it('throws for zero (no vector part)', () => {
+    expect(() => toMonzoAndResidual(0, 0)).toThrow();
   });
 });
 

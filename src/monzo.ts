@@ -9,7 +9,7 @@ export type Monzo = number[];
 /**
  * Check if two monzos are equal.
  * @param a The first monzo.
- * @param b The first monzo.
+ * @param b The second monzo.
  * @returns `true` if the two values are equal when interpreted as fractions.
  */
 export function monzosEqual(a: Monzo, b: Monzo) {
@@ -139,6 +139,10 @@ export function toMonzoAndResidual(
   n = new Fraction(n);
   const numerator = n.n;
   const denominator = n.d;
+
+  if (!n.n) {
+    throw new Error('Cannot convert zero to monzo');
+  }
 
   let nProbe = 1;
   let dProbe = 1;
