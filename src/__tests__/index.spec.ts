@@ -5,6 +5,7 @@ import {
   approximatePrimeLimitWithErrors,
   arraysEqual,
   binomial,
+  clamp,
   div,
   dot,
   extendedEuclid,
@@ -207,5 +208,19 @@ describe('Dot product', () => {
     const b = new Int8Array([5, 6, 7]);
     expect(dot(a, b)).toBe(38);
     expect(dot(b, a)).toBe(38);
+  });
+});
+
+describe('Value clamper', () => {
+  it('works for lower bounds', () => {
+    const value = -123.4;
+    const clamped = clamp(0, 128, value);
+    expect(clamped).toBe(0);
+  });
+
+  it('works for upper bounds', () => {
+    const value = 13881.818;
+    const clamped = clamp(0, 12800, value);
+    expect(clamped).toBe(12800);
   });
 });
