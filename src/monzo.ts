@@ -73,6 +73,69 @@ export function sub(a: Monzo, b: Monzo): Monzo {
 }
 
 /**
+ * Scale a monzo by a scalar.
+ * @param monzo The monzo to scale.
+ * @param amount The amount to scale by.
+ * @returns The scalar multiple.
+ */
+export function scale(monzo: Monzo, amount: number) {
+  return monzo.map(component => component * amount);
+}
+
+/**
+ * Multiply two monzos component-wise.
+ * @param monzo The first monzo.
+ * @param weights The second monzo. Missing values interpreted as 1 (no change).
+ * @returns The first monzo weighted by the second.
+ */
+export function applyWeights(monzo: Monzo, weights: Monzo) {
+  const result = [...monzo];
+  for (let i = 0; i < Math.min(monzo.length, weights.length); ++i) {
+    result[i] *= weights[i];
+  }
+  return result;
+}
+
+/**
+ * Accumulate a monzo into the first one.
+ * @param target The monzo to accumulate into.
+ * @param source The monzo to add.
+ * @returns The (modified) target monzo.
+ */
+export function accumulate(target: Monzo, source: Monzo) {
+  for (let i = 0; i < Math.min(target.length, source.length); ++i) {
+    target[i] += source[i];
+  }
+  return target;
+}
+
+/**
+ * Decumulate a monzo into the first one.
+ * @param target The monzo to decumulate into.
+ * @param source The monzo to subtract.
+ * @returns The (modified) target monzo.
+ */
+export function decumulate(target: Monzo, source: Monzo) {
+  for (let i = 0; i < Math.min(target.length, source.length); ++i) {
+    target[i] -= source[i];
+  }
+  return target;
+}
+
+/**
+ * Rescale a monzo by a scalar.
+ * @param target The monzo to rescale.
+ * @param amount The amount to scale by.
+ * @returns The (modified) target monzo.
+ */
+export function rescale(target: Monzo, amount: number) {
+  for (let i = 0; i < target.length; ++i) {
+    target[i] *= amount;
+  }
+  return target;
+}
+
+/**
  * Extract the exponents of the prime factors of a rational number.
  * @param n Rational number to convert to a monzo.
  * @returns The monzo representing `n`.

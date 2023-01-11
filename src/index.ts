@@ -540,3 +540,29 @@ export function dot(a: NumberArray, b: NumberArray): number {
   }
   return result;
 }
+
+/**
+ * Calculate the norm (vector length) of an array of real numbers.
+ * @param array The array to measure.
+ * @param type Type of measurement.
+ * @returns The length of the vector.
+ */
+export function norm(
+  array: NumberArray,
+  type: 'euclidean' | 'taxicab' | 'maximum' = 'euclidean'
+) {
+  let result = 0;
+  for (let i = 0; i < array.length; ++i) {
+    if (type === 'taxicab') {
+      result += Math.abs(array[i]);
+    } else if (type === 'maximum') {
+      result = Math.max(result, Math.abs(array[i]));
+    } else {
+      result += array[i] * array[i];
+    }
+  }
+  if (type === 'euclidean') {
+    return Math.sqrt(result);
+  }
+  return result;
+}

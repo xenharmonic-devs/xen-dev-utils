@@ -14,6 +14,7 @@ import {
   iteratedEuclid,
   lcm,
   mmod,
+  norm,
   PRIMES,
   valueToCents,
 } from '../index';
@@ -222,5 +223,20 @@ describe('Value clamper', () => {
     const value = 13881.818;
     const clamped = clamp(0, 12800, value);
     expect(clamped).toBe(12800);
+  });
+});
+
+describe('Norm', () => {
+  it('calculates an euclidean norm (float32)', () => {
+    const a = new Float32Array([-3, 4]);
+    expect(norm(a)).toBeCloseTo(5);
+  });
+  it('calculates a taxicab norm (int8)', () => {
+    const a = new Int8Array([3, -4]);
+    expect(norm(a, 'taxicab')).toBeCloseTo(7);
+  });
+  it('calculates a max norm (number[])', () => {
+    const a = [-3, -4];
+    expect(norm(a, 'maximum')).toBeCloseTo(4);
   });
 });
