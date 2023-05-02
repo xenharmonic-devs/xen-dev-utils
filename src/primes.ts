@@ -96,3 +96,8 @@ const NATS_TO_CENTS = 1200 / Math.LN2;
  */
 export const PRIME_CENTS = LOG_PRIMES.map(logPrime => logPrime * NATS_TO_CENTS);
 PRIME_CENTS[0] = 1200; // Ensure that octaves are exact.
+
+/**
+ * BigInt representation of the primes.
+ */
+export const BIG_INT_PRIMES = PRIMES.map(BigInt);

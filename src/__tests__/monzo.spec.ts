@@ -1,6 +1,8 @@
 import {describe, it, expect} from 'vitest';
 import {Fraction} from '../fraction';
 import {
+  bigIntToMonzo,
+  bigIntToMonzoAndResidual,
   monzoToFraction,
   primeLimit,
   toMonzo,
@@ -40,6 +42,10 @@ describe('Monzo converter', () => {
 
   it('throws for zero', () => {
     expect(() => toMonzo(0)).toThrow();
+  });
+
+  it('throws for a negative number', () => {
+    expect(() => toMonzo(-2)).toThrow();
   });
 });
 
@@ -82,6 +88,10 @@ describe('Fraction to monzo converter', () => {
 
   it('throws for zero (no vector part)', () => {
     expect(() => toMonzoAndResidual(0, 0)).toThrow();
+  });
+
+  it('throws for a negative number', () => {
+    expect(() => toMonzoAndResidual(-3, 2)).toThrow();
   });
 });
 
@@ -132,5 +142,39 @@ describe('Prime limit calculator', () => {
   it('can handle large inputs', () => {
     const limit = primeLimit(new Fraction(4294967296, 4006077075));
     expect(limit).toBe(13);
+  });
+});
+
+describe('BigInt to monzo converter', () => {
+  it('can break down a big integer to its prime components', () => {
+    const monzo = bigIntToMonzo(BigInt('360000000000000000000000'));
+    expect(monzo[0]).toBe(24);
+    expect(monzo[1]).toBe(2);
+    expect(monzo[2]).toBe(22);
+    expect(
+      BigInt(2) ** BigInt(monzo[0]) *
+        BigInt(3) ** BigInt(monzo[1]) *
+        BigInt(5) ** BigInt(monzo[2])
+    ).toBe(BigInt('360000000000000000000000'));
+  });
+});
+
+describe('BigInt to monzo converter (with residual)', () => {
+  it('leaves a residue if everything cannot be converted', () => {
+    const [monzo, residual] = bigIntToMonzoAndResidual(
+      BigInt('123456789000000000000'),
+      3
+    );
+    expect(residual).toBe(BigInt(13717421));
+    expect(monzo).toHaveLength(3);
+    expect(monzo[0]).toBe(12);
+    expect(monzo[1]).toBe(2);
+    expect(monzo[2]).toBe(12);
+    expect(
+      BigInt(2) ** BigInt(monzo[0]) *
+        BigInt(3) ** BigInt(monzo[1]) *
+        BigInt(5) ** BigInt(monzo[2]) *
+        residual
+    ).toBe(BigInt('123456789000000000000'));
   });
 });

@@ -1,5 +1,5 @@
 import {Fraction, FractionValue} from './fraction';
-import {PRIMES} from './primes';
+import {BIG_INT_PRIMES, PRIMES} from './primes';
 
 /**
  * Array of integers representing the exponents of prime numbers in the unique factorization of a rational number.
@@ -142,8 +142,11 @@ export function rescale(target: Monzo, amount: number) {
  */
 export function toMonzo(n: FractionValue): Monzo {
   if (typeof n !== 'number') {
-    n = new Fraction(n);
-    return sub(toMonzo(n.n), toMonzo(n.d));
+    const fraction = new Fraction(n);
+    if (fraction.s < 0) {
+      throw new Error('Cannot convert negative fraction to monzo');
+    }
+    return sub(toMonzo(fraction.n), toMonzo(fraction.d));
   }
   if (n < 1 || Math.round(n) !== n) {
     throw new Error(`Cannot convert number ${n} to monzo`);
@@ -199,11 +202,15 @@ export function toMonzoAndResidual(
   n: FractionValue,
   numberOfComponents: number
 ): [Monzo, Fraction] {
-  n = new Fraction(n);
-  const numerator = n.n;
-  const denominator = n.d;
+  const fraction = new Fraction(n);
+  const numerator = fraction.n;
+  const denominator = fraction.d;
 
-  if (!n.n) {
+  if (fraction.s < 0) {
+    throw new Error('Cannot convert negative fraction to monzo');
+  }
+
+  if (!fraction.n) {
     throw new Error('Cannot convert zero to monzo');
   }
 
@@ -234,7 +241,7 @@ export function toMonzoAndResidual(
     dProbe = lastProbe;
   }
 
-  return [result, (n as Fraction).div(new Fraction(nProbe, dProbe))];
+  return [result, fraction.div(new Fraction(nProbe, dProbe))];
 }
 
 /**
@@ -303,4 +310,75 @@ export function primeLimit(n: FractionValue, maxLimit = 7919): number {
       return PRIMES[limitIndex];
     }
   }
+}
+
+const BIG_INT_ZERO = BigInt('0');
+const BIG_INT_ONE = BigInt('1');
+
+/**
+ * Extract the exponents of the prime factors of a big integer.
+ * @param n Integer to convert to a monzo.
+ * @returns The monzo representing `n`.
+ */
+export function bigIntToMonzo(n: bigint): Monzo {
+  if (n < BIG_INT_ONE) {
+    throw new Error('Cannot convert non-positive big integer to monzo');
+  }
+  if (n === BIG_INT_ONE) {
+    return [];
+  }
+  const result = [0];
+
+  // Accumulate increasingly complex factors into the probe
+  // until it reaches the input value.
+  let probe = BIG_INT_ONE;
+  let limitIndex = 0;
+
+  while (true) {
+    const lastProbe = probe;
+    probe *= BIG_INT_PRIMES[limitIndex];
+    if (n % probe) {
+      probe = lastProbe;
+      result.push(0);
+      limitIndex++;
+      if (limitIndex >= BIG_INT_PRIMES.length) {
+        throw new Error('Out of primes');
+      }
+    } else if (n === probe) {
+      result[limitIndex]++;
+      return result;
+    } else {
+      result[limitIndex]++;
+    }
+  }
+}
+
+/**
+ * Extract the exponents of the prime factors of a big integer.
+ * @param n Integer to convert to a monzo.
+ * @param numberOfComponents Number of components in the result.
+ * @returns The monzo representing `n` and a multiplicative residue that cannot be represented in the given limit.
+ */
+export function bigIntToMonzoAndResidual(
+  n: bigint,
+  numberOfComponents: number
+): [Monzo, bigint] {
+  if (n < BIG_INT_ONE) {
+    throw new Error('Cannot convert non-positive big integer to monzo');
+  }
+
+  let probe = BIG_INT_ONE;
+
+  const result = Array(numberOfComponents).fill(-1);
+  for (let i = 0; i < numberOfComponents; ++i) {
+    let lastProbe;
+    do {
+      lastProbe = probe;
+      probe *= BIG_INT_PRIMES[i];
+      result[i]++;
+    } while (n % probe === BIG_INT_ZERO);
+    probe = lastProbe;
+  }
+
+  return [result, n / probe];
 }
