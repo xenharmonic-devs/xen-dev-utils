@@ -77,11 +77,16 @@ describe('Fraction to monzo converter', () => {
   });
 
   it('throws for zero', () => {
-    expect(() => toMonzoAndResidual(0, 1)).toThrow();
+    const [monzo, residual] = toMonzoAndResidual(0, 1);
+    expect(residual.equals(0)).toBeTruthy();
+    expect(monzo).toHaveLength(1);
+    expect(new Fraction(2).pow(monzo[0]).mul(residual).equals(0)).toBeTruthy();
   });
 
   it('throws for zero (no vector part)', () => {
-    expect(() => toMonzoAndResidual(0, 0)).toThrow();
+    const [monzo, residual] = toMonzoAndResidual(0, 0);
+    expect(residual.equals(0)).toBeTruthy();
+    expect(monzo).toHaveLength(0);
   });
 });
 
@@ -106,12 +111,16 @@ describe('Prime limit calculator', () => {
     expect(primeLimit(45)).toBe(5);
   });
 
+  it('knows that the prime limit of 21 has ordinal #4', () => {
+    expect(primeLimit(21, true)).toBe(4);
+  });
+
   it('knows that the prime limit of 11859211/11859210 is 19', () => {
     expect(primeLimit('11859211/11859210')).toBe(19);
   });
 
   it('returns infinity when going beyond the given limit', () => {
-    expect(primeLimit(123456789, 97)).toBe(Infinity);
+    expect(primeLimit(123456789, false, 97)).toBe(Infinity);
   });
 
   it('stays within the given limit', () => {
@@ -120,6 +129,7 @@ describe('Prime limit calculator', () => {
         Math.ceil(Math.random() * 10000),
         Math.ceil(Math.random() * 10000)
       ),
+      false,
       97
     );
     if (limit < Infinity) {

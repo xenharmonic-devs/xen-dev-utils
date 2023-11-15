@@ -204,7 +204,7 @@ export function toMonzoAndResidual(
   const denominator = n.d;
 
   if (!n.n) {
-    throw new Error('Cannot convert zero to monzo');
+    return [Array(numberOfComponents).fill(0), new Fraction(0)];
   }
 
   let nProbe = 1;
@@ -261,19 +261,27 @@ export function monzoToFraction(monzo: Iterable<number>) {
 /**
  * Calculate the prime limit of an integer or a fraction.
  * @param n Integer or fraction to calculate prime limit for.
+ * @param asOrdinal Return the limit as an ordinal instead of a prime. (1 is #0, 2 is #1, 3 is #2, 5 is #3, etc.)
  * @param maxLimit Maximum prime limit to consider.
  * @returns The largest prime in the factorization of the input. `Infinity` if above the maximum limit. `NaN` if not applicable.
  */
-export function primeLimit(n: FractionValue, maxLimit = 7919): number {
+export function primeLimit(
+  n: FractionValue,
+  asOrdinal = false,
+  maxLimit = 7919
+): number {
   if (typeof n !== 'number') {
     n = new Fraction(n);
-    return Math.max(primeLimit(n.n, maxLimit), primeLimit(n.d, maxLimit));
+    return Math.max(
+      primeLimit(n.n, asOrdinal, maxLimit),
+      primeLimit(n.d, asOrdinal, maxLimit)
+    );
   }
   if (n < 1 || Math.round(n) !== n) {
     return NaN;
   }
   if (n === 1) {
-    return 1;
+    return asOrdinal ? 0 : 1;
   }
 
   // Accumulate increasingly complex factors into the probe
@@ -285,7 +293,7 @@ export function primeLimit(n: FractionValue, maxLimit = 7919): number {
     // Bit-magic for small 2-limit
     probe = (n ^ (n - 1)) & n;
     if (n === probe) {
-      return 2;
+      return asOrdinal ? 1 : 2;
     }
     limitIndex = 1;
   }
@@ -300,7 +308,7 @@ export function primeLimit(n: FractionValue, maxLimit = 7919): number {
         return Infinity;
       }
     } else if (n === probe) {
-      return PRIMES[limitIndex];
+      return asOrdinal ? limitIndex + 1 : PRIMES[limitIndex];
     }
   }
 }
