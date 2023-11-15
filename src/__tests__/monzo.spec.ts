@@ -24,7 +24,7 @@ describe('Monzo converter', () => {
     expect(monzo[3]).toBe(3);
     expect(
       new Fraction(2)
-        .pow(monzo[0])
+        .pow(monzo[0])!
         .mul(3 ** monzo[1] * 7 ** monzo[3])
         .equals('1029/1024')
     ).toBeTruthy();
@@ -52,7 +52,7 @@ describe('Fraction to monzo converter', () => {
     expect(monzo[2]).toBe(1);
     expect(
       new Fraction(2)
-        .pow(monzo[0])
+        .pow(monzo[0])!
         .mul(3 ** monzo[1])
         .mul(5 ** monzo[2])
         .equals(new Fraction(45, 32))
@@ -68,7 +68,7 @@ describe('Fraction to monzo converter', () => {
     expect(monzo[2]).toBe(1);
     expect(
       new Fraction(2)
-        .pow(monzo[0])
+        .pow(monzo[0])!
         .mul(3 ** monzo[1])
         .mul(5 ** monzo[2])
         .mul(residual)
@@ -76,14 +76,14 @@ describe('Fraction to monzo converter', () => {
     ).toBeTruthy();
   });
 
-  it('throws for zero', () => {
+  it('leaves residual 0 for zero (vector part)', () => {
     const [monzo, residual] = toMonzoAndResidual(0, 1);
     expect(residual.equals(0)).toBeTruthy();
     expect(monzo).toHaveLength(1);
-    expect(new Fraction(2).pow(monzo[0]).mul(residual).equals(0)).toBeTruthy();
+    expect(new Fraction(2).pow(monzo[0])!.mul(residual).equals(0)).toBeTruthy();
   });
 
-  it('throws for zero (no vector part)', () => {
+  it('leaves residual 0 for zero (no vector part)', () => {
     const [monzo, residual] = toMonzoAndResidual(0, 0);
     expect(residual.equals(0)).toBeTruthy();
     expect(monzo).toHaveLength(0);

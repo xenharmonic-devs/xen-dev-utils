@@ -12,8 +12,6 @@ import {
   gcd,
   getConvergents,
   iteratedEuclid,
-  lcm,
-  mmod,
   norm,
   PRIMES,
   valueToCents,
@@ -24,24 +22,6 @@ describe('Array equality tester', () => {
     expect(arraysEqual([1, 2, 3], [1, 2, 3])).toBeTruthy();
     expect(arraysEqual([1, 2, 3], [1, 2, 3, 4])).toBeFalsy();
     expect(arraysEqual([1, 2], [1, 2, 3])).toBeFalsy();
-  });
-});
-
-describe('gcd', () => {
-  it('can find the greates common divisor of 12 and 15', () => {
-    expect(gcd(12, 15)).toBe(3);
-  });
-});
-
-describe('lcm', () => {
-  it('can find the least common multiple of 6 and 14', () => {
-    expect(lcm(6, 14)).toBe(42);
-  });
-});
-
-describe('mmod', () => {
-  it('works with negative numbers', () => {
-    expect(mmod(-5, 3)).toBe(1);
   });
 });
 

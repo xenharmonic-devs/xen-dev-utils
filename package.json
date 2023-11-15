@@ -43,8 +43,5 @@
     "doc": "typedoc --entryPointStrategy packages . --name xen-dev-utils",
     "prebenchmark": "tsc -p tsconfig-benchmark.json",
     "benchmark": "node benchmarks/__benchmarks__/monzo.mark.js"
-  },
-  "dependencies": {
-    "fraction.js": "^4.3.7"
   }
 }

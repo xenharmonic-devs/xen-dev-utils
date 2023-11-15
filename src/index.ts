@@ -1,5 +1,5 @@
 import {valueToCents} from './conversion';
-import {Fraction, FractionValue} from './fraction';
+import {Fraction, FractionValue, mmod} from './fraction';
 import {PRIMES, PRIME_CENTS} from './primes';
 
 export * from './fraction';
@@ -37,44 +37,6 @@ export function arraysEqual(a: AnyArray, b: AnyArray) {
     }
   }
   return true;
-}
-
-// Stolen from fraction.js, because it's not exported.
-/**
- * Greatest common divisor of two integers.
- * @param a The first integer.
- * @param b The second integer.
- * @returns The largest integer that divides a and b.
- */
-export function gcd(a: number, b: number): number {
-  if (!a) return b;
-  if (!b) return a;
-  while (true) {
-    a %= b;
-    if (!a) return b;
-    b %= a;
-    if (!b) return a;
-  }
-}
-
-/**
- * Least common multiple of two integers.
- * @param a The first integer.
- * @param b The second integer.
- * @returns The smallest integer that both a and b divide.
- */
-export function lcm(a: number, b: number): number {
-  return (Math.abs(a) / gcd(a, b)) * Math.abs(b);
-}
-
-/**
- * Mathematically correct modulo.
- * @param a The dividend.
- * @param b The divisor.
- * @returns The remainder of Euclidean division of a by b.
- */
-export function mmod(a: number, b: number) {
-  return ((a % b) + b) % b;
 }
 
 /**
@@ -387,13 +349,13 @@ export function approximateOddLimitWithErrors(cents: number, limit: number) {
       const exponent = Math.round((cents - oddCents - remainder) / 1200);
       const error = remainder;
       // Exponentiate to add the required number of octaves.
-      results.push([ODD_FRACTIONS[i].mul(TWO.pow(exponent)), error]);
+      results.push([ODD_FRACTIONS[i].mul(TWO.pow(exponent)!), error]);
     }
     // Undershot
     else {
       const exponent = Math.round((cents - oddCents - remainder) / 1200) + 1;
       const error = 1200 - remainder;
-      results.push([ODD_FRACTIONS[i].mul(TWO.pow(exponent)), error]);
+      results.push([ODD_FRACTIONS[i].mul(TWO.pow(exponent)!), error]);
     }
   }
 
@@ -469,7 +431,9 @@ export function approximatePrimeLimitWithErrors(
         }
         push(error, () =>
           approximation.mul(
-            TWO.pow(Math.round((cents - approximationCents - remainder) / 1200))
+            TWO.pow(
+              Math.round((cents - approximationCents - remainder) / 1200)
+            )!
           )
         );
       } else {
@@ -481,7 +445,7 @@ export function approximatePrimeLimitWithErrors(
           approximation.mul(
             TWO.pow(
               Math.round((cents - approximationCents - remainder) / 1200) + 1
-            )
+            )!
           )
         );
       }
