@@ -219,9 +219,12 @@ describe('MTS data hex string converter', () => {
     expect(mtsBytesToHex(new Uint8Array([69, 0, 0]))).toEqual('450000');
     expect(mtsBytesToHex(new Uint8Array([69, 10, 6]))).toEqual('450a06');
   });
-  it('masks int values above 0x7f by 0x7f', () => {
-    expect(mtsBytesToHex(new Uint8Array([69, 240, 6]))).toEqual('457006');
-    expect(mtsBytesToHex(new Uint8Array([69, 255, 6]))).toEqual('457f06');
+  it('clamps int values above 0x7f to 0x7f', () => {
+    expect(mtsBytesToHex(new Uint8Array([69, 240, 6]))).toEqual('457f06');
+    expect(mtsBytesToHex(new Uint8Array([128, 255, 128]))).toEqual('7f7f7f');
+  });
+  it('allow value reserved for "no tuning change"', () => {
+    expect(mtsBytesToHex(new Uint8Array([127, 127, 127]))).toEqual('7f7f7f');
   });
 });
 

@@ -118,7 +118,7 @@ export function mtsBytesToMts(mtsBytes: Uint8Array): number {
   let lsb = mtsBytes[2];
 
   const noteNumber = mtsBytes[0] > 0x7f ? 0x7f : mtsBytes[0];
-  if (noteNumber == 0x7f) {
+  if (noteNumber === 0x7f) {
     if (lsb >= 0x7f) lsb = 0x7e;
   } else if (lsb > 0x7f) lsb = 0x7f;
 
@@ -147,9 +147,9 @@ export function mtsBytesToHex(mtsBytes: Uint8Array): String {
   const msb = mtsBytes[1] > 0x7f ? 0x7f : mtsBytes[1];
   const lsb = mtsBytes[2] > 0x7f ? 0x7f : mtsBytes[2];
   return (
-    (noteNumber).toString(16).padStart(2, '0') +
-    (msb).toString(16).padStart(2, '0') +
-    (lsb).toString(16).padStart(2, '0')
+    noteNumber.toString(16).padStart(2, '0') +
+    msb.toString(16).padStart(2, '0') +
+    lsb.toString(16).padStart(2, '0')
   );
 }
 
