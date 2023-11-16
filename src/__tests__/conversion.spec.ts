@@ -8,6 +8,7 @@ import {
   ftom,
   mtof,
   valueToCents,
+  mtsToMtsBytes,
   mtsBytesToHex,
   mtsBytesToFrequency,
 } from '../conversion';
@@ -72,45 +73,91 @@ describe('Frequency to MTS converter', () => {
   });
 });
 
+describe('MTS to MTS sysex value', () => {
+  it('converts known values from MIDI Tuning spec', () => {
+    expect(mtsToMtsBytes(0)).toMatchObject(new Uint8Array([0, 0, 0]));
+    expect(mtsToMtsBytes(0.00006)).toMatchObject(new Uint8Array([0, 0, 1]));
+    expect(mtsToMtsBytes(1)).toMatchObject(new Uint8Array([1, 0, 0]));
+    expect(mtsToMtsBytes(12)).toMatchObject(new Uint8Array([12, 0, 0]));
+    expect(mtsToMtsBytes(60)).toMatchObject(new Uint8Array([60, 0, 0]));
+    expect(mtsToMtsBytes(61)).toMatchObject(new Uint8Array([61, 0, 0]));
+    expect(mtsToMtsBytes(68.99994)).toMatchObject(
+      new Uint8Array([68, 127, 127])
+    );
+    expect(mtsToMtsBytes(69)).toMatchObject(new Uint8Array([69, 0, 0]));
+    expect(mtsToMtsBytes(69.000061)).toMatchObject(new Uint8Array([69, 0, 1]));
+    expect(mtsToMtsBytes(120)).toMatchObject(new Uint8Array([120, 0, 0]));
+    expect(mtsToMtsBytes(120.000061)).toMatchObject(
+      new Uint8Array([120, 0, 1])
+    );
+    expect(mtsToMtsBytes(127)).toMatchObject(new Uint8Array([127, 0, 0]));
+    expect(mtsToMtsBytes(127.000061)).toMatchObject(
+      new Uint8Array([127, 0, 1])
+    );
+    expect(mtsToMtsBytes(127.999878)).toMatchObject(
+      new Uint8Array([127, 127, 126])
+    );
+  });
+  it('clamps values beyond the specified MTS frequency range', () => {
+    expect(mtsToMtsBytes(-1)).toMatchObject(new Uint8Array([0, 0, 0]));
+    expect(mtsToMtsBytes(127.9999)).toMatchObject(
+      new Uint8Array([127, 127, 126])
+    );
+    expect(mtsToMtsBytes(128)).toMatchObject(new Uint8Array([127, 127, 126]));
+  });
+});
+
 describe('Frequency to MTS sysex value', () => {
   it('converts known values from MIDI Tuning spec', () => {
     expect(frequencyToMtsBytes(8.175799)).toMatchObject(
       new Uint8Array([0, 0, 0])
     );
+
     expect(frequencyToMtsBytes(8.175828)).toMatchObject(
       new Uint8Array([0, 0, 1])
     );
+
     expect(frequencyToMtsBytes(8.661957)).toMatchObject(
       new Uint8Array([1, 0, 0])
     );
+
     expect(frequencyToMtsBytes(16.351598)).toMatchObject(
       new Uint8Array([12, 0, 0])
     );
+
     expect(frequencyToMtsBytes(261.625565)).toMatchObject(
       new Uint8Array([60, 0, 0])
     );
+
     expect(frequencyToMtsBytes(277.182631)).toMatchObject(
       new Uint8Array([61, 0, 0])
     );
+
     expect(frequencyToMtsBytes(439.998449)).toMatchObject(
       new Uint8Array([68, 127, 127])
     );
+
     expect(frequencyToMtsBytes(440)).toMatchObject(new Uint8Array([69, 0, 0]));
     expect(frequencyToMtsBytes(440.001551)).toMatchObject(
       new Uint8Array([69, 0, 1])
     );
+
     expect(frequencyToMtsBytes(8372.01809)).toMatchObject(
       new Uint8Array([120, 0, 0])
     );
+
     expect(frequencyToMtsBytes(8372.047605)).toMatchObject(
       new Uint8Array([120, 0, 1])
     );
+
     expect(frequencyToMtsBytes(12543.853951)).toMatchObject(
       new Uint8Array([127, 0, 0])
     );
+
     expect(frequencyToMtsBytes(12543.898175)).toMatchObject(
       new Uint8Array([127, 0, 1])
     );
+
     expect(frequencyToMtsBytes(13289.656616)).toMatchObject(
       new Uint8Array([127, 127, 126])
     );
@@ -119,12 +166,15 @@ describe('Frequency to MTS sysex value', () => {
     expect(frequencyToMtsBytes(255.999612)).toMatchObject(
       new Uint8Array([59, 79, 106])
     );
+
     expect(frequencyToMtsBytes(256)).toMatchObject(
       new Uint8Array([59, 79, 106])
     );
+
     expect(frequencyToMtsBytes(441.999414)).toMatchObject(
       new Uint8Array([69, 10, 6])
     );
+
     expect(frequencyToMtsBytes(442)).toMatchObject(new Uint8Array([69, 10, 6]));
   });
   it('clamps values beyond supported MTS range', () => {

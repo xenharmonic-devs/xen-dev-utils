@@ -88,6 +88,9 @@ export function ftom(frequency: number): [number, number] {
  * @returns Uint8Array 3-byte of 7-bit MTS data
  */
 export function mtsToMtsBytes(mtsValue: number): Uint8Array {
+  if (mtsValue <= 0) return new Uint8Array([0, 0, 0]);
+  if (mtsValue > 127.999878) return new Uint8Array([127, 127, 126]);
+
   const noteNumber = Math.trunc(mtsValue);
   const fine = Math.round(0x4000 * (mtsValue - noteNumber));
 
