@@ -1,5 +1,5 @@
 import {Fraction, FractionValue} from './fraction';
-import {PRIMES} from './primes';
+import {BIG_INT_PRIMES, PRIMES} from './primes';
 
 /**
  * Array of integers representing the exponents of prime numbers in the unique factorization of a rational number.
@@ -140,7 +140,10 @@ export function rescale(target: Monzo, amount: number) {
  * @param n Rational number to convert to a monzo.
  * @returns The monzo representing `n`.
  */
-export function toMonzo(n: FractionValue): Monzo {
+export function toMonzo(n: FractionValue | bigint): Monzo {
+  if (typeof n === 'bigint') {
+    return bigIntToMonzo(n);
+  }
   if (typeof n !== 'number') {
     n = new Fraction(n);
     return sub(toMonzo(n.n), toMonzo(n.d));
@@ -189,6 +192,39 @@ export function toMonzo(n: FractionValue): Monzo {
   }
 }
 
+function bigIntToMonzo(n: bigint) {
+  if (n < 1n) {
+    throw new Error('Cannot convert non-positive big integer to monzo');
+  }
+  if (n === 1n) {
+    return [];
+  }
+  const result = [0];
+
+  // Accumulate increasingly complex factors into the probe
+  // until it reaches the input value.
+  let probe = 1n;
+  let limitIndex = 0;
+
+  while (true) {
+    const lastProbe = probe;
+    probe *= BIG_INT_PRIMES[limitIndex];
+    if (n % probe) {
+      probe = lastProbe;
+      result.push(0);
+      limitIndex++;
+      if (limitIndex >= BIG_INT_PRIMES.length) {
+        throw new Error('Out of primes');
+      }
+    } else if (n === probe) {
+      result[limitIndex]++;
+      return result;
+    } else {
+      result[limitIndex]++;
+    }
+  }
+}
+
 /**
  * Extract the exponents of the prime factors of a rational number.
  * @param n Rational number to convert to a monzo.
@@ -196,9 +232,20 @@ export function toMonzo(n: FractionValue): Monzo {
  * @returns The monzo representing `n` and a multiplicative residue that cannot be represented in the given limit.
  */
 export function toMonzoAndResidual(
+  n: bigint,
+  numberOfComponents: number
+): [Monzo, bigint];
+export function toMonzoAndResidual(
   n: FractionValue,
   numberOfComponents: number
-): [Monzo, Fraction] {
+): [Monzo, Fraction];
+export function toMonzoAndResidual(
+  n: FractionValue | bigint,
+  numberOfComponents: number
+): [Monzo, Fraction] | [Monzo, bigint] {
+  if (typeof n === 'bigint') {
+    return bigIntToMonzoAndResidual(n, numberOfComponents);
+  }
   n = new Fraction(n);
   const numerator = n.n;
   const denominator = n.d;
@@ -237,6 +284,30 @@ export function toMonzoAndResidual(
   return [result, (n as Fraction).div(new Fraction(nProbe, dProbe))];
 }
 
+function bigIntToMonzoAndResidual(
+  n: bigint,
+  numberOfComponents: number
+): [Monzo, bigint] {
+  if (n < 1n) {
+    throw new Error('Cannot numbers smaller than one to monzo');
+  }
+
+  let probe = 1n;
+
+  const result = Array(numberOfComponents).fill(-1);
+  for (let i = 0; i < numberOfComponents; ++i) {
+    let lastProbe;
+    do {
+      lastProbe = probe;
+      probe *= BIG_INT_PRIMES[i];
+      result[i]++;
+    } while (n % probe === 0n);
+    probe = lastProbe;
+  }
+
+  return [result, n / probe];
+}
+
 /**
  * Convert a monzo to the fraction it represents.
  * @param monzo Iterable of prime exponents.
@@ -259,6 +330,26 @@ export function monzoToFraction(monzo: Iterable<number>) {
 }
 
 /**
+ * Convert a monzo to the BigInt it represents.
+ * @param monzo Iterable of prime exponents.
+ * @returns BigInt representation of the monzo.
+ */
+export function monzoToBigInt(monzo: Iterable<number>) {
+  let result = 1n;
+  let index = 0;
+  for (const component of monzo) {
+    if (component > 0) {
+      result *= BIG_INT_PRIMES[index] ** BigInt(component);
+    }
+    if (component < 0) {
+      throw new Error('Cannot produce big fractions');
+    }
+    index++;
+  }
+  return result;
+}
+
+/**
  * Calculate the prime limit of an integer or a fraction.
  * @param n Integer or fraction to calculate prime limit for.
  * @param asOrdinal Return the limit as an ordinal instead of a prime. (1 is #0, 2 is #1, 3 is #2, 5 is #3, etc.)
@@ -266,10 +357,13 @@ export function monzoToFraction(monzo: Iterable<number>) {
  * @returns The largest prime in the factorization of the input. `Infinity` if above the maximum limit. `NaN` if not applicable.
  */
 export function primeLimit(
-  n: FractionValue,
+  n: FractionValue | bigint,
   asOrdinal = false,
   maxLimit = 7919
 ): number {
+  if (typeof n === 'bigint') {
+    return bigIntPrimeLimit(n, asOrdinal, maxLimit);
+  }
   if (typeof n !== 'number') {
     n = new Fraction(n);
     return Math.max(
@@ -304,6 +398,44 @@ export function primeLimit(
     if (n % probe) {
       probe = lastProbe;
       limitIndex++;
+      if (limitIndex >= PRIMES.length || PRIMES[limitIndex] > maxLimit) {
+        return Infinity;
+      }
+    } else if (n === probe) {
+      return asOrdinal ? limitIndex + 1 : PRIMES[limitIndex];
+    }
+  }
+}
+
+function bigIntPrimeLimit(
+  n: bigint,
+  asOrdinal: boolean,
+  maxLimit: number
+): number {
+  if (n < 1n) {
+    return NaN;
+  }
+  if (n === 1n) {
+    return asOrdinal ? 0 : 1;
+  }
+
+  // Accumulate increasingly complex factors into the probe
+  // until it reaches the input value.
+
+  // Bit-magic for 2-limit
+  let probe = (n ^ (n - 1n)) & n;
+  if (n === probe) {
+    return asOrdinal ? 1 : 2;
+  }
+  let limitIndex = 1;
+
+  while (true) {
+    const lastProbe = probe;
+    probe *= BIG_INT_PRIMES[limitIndex];
+    if (n % probe) {
+      probe = lastProbe;
+      limitIndex++;
+      // Using non-big primes here is intentional, the arrays have the same length.
       if (limitIndex >= PRIMES.length || PRIMES[limitIndex] > maxLimit) {
         return Infinity;
       }

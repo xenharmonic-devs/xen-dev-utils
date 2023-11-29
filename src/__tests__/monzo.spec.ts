@@ -1,6 +1,7 @@
 import {describe, it, expect} from 'vitest';
 import {Fraction} from '../fraction';
 import {
+  monzoToBigInt,
   monzoToFraction,
   primeLimit,
   toMonzo,
@@ -40,6 +41,18 @@ describe('Monzo converter', () => {
 
   it('throws for zero', () => {
     expect(() => toMonzo(0)).toThrow();
+  });
+
+  it('can break down a big integer to its prime components', () => {
+    const monzo = toMonzo(BigInt('360000000000000000000000'));
+    expect(monzo[0]).toBe(24);
+    expect(monzo[1]).toBe(2);
+    expect(monzo[2]).toBe(22);
+    expect(
+      BigInt(2) ** BigInt(monzo[0]) *
+        BigInt(3) ** BigInt(monzo[1]) *
+        BigInt(5) ** BigInt(monzo[2])
+    ).toBe(BigInt('360000000000000000000000'));
   });
 });
 
@@ -88,6 +101,24 @@ describe('Fraction to monzo converter', () => {
     expect(residual.equals(0)).toBeTruthy();
     expect(monzo).toHaveLength(0);
   });
+
+  it('leaves a residue if everything cannot be converted', () => {
+    const [monzo, residual] = toMonzoAndResidual(
+      BigInt('123456789000000000000'),
+      3
+    );
+    expect(residual).toBe(BigInt(13717421));
+    expect(monzo).toHaveLength(3);
+    expect(monzo[0]).toBe(12);
+    expect(monzo[1]).toBe(2);
+    expect(monzo[2]).toBe(12);
+    expect(
+      BigInt(2) ** BigInt(monzo[0]) *
+        BigInt(3) ** BigInt(monzo[1]) *
+        BigInt(5) ** BigInt(monzo[2]) *
+        residual
+    ).toBe(BigInt('123456789000000000000'));
+  });
 });
 
 describe('Monzo to fraction converter', () => {
@@ -95,6 +126,14 @@ describe('Monzo to fraction converter', () => {
     expect(
       monzoToFraction([3, -2, -1]).equals(new Fraction(8, 45))
     ).toBeTruthy();
+  });
+});
+
+describe('Monzo to BigInt converter', () => {
+  it('multiplies the prime components', () => {
+    expect(monzoToBigInt([30, 20, 10])).toBe(
+      BigInt('36561584400629760000000000')
+    );
   });
 });
 
@@ -142,5 +181,12 @@ describe('Prime limit calculator', () => {
   it('can handle large inputs', () => {
     const limit = primeLimit(new Fraction(4294967296, 4006077075));
     expect(limit).toBe(13);
+  });
+
+  it('can handle BigInt inputs', () => {
+    const two = primeLimit(BigInt('1267650600228229401496703205376'));
+    expect(two).toBe(2);
+    const limit = primeLimit(BigInt('1561327220802586898249028'));
+    expect(limit).toBe(19);
   });
 });
