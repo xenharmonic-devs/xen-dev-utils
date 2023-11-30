@@ -43,5 +43,8 @@
     "doc": "typedoc src/index.ts . --name xen-dev-utils",
     "prebenchmark": "tsc -p tsconfig-benchmark.json",
     "benchmark": "node benchmarks/__benchmarks__/monzo.mark.js"
+  },
+  "engines":{
+    "node": ">=10.6.0"
   }
 }
