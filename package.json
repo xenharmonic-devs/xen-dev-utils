@@ -1,7 +1,7 @@
 {
   "name": "xen-dev-utils",
   "author": "Lumi Pakkanen",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Utility functions used by the Scale Workshop ecosystem",
   "license": "MIT",
   "main": "dist/index",
@@ -48,7 +48,7 @@
     "prebenchmark": "tsc -p tsconfig-benchmark.json",
     "benchmark": "node benchmarks/__benchmarks__/monzo.mark.js"
   },
-  "engines":{
+  "engines": {
     "node": ">=10.6.0"
   }
 }
