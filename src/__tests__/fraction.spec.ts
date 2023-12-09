@@ -191,4 +191,34 @@ describe('Fraction', () => {
     const fraction = new Fraction(5, 11);
     expect(fraction.toString()).toBe("0.'45'");
   });
+
+  it('is not equal to NaN', () => {
+    const fraction = new Fraction(3, 2);
+    expect(fraction.equals(NaN)).toBe(false);
+  });
+
+  it('is not equal to garbage', () => {
+    const fraction = new Fraction(3, 2);
+    expect(fraction.equals('asdf')).toBe(false);
+  });
+
+  it("doesn't compare to NaN", () => {
+    const fraction = new Fraction(7, 3);
+    expect(fraction.compare(NaN)).toBeNaN();
+  });
+
+  it("doesn't compare to garbage", () => {
+    const fraction = new Fraction(7, 3);
+    expect(fraction.compare('garbage')).toBeNaN();
+  });
+
+  it('is not divisible by NaN', () => {
+    const fraction = new Fraction(13, 11);
+    expect(fraction.divisible(NaN)).toBe(false);
+  });
+
+  it('is not divisible by garbage', () => {
+    const fraction = new Fraction(13, 11);
+    expect(fraction.divisible('conquer')).toBe(false);
+  });
 });

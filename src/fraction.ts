@@ -629,8 +629,12 @@ export class Fraction {
    * Ex: new Fraction("19.6").equals("98/5");
    **/
   compare(other: FractionValue) {
-    const {s, n, d} = new Fraction(other);
-    return this.s * this.n * d - s * n * this.d;
+    try {
+      const {s, n, d} = new Fraction(other);
+      return this.s * this.n * d - s * n * this.d;
+    } catch {
+      return NaN;
+    }
   }
 
   /**
@@ -639,8 +643,12 @@ export class Fraction {
    * Ex: new Fraction("19.6").equals("98/5");
    **/
   equals(other: FractionValue) {
-    const {s, n, d} = new Fraction(other);
-    return this.s === s && this.n === n && this.d === d;
+    try {
+      const {s, n, d} = new Fraction(other);
+      return this.s === s && this.n === n && this.d === d;
+    } catch {
+      return false;
+    }
   }
 
   /**
@@ -649,8 +657,12 @@ export class Fraction {
    * Ex: new Fraction("19.6").divisible("1.5");
    */
   divisible(other: FractionValue) {
-    other = new Fraction(other);
-    return !(!(other.n * this.d) || (this.n * other.d) % (other.n * this.d));
+    try {
+      other = new Fraction(other);
+      return !(!(other.n * this.d) || (this.n * other.d) % (other.n * this.d));
+    } catch {
+      return false;
+    }
   }
 
   /**
