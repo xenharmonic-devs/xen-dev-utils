@@ -288,8 +288,8 @@ function bigIntToMonzoAndResidual(
   n: bigint,
   numberOfComponents: number
 ): [Monzo, bigint] {
-  if (n < 1n) {
-    throw new Error('Cannot numbers smaller than one to monzo');
+  if (!n) {
+    return [Array(numberOfComponents).fill(0), 0n];
   }
 
   let probe = 1n;

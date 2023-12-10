@@ -119,6 +119,26 @@ describe('Fraction to monzo converter', () => {
         residual
     ).toBe(BigInt('123456789000000000000'));
   });
+
+  it('leaves residual 0n for big int zero', () => {
+    const [monzo, residual] = toMonzoAndResidual(0n, 1);
+    expect(residual).toBe(0n);
+    expect(monzo).toHaveLength(1);
+  });
+
+  it('leaves residual 0n for big int zero (no vector part)', () => {
+    const [monzo, residual] = toMonzoAndResidual(0n, 0);
+    expect(residual).toBe(0n);
+    expect(monzo).toHaveLength(0);
+  });
+
+  it('leaves negative residual for big integers', () => {
+    const [monzo, residual] = toMonzoAndResidual(-10n, 2);
+    expect(residual).toBe(-5n);
+    expect(monzo).toHaveLength(2);
+    expect(monzo[0]).toBe(1);
+    expect(monzo[1]).toBe(0);
+  });
 });
 
 describe('Monzo to fraction converter', () => {
