@@ -247,6 +247,9 @@ export class Fraction {
         }
         x = 1 / (x - coef);
       }
+      if (!coefs.length) {
+        throw new Error('Numerator above safe limit');
+      }
       let n = coefs.pop()!;
       let d = 1;
       while (coefs.length) {

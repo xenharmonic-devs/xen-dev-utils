@@ -221,4 +221,10 @@ describe('Fraction', () => {
     const fraction = new Fraction(13, 11);
     expect(fraction.divisible('conquer')).toBe(false);
   });
+
+  it('gives the correct error for too large components', () => {
+    expect(() => new Fraction(1.1231233477899796e16, 1)).toThrowError(
+      'Numerator above safe limit'
+    );
+  });
 });
