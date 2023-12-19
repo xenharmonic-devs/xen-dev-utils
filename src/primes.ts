@@ -118,6 +118,9 @@ export function isPrime(n: number) {
     throw new Error('Prime check only implemented up to 62837328');
   }
   for (const prime of PRIMES) {
+    if (prime * prime > n) {
+      return true;
+    }
     if (n % prime === 0) {
       return false;
     }

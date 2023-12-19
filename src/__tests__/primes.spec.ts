@@ -47,6 +47,12 @@ describe('Primeness detector', () => {
       expect(isPrime(n)).toBe(false);
     }
   });
+  it('works for 62837327', () => {
+    expect(isPrime(62837327)).toBe(false);
+  });
+  it('works for 62837303', () => {
+    expect(isPrime(62837303)).toBe(true);
+  });
 });
 
 describe('Lists of primes', () => {
