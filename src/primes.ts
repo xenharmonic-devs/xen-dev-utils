@@ -101,3 +101,79 @@ PRIME_CENTS[0] = 1200; // Ensure that octaves are exact.
  * BigInt representation of the primes.
  */
 export const BIG_INT_PRIMES = PRIMES.map(BigInt);
+
+/**
+ * Check a number for primality.
+ * @param n Number to check.
+ * @returns True if the number is prime, false otherwise.
+ */
+export function isPrime(n: number) {
+  if (!Number.isInteger(n) || n < 2) {
+    return false;
+  }
+  if (n < 7927) {
+    return PRIMES.includes(n);
+  }
+  if (n > 62837328) {
+    throw new Error('Prime check only implemented up to 62837328');
+  }
+  for (const prime of PRIMES) {
+    if (n % prime === 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Generate an array of prime numbers.
+ * @param start Smallest prime number to include (or the next smallest prime).
+ * @param end Largest prime number to include (or the previous largest prime).
+ * @returns An array of primes p in ascending order such that start <= p <= end.
+ */
+export function primes(start: number, end?: number) {
+  if (end === undefined) {
+    end = start;
+    start = 2;
+  }
+  if (start > end || end < 2) {
+    return [];
+  }
+  if (start <= 2) {
+    if (end < 3) {
+      return [2];
+    }
+    start = 2;
+  } else {
+    start = Math.ceil((start + 1) * 0.5) * 2 - 1;
+    while (!isPrime(start)) {
+      start += 2;
+    }
+  }
+  end = Math.floor((end + 1) * 0.5) * 2 - 1;
+  while (!isPrime(end)) {
+    end -= 2;
+  }
+
+  const startIndex = PRIMES.indexOf(start);
+  const endIndex = PRIMES.indexOf(end);
+
+  let result: number[];
+  if (endIndex < 0) {
+    if (startIndex >= 0) {
+      result = PRIMES.slice(startIndex);
+      start = 7927;
+    } else {
+      result = [];
+    }
+  } else {
+    return PRIMES.slice(startIndex, endIndex + 1);
+  }
+
+  for (let n = start; n <= end; n += 2) {
+    if (isPrime(n)) {
+      result.push(n);
+    }
+  }
+  return result;
+}
