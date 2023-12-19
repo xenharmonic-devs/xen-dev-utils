@@ -108,11 +108,11 @@ export const BIG_INT_PRIMES = PRIMES.map(BigInt);
  * @returns True if the number is prime, false otherwise.
  */
 export function isPrime(n: number) {
-  if (!Number.isInteger(n) || n < 2) {
-    return false;
-  }
   if (n < 7927) {
     return PRIMES.includes(n);
+  }
+  if (!Number.isInteger(n)) {
+    return false;
   }
   if (n > 62837328) {
     throw new Error('Prime check only implemented up to 62837328');

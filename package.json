@@ -45,8 +45,10 @@
     "posttest": "npm run lint",
     "test": "vitest",
     "doc": "typedoc src/index.ts . --name xen-dev-utils",
-    "prebenchmark": "tsc -p tsconfig-benchmark.json",
-    "benchmark": "node benchmarks/__benchmarks__/monzo.mark.js"
+    "premonzo-benchmark": "tsc -p tsconfig-benchmark.json",
+    "monzo-benchmark": "node benchmarks/__benchmarks__/monzo.mark.js",
+    "preprimes-benchmark": "tsc -p tsconfig-benchmark.json",
+    "primes-benchmark":  "node benchmarks/__benchmarks__/primes.mark.js"
   },
   "engines": {
     "node": ">=10.6.0"
