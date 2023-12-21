@@ -5,6 +5,8 @@ import {
   approximatePrimeLimitWithErrors,
   arraysEqual,
   binomial,
+  circleDifference,
+  circleDistance,
   clamp,
   div,
   dot,
@@ -218,5 +220,47 @@ describe('Norm', () => {
   it('calculates a max norm (number[])', () => {
     const a = [-3, -4];
     expect(norm(a, 'maximum')).toBeCloseTo(4);
+  });
+});
+
+describe('Pitch difference with circle equivalence', () => {
+  it('calculates the difference between 700.0 and 701.955', () => {
+    const diff = circleDifference(700.0, 701.955);
+    expect(diff).toBeCloseTo(-1.955);
+  });
+
+  it('calculates the octave-equivalent difference between 5/1 and 4\\12', () => {
+    const diff = circleDifference(valueToCents(5), 400.0);
+    expect(diff).toBeCloseTo(-13.686);
+  });
+
+  it('calculates the tritave-equivalent difference between 5/1 and 13/1', () => {
+    const diff = circleDifference(
+      valueToCents(5),
+      valueToCents(13),
+      valueToCents(3)
+    );
+    expect(diff).toBeCloseTo(247.741);
+  });
+});
+
+describe('Pitch distance with circle equivalence', () => {
+  it('calculates the distance between 700.0 and 701.955', () => {
+    const diff = circleDistance(700.0, 701.955);
+    expect(diff).toBeCloseTo(1.955);
+  });
+
+  it('calculates the octave-equivalent distance between 5/1 and 4\\12', () => {
+    const diff = circleDistance(valueToCents(5), 400.0);
+    expect(diff).toBeCloseTo(13.686);
+  });
+
+  it('calculates the tritave-equivalent distance between 5/1 and 13/1', () => {
+    const diff = circleDistance(
+      valueToCents(5),
+      valueToCents(13),
+      valueToCents(3)
+    );
+    expect(diff).toBeCloseTo(247.741);
   });
 });

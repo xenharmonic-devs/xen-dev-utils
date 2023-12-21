@@ -530,3 +530,26 @@ export function norm(
   }
   return result;
 }
+
+/**
+ * Calculate the difference between two cents values such that equave equivalence is taken into account.
+ * @param a The first pitch measured in cents.
+ * @param b The second pitch measured in cents.
+ * @param equaveCents The interval of equivalence measured in cents.
+ * @returns The first pitch minus the second pitch but on a circle such that large differences wrap around.
+ */
+export function circleDifference(a: number, b: number, equaveCents = 1200.0) {
+  const half = 0.5 * equaveCents;
+  return mmod(a - b + half, equaveCents) - half;
+}
+
+/**
+ * Calculate the distance between two cents values such that equave equivalence is taken into account.
+ * @param a The first pitch measured in cents.
+ * @param b The second pitch measured in cents.
+ * @param equaveCents The interval of equivalence measured in cents.
+ * @returns The absolute distance between the two pitches measured in cents but on a circle such that large distances wrap around.
+ */
+export function circleDistance(a: number, b: number, equaveCents = 1200.0) {
+  return Math.abs(circleDifference(a, b, equaveCents));
+}
