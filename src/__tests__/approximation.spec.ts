@@ -3,6 +3,7 @@ import {
   approximateOddLimit,
   approximatePrimeLimit,
   approximatePrimeLimitWithErrors,
+  approximateRadical,
   getConvergents,
 } from '../approximation';
 import {valueToCents} from '../conversion';
@@ -112,5 +113,19 @@ describe('Convergent calculator', () => {
     expect(semiconvergents[2].equals('7/2')).toBeTruthy();
     expect(semiconvergents[3].equals('10/3')).toBeTruthy();
     expect(semiconvergents[4].equals('13/4')).toBeTruthy();
+  });
+});
+
+describe('Radical approximator', () => {
+  it("finds Ramanujan's approximation to pi", () => {
+    const {index, radicant} = approximateRadical(Math.PI);
+    expect(index).toBe(4);
+    expect(radicant.toFraction()).toBe('2143/22');
+  });
+
+  it('works with a random value without crashing', () => {
+    const value = Math.random() * 1000 - 100;
+    const {index, radicant} = approximateRadical(value);
+    expect(radicant.valueOf() ** (1 / index) / value).toBeCloseTo(1);
   });
 });

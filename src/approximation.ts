@@ -269,3 +269,64 @@ export function approximatePrimeLimit(
     maxLength
   ).map(result => result[0]);
 }
+
+/**
+ * Calculate an array of continued fraction elements representing the value.
+ * https://en.wikipedia.org/wiki/Continued_fraction
+ * @param value Value to turn into a continued fraction.
+ * @returns An array of continued fraction elements.
+ */
+export function continuedFraction(value: number) {
+  const result: number[] = [];
+  let coeff = Math.floor(value);
+  result.push(coeff);
+  value -= coeff;
+  while (value && coeff < 1e12 && result.length < 32) {
+    value = 1 / value;
+    coeff = Math.floor(value);
+    result.push(coeff);
+    value -= coeff;
+  }
+  return result;
+}
+
+/**
+ * Approximate a value with a radical expression.
+ * @param value Value to approximate.
+ * @param maxIndex Maximum index of the radical. 2 means square root, 3 means cube root, etc.
+ * @param maxHeight Maximum Benedetti height of the radicant in the approximation.
+ * @returns Object with index of the radical and the radicant. Result is "index'th root or radicant".
+ */
+export function approximateRadical(
+  value: number,
+  maxIndex = 5,
+  maxHeight = 50000
+) {
+  let index = 1;
+  let radicant = new Fraction(1);
+  let bestError = Math.abs(value - 1);
+  for (let i = 1; i <= maxIndex; ++i) {
+    const cf = continuedFraction(value ** i);
+    let candidate: Fraction | undefined;
+    for (let j = 0; j < cf.length - 1; ++j) {
+      let convergent = new Fraction(cf[j]);
+      for (let k = j - 1; k >= 0; --k) {
+        convergent = convergent.inverse().add(cf[k]);
+      }
+      if (convergent.n * convergent.d > maxHeight) {
+        break;
+      }
+      candidate = convergent;
+    }
+    if (candidate !== undefined) {
+      const error = Math.abs(candidate.valueOf() ** (1 / i) - value);
+      if (error < bestError) {
+        index = i;
+        radicant = candidate;
+        bestError = error;
+      }
+    }
+  }
+
+  return {index, radicant};
+}
