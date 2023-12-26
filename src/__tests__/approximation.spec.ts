@@ -62,6 +62,12 @@ describe('Prime limit approximator', () => {
       expect(calculatedError).toBeLessThanOrEqual(10);
     });
   });
+
+  it('has somewhat sane default behavior', () => {
+    expect(() =>
+      approximatePrimeLimit(valueToCents(Math.PI), 8, 2)
+    ).not.toThrow();
+  });
 });
 
 describe('Convergent calculator', () => {
