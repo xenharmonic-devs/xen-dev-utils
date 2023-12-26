@@ -52,17 +52,21 @@ export function getConvergents(
         if (includeNonMonotonic) {
           result.push(convergent);
         } else {
-          // See https://en.wikipedia.org/wiki/Continued_fraction#Semiconvergents
-          // for the origin of this half-rule
           if (2 * i > cfDigit) {
             result.push(convergent);
-          } else if (
-            convergent
-              .sub(value_)
-              .abs()
-              .compare(result[result.length - 1].sub(value_).abs()) < 0
-          ) {
-            result.push(convergent);
+          } else {
+            // See https://en.wikipedia.org/wiki/Continued_fraction#Semiconvergents
+            // for the origin of this half-rule
+            try {
+              const halfRule =
+                convergent
+                  .sub(value_)
+                  .abs()
+                  .compare(result[result.length - 1].sub(value_).abs()) < 0;
+              if (halfRule) {
+                result.push(convergent);
+              }
+            } catch {}
           }
         }
         if (result.length >= maxLength!) {
