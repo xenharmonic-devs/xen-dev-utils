@@ -52,17 +52,21 @@ export function getConvergents(
         if (includeNonMonotonic) {
           result.push(convergent);
         } else {
-          // See https://en.wikipedia.org/wiki/Continued_fraction#Semiconvergents
-          // for the origin of this half-rule
           if (2 * i > cfDigit) {
             result.push(convergent);
-          } else if (
-            convergent
-              .sub(value_)
-              .abs()
-              .compare(result[result.length - 1].sub(value_).abs()) < 0
-          ) {
-            result.push(convergent);
+          } else {
+            // See https://en.wikipedia.org/wiki/Continued_fraction#Semiconvergents
+            // for the origin of this half-rule
+            try {
+              const halfRule =
+                convergent
+                  .sub(value_)
+                  .abs()
+                  .compare(result[result.length - 1].sub(value_).abs()) < 0;
+              if (halfRule) {
+                result.push(convergent);
+              }
+            } catch {}
           }
         }
         if (result.length >= maxLength!) {
@@ -168,16 +172,19 @@ export function approximatePrimeLimitWithErrors(
   limitIndex: number,
   maxExponent: number,
   maxError = 600,
-  maxLength?: number
+  maxLength = 100
 ) {
   if (maxError > 600) {
     throw new Error('Maximum search distance is 600 cents');
   }
   const results: [Fraction, number][] = [];
 
-  function push(error: number, generator: () => Fraction) {
-    if (maxLength === undefined || results.length < maxLength) {
-      results.push([generator(), error]);
+  function push(error: number, result: Fraction) {
+    if (!result.n) {
+      return;
+    }
+    if (results.length < maxLength) {
+      results.push([result, error]);
       if (results.length === maxLength) {
         results.sort((a, b) => a[1] - b[1]);
       }
@@ -187,7 +194,7 @@ export function approximatePrimeLimitWithErrors(
       }
       for (let index = results.length - 1; ; index--) {
         if (error <= results[index][1]) {
-          results.splice(index, 0, [generator(), error]);
+          results.splice(index, 0, [result, error]);
           break;
         }
       }
@@ -200,6 +207,9 @@ export function approximatePrimeLimitWithErrors(
     approximationCents: number,
     index: number
   ) {
+    if (approximation.n > 10e10 || approximation.d > 10e10) {
+      return;
+    }
     if (index > limitIndex) {
       // Procedure is the same as in approximateOddLimitWithErrors
       const remainder = mmod(cents - approximationCents, 1200);
@@ -208,34 +218,41 @@ export function approximatePrimeLimitWithErrors(
         if (error > maxError) {
           return;
         }
-        push(error, () =>
-          approximation.mul(
-            TWO.pow(
-              Math.round((cents - approximationCents - remainder) / 1200)
-            )!
-          )
+        const exponent = Math.round(
+          (cents - approximationCents - remainder) / 1200
         );
+        if (Math.abs(exponent) > 52) {
+          return;
+        }
+        const result = approximation.mul(TWO.pow(exponent)!);
+        push(error, result);
       } else {
         const error = 1200 - remainder;
         if (error > maxError) {
           return;
         }
-        push(error, () =>
-          approximation.mul(
-            TWO.pow(
-              Math.round((cents - approximationCents - remainder) / 1200) + 1
-            )!
-          )
-        );
+        const exponent =
+          Math.round((cents - approximationCents - remainder) / 1200) + 1;
+        if (Math.abs(exponent) > 52) {
+          return;
+        }
+        const result = approximation.mul(TWO.pow(exponent)!);
+        push(error, result);
       }
       return;
     }
-    approximation = approximation.div(PRIMES[index] ** maxExponent);
-    approximationCents -= PRIME_CENTS[index] * maxExponent;
-    for (let i = -maxExponent; i <= maxExponent; ++i) {
-      accumulate(approximation, approximationCents, index + 1);
-      approximation = approximation.mul(PRIMES[index]);
-      approximationCents += PRIME_CENTS[index];
+    accumulate(approximation, approximationCents, index + 1);
+    for (let i = 1; i <= maxExponent; ++i) {
+      accumulate(
+        approximation.mul(PRIMES[index] ** i),
+        approximationCents + PRIME_CENTS[index] * i,
+        index + 1
+      );
+      accumulate(
+        approximation.div(PRIMES[index] ** i),
+        approximationCents - PRIME_CENTS[index] * i,
+        index + 1
+      );
     }
   }
   accumulate(new Fraction(1), 0, 1);
@@ -259,7 +276,7 @@ export function approximatePrimeLimit(
   limitIndex: number,
   maxExponent: number,
   maxError = 600,
-  maxLength?: number
+  maxLength = 100
 ) {
   return approximatePrimeLimitWithErrors(
     cents,

@@ -62,6 +62,12 @@ describe('Prime limit approximator', () => {
       expect(calculatedError).toBeLessThanOrEqual(10);
     });
   });
+
+  it('has somewhat sane default behavior', () => {
+    expect(() =>
+      approximatePrimeLimit(valueToCents(Math.PI), 8, 2)
+    ).not.toThrow();
+  });
 });
 
 describe('Convergent calculator', () => {
@@ -113,6 +119,12 @@ describe('Convergent calculator', () => {
     expect(semiconvergents[2].equals('7/2')).toBeTruthy();
     expect(semiconvergents[3].equals('10/3')).toBeTruthy();
     expect(semiconvergents[4].equals('13/4')).toBeTruthy();
+  });
+
+  it('calculates convergents for 1\\5', () => {
+    expect(() =>
+      getConvergents(1.148698354997035, undefined, 256, true, false)
+    ).not.toThrow();
   });
 });
 
