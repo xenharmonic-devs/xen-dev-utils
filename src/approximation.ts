@@ -311,8 +311,8 @@ export function continuedFraction(value: number) {
  * Approximate a value with a radical expression.
  * @param value Value to approximate.
  * @param maxIndex Maximum index of the radical. 2 means square root, 3 means cube root, etc.
- * @param maxHeight Maximum Benedetti height of the radicant in the approximation.
- * @returns Object with index of the radical and the radicant. Result is "index'th root or radicant".
+ * @param maxHeight Maximum Benedetti height of the radicand in the approximation.
+ * @returns Object with index of the radical and the radicand. Result is "index'th root or radicand".
  */
 export function approximateRadical(
   value: number,
@@ -320,7 +320,7 @@ export function approximateRadical(
   maxHeight = 50000
 ) {
   let index = 1;
-  let radicant = new Fraction(1);
+  let radicand = new Fraction(1);
   let bestError = Math.abs(value - 1);
   for (let i = 1; i <= maxIndex; ++i) {
     const cf = continuedFraction(value ** i);
@@ -339,11 +339,11 @@ export function approximateRadical(
       const error = Math.abs(candidate.valueOf() ** (1 / i) - value);
       if (error < bestError) {
         index = i;
-        radicant = candidate;
+        radicand = candidate;
         bestError = error;
       }
     }
   }
 
-  return {index, radicant};
+  return {index, radicand};
 }
