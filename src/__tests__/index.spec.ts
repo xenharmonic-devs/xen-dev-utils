@@ -2,6 +2,7 @@ import {describe, it, expect} from 'vitest';
 import {
   arraysEqual,
   binomial,
+  ceilPow2,
   circleDifference,
   circleDistance,
   clamp,
@@ -150,5 +151,31 @@ describe('Pitch distance with circle equivalence', () => {
       valueToCents(3)
     );
     expect(diff).toBeCloseTo(247.741);
+  });
+});
+
+describe('Ceiling power of two', () => {
+  it('works with small values', () => {
+    const x = 1 + Math.random() * (2 ** 30 - 2);
+    const p2 = ceilPow2(x);
+    expect(x).toBeLessThanOrEqual(p2);
+    expect(p2).toBeLessThan(2 * x);
+    expect(Math.log2(p2)).toBeCloseTo(Math.round(Math.log2(p2)));
+  });
+
+  it('works with tiny values', () => {
+    const x = Math.random();
+    const p2 = ceilPow2(x);
+    expect(x).toBeLessThanOrEqual(p2);
+    expect(p2).toBeLessThan(2 * x);
+    expect(Math.log2(p2)).toBeCloseTo(Math.round(Math.log2(p2)));
+  });
+
+  it('works with large values', () => {
+    const x = 2 ** 31 + Math.random() * 2 ** 37;
+    const p2 = ceilPow2(x);
+    expect(x).toBeLessThanOrEqual(p2);
+    expect(p2).toBeLessThan(2 * x);
+    expect(Math.log2(p2)).toBeCloseTo(Math.round(Math.log2(p2)));
   });
 });

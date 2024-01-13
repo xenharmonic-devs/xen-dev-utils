@@ -284,3 +284,18 @@ export function circleDifference(a: number, b: number, equaveCents = 1200.0) {
 export function circleDistance(a: number, b: number, equaveCents = 1200.0) {
   return Math.abs(circleDifference(a, b, equaveCents));
 }
+
+/**
+ * Calculate the smallest power of two greater or equal to the input value.
+ * @param x Value to compare to.
+ * @returns Smallest `2**n` such that `x <= 2**n`.
+ */
+export function ceilPow2(x: number) {
+  if (x >= 1 && x < 0x40000000) {
+    return 1 << (32 - Math.clz32(x - 1));
+  }
+  if (x <= 0) {
+    return 0;
+  }
+  return 2 ** Math.ceil(Math.log2(x));
+}
