@@ -227,4 +227,10 @@ describe('Fraction', () => {
       'Numerator above safe limit'
     );
   });
+
+  it('can convert a problematic float to a fraction', () => {
+    const x = 0.5717619047619048;
+    const y = new Fraction(x);
+    expect(y.valueOf()).toBeCloseTo(x);
+  });
 });

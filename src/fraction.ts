@@ -250,13 +250,20 @@ export class Fraction {
       if (!coefs.length) {
         throw new Error('Numerator above safe limit');
       }
-      let n = coefs.pop()!;
-      let d = 1;
-      while (coefs.length) {
-        [n, d] = [d + n * coefs.pop()!, n];
+      let j = 1;
+      while (j <= coefs.length) {
+        let n = coefs[coefs.length - j];
+        let d = 1;
+        for (let i = coefs.length - j - 1; i >= 0; --i) {
+          [n, d] = [d + n * coefs[i], n];
+        }
+        this.n = n;
+        this.d = d;
+        if (n <= Number.MAX_SAFE_INTEGER && d <= Number.MAX_SAFE_INTEGER) {
+          break;
+        }
+        j++;
       }
-      this.n = n;
-      this.d = d;
     }
     this.reduce();
   }
