@@ -697,4 +697,180 @@ export class Fraction {
     }
     return new Fraction(n * this.n, gcd(n, this.n) * gcd(d, this.d));
   }
+
+  /**
+   * Geometrically reduce a rational number until it's between 1 and the other a.k.a. geometric modulo
+   *
+   * Ex: new Fraction(5,1).geoMod(2) => 5/4
+   */
+  geoMod(other: FractionValue) {
+    let {s, n, d} = this;
+    const {s: os, n: on, d: od} = new Fraction(other);
+
+    if (on === od) {
+      throw new Error('Geometric modulo by 1');
+    }
+
+    let octaves = Math.floor(Math.log(n / d) / Math.log(on / od));
+
+    if (isNaN(octaves) || !isFinite(octaves)) {
+      throw new Error('Unable to calculate geometric modulo.');
+    }
+
+    if (octaves > 0) {
+      n *= od ** octaves;
+      d *= on ** octaves;
+    } else if (octaves < 0) {
+      n *= on ** -octaves;
+      d *= od ** -octaves;
+    }
+
+    // Fine-tune to fix floating point issues.
+    if (on > od) {
+      if (n * od >= d * on) {
+        octaves++;
+        n *= od;
+        d *= on;
+      }
+      if (n < d) {
+        octaves--;
+        n *= on;
+        d *= od;
+      }
+    } else {
+      if (n * od <= d * on) {
+        octaves++;
+        n *= od;
+        d *= on;
+      }
+      if (n > d) {
+        octaves--;
+        n *= on;
+        d *= od;
+      }
+    }
+
+    s *= os ** octaves;
+
+    return new Fraction({s, n, d});
+  }
+
+  /**
+   * Check if the rational number is 1
+   */
+  isUnity() {
+    return this.s === 1 && this.n === 1 && this.d === 1;
+  }
+
+  /**
+   * Calculates the geometric absolute value
+   *
+   * Ex: new Fraction(2, 3).gabs() => 3/2
+   **/
+  gabs() {
+    if (this.n < this.d) {
+      return new Fraction({n: this.d, d: this.n});
+    }
+    return this.abs();
+  }
+
+  /**
+   * Calculate the greatest common radical between two rational numbers
+   *
+   * Ex: new Fraction(8).gcr(4) => 2
+   */
+  gcr(other: FractionValue, maxIter = 100) {
+    let a = this.gabs();
+    let b = new Fraction(other).gabs();
+    if (a.isUnity()) return b;
+    if (b.isUnity()) return a;
+    for (let i = 0; i < maxIter; ++i) {
+      try {
+        a = a.geoMod(b);
+        if (a.isUnity()) return b;
+        b = b.geoMod(a);
+        if (b.isUnity()) return a;
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Calculate the logarithm of a rational number in the base of another a.k.a. logdivision
+   *
+   * Ex: new Fraction(64,27).log("16/9") => 3/2
+   */
+  log(other: FractionValue, maxIter = 100) {
+    const other_ = new Fraction(other);
+    const radical = this.gcr(other_, maxIter);
+    if (radical === null) {
+      return null;
+    }
+
+    const base = 1 / Math.log(radical.n / radical.d);
+    const n = Math.round(Math.log(this.n / this.d) * base);
+    const d = Math.round(Math.log(other_.n / other_.d) * base);
+
+    if (other_.s < 0) {
+      if (d % 2 === 0) {
+        return null;
+      }
+      if (n % 2) {
+        if (this.s > 0) {
+          return null;
+        }
+      } else {
+        if (this.s < 0) {
+          return null;
+        }
+      }
+    } else if (this.s < 0) {
+      return null;
+    }
+
+    return new Fraction({n, d});
+  }
+
+  /**
+   * Calculate the least common radicand between two rational numbers
+   *
+   * Ex: new Fraction(8).gcr(4) => 64
+   */
+  lcr(other: FractionValue, maxIter = 100) {
+    const other_ = new Fraction(other);
+    const radical = this.gcr(other, maxIter);
+    if (radical === null) {
+      return null;
+    }
+    const base = 1 / Math.log(radical.n / radical.d);
+    const n = Math.round(Math.log(this.n / this.d) * base);
+    const d = Math.round(Math.log(other_.n / other_.d) * base);
+    return radical.pow(Math.abs(n * d));
+  }
+
+  /**
+   * Rounds a rational number to a power of another rational number
+   *
+   * Ex: new Fraction('5/4').geoRoundTo("9/8") => 81 / 64
+   */
+  geoRoundTo(other: FractionValue) {
+    const other_ = new Fraction(other);
+    let exponent = Math.log(this.n / this.d) / Math.log(other_.n / other_.d);
+    if (this.s === 0) {
+      return this.clone();
+    }
+    if (this.s < 0) {
+      if (other_.s > 0) {
+        return null;
+      }
+      exponent = Math.round((exponent + 1) * 0.5) * 2 - 1;
+    } else if (other_.s < 0) {
+      exponent = Math.round(exponent * 0.5) * 2;
+    } else {
+      exponent = Math.round(exponent);
+    }
+    return other_.pow(exponent);
+  }
 }
