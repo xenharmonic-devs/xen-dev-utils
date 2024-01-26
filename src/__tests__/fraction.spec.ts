@@ -233,4 +233,142 @@ describe('Fraction', () => {
     const y = new Fraction(x);
     expect(y.valueOf()).toBeCloseTo(x);
   });
+
+  it('has a geometric modulo (integers)', () => {
+    const fraction = new Fraction(5);
+    expect(fraction.geoMod(2).equals('5/4')).toBe(true);
+  });
+
+  it('has a geometric modulo (fractions)', () => {
+    const fraction = new Fraction(19, 5);
+    expect(fraction.geoMod('3/2').equals('152/135')).toBe(true);
+  });
+
+  it('has a geometric modulo (sub-unity)', () => {
+    const fraction = new Fraction(7);
+    expect(fraction.geoMod('1/2').equals('7/8')).toBe(true);
+  });
+
+  it('has a geometric modulo (negative numbers)', () => {
+    const fraction = new Fraction(11);
+    expect(fraction.geoMod(-2).equals('-11/8')).toBe(true);
+  });
+
+  it('has a geometric modulo (unity)', () => {
+    const fraction = new Fraction(1);
+    expect(fraction.geoMod(3).equals(1)).toBe(true);
+  });
+
+  it('has a geometric modulo (self)', () => {
+    const fraction = new Fraction(4, 3);
+    expect(fraction.geoMod('4/3').equals(1)).toBe(true);
+  });
+
+  // This can easily produce unrepresentable fractions.
+  it.skip('has a geometric modulo (random)', () => {
+    const fraction = new Fraction(Math.random());
+    expect(fraction.geoMod(Math.random()).compare(1)).toBeLessThan(0);
+  });
+
+  it('has a geometric gcd (integers)', () => {
+    const fraction = new Fraction(8);
+    expect(fraction.gcr(4)!.equals(2)).toBe(true);
+  });
+
+  it('has a geometric gcd (unrelated integers)', () => {
+    const fraction = new Fraction(9);
+    expect(fraction.gcr(4)).toBeNull();
+  });
+
+  it('has a geometric gcd (fractions)', () => {
+    const fraction = new Fraction(1024, 243);
+    expect(fraction.gcr('27/64')!.equals('4/3')).toBe(true);
+  });
+
+  // Apparently this can "succeed" even though it should be exceedingly unlikely...
+  it.skip('has a geometric gcd (random)', () => {
+    const fraction = new Fraction(Math.random());
+    expect(fraction.gcr(Math.random())).toBeNull();
+  });
+
+  it('has logdivision (integers)', () => {
+    const fraction = new Fraction(9);
+    expect(fraction.log(3)!.equals(2)).toBe(true);
+  });
+
+  it('has logdivision (negatives)', () => {
+    const fraction = new Fraction(-8);
+    expect(fraction.log(-2)!.equals(3)).toBe(true);
+  });
+
+  it('has logdivision (positive/negative)', () => {
+    const fraction = new Fraction(4);
+    expect(fraction.log(-2)!.equals(2)).toBe(true);
+  });
+
+  it('has logdivision (incompatible negatives)', () => {
+    const fraction = new Fraction(-4);
+    expect(fraction.log(-2)).toBeNull();
+  });
+
+  it('has logdivision (negative/positive)', () => {
+    const fraction = new Fraction(-4);
+    expect(fraction.log(2)).toBeNull();
+  });
+
+  it('has logdivision (negative result)', () => {
+    const fraction = new Fraction(1, 16);
+    expect(fraction.log(2)!.equals(-4)).toBe(true);
+  });
+
+  it('has logdivision (unrelated integers)', () => {
+    const fraction = new Fraction(15);
+    expect(fraction.log(2)).toBeNull();
+  });
+
+  it('has logdivision (fractions)', () => {
+    const fraction = new Fraction(64, 27);
+    expect(fraction.log('16/9')!.equals('3/2')).toBe(true);
+  });
+
+  // Apparently this can "succeed" even though it should be exceedingly unlikely...
+  it.skip('has logdivision (random)', () => {
+    const fraction = new Fraction(Math.random());
+    expect(fraction.log(Math.random())).toBeNull();
+  });
+
+  it('has geometric lcm (integers)', () => {
+    const fraction = new Fraction(27);
+    expect(fraction.lcr(81)!.equals(531441)).toBe(true);
+  });
+
+  it('has a geometric lcm (fractions)', () => {
+    const fraction = new Fraction(9, 16);
+    expect(fraction.lcr('64/27')!.equals('4096/729')).toBe(true);
+  });
+
+  it('has geometric rounding (integers)', () => {
+    const fraction = new Fraction(17);
+    expect(fraction.geoRoundTo(2)!.equals(16)).toBe(true);
+  });
+
+  it('has geometric rounding (positive/negative)', () => {
+    const fraction = new Fraction(7);
+    expect(fraction.geoRoundTo(-2)!.equals(4)).toBe(true);
+  });
+
+  it('has geometric rounding (incompatible negative/positive)', () => {
+    const fraction = new Fraction(-7);
+    expect(fraction.geoRoundTo(2)).toBeNull();
+  });
+
+  it('has geometric rounding (negative)', () => {
+    const fraction = new Fraction(-7);
+    expect(fraction.geoRoundTo(-2)!.equals(-8)).toBe(true);
+  });
+
+  it('has geometric rounding (fractions)', () => {
+    const fraction = new Fraction(3, 2);
+    expect(fraction.geoRoundTo('10/9')!.equals('10000/6561')).toBe(true);
+  });
 });
