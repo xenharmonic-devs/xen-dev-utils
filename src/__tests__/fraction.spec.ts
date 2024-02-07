@@ -371,4 +371,58 @@ describe('Fraction', () => {
     const fraction = new Fraction(3, 2);
     expect(fraction.geoRoundTo('10/9')!.equals('10000/6561')).toBe(true);
   });
+
+  it('has harmonic addition', () => {
+    const fraction = new Fraction('7/5');
+    expect(fraction.lensAdd('13/11').toFraction()).toBe('91/142');
+  });
+
+  it('has harmonic addition of zero (left)', () => {
+    const fraction = new Fraction(0);
+    expect(fraction.lensAdd('3/2').toFraction()).toBe('0');
+  });
+
+  it('has harmonic addition of zero (right)', () => {
+    const fraction = new Fraction('3/2');
+    expect(fraction.lensAdd(0).toFraction()).toBe('0');
+  });
+
+  it('has harmonic addition of zero (both)', () => {
+    const fraction = new Fraction(0);
+    expect(fraction.lensAdd(0).toFraction()).toBe('0');
+  });
+
+  it('has harmonic subtraction', () => {
+    const fraction = new Fraction('7/5');
+    expect(fraction.lensSub('13/11').toFraction()).toBe('-91/12');
+  });
+
+  it('has harmonic subtraction of zero (left)', () => {
+    const fraction = new Fraction(0);
+    expect(fraction.lensSub('3/2').toFraction()).toBe('0');
+  });
+
+  it('has harmonic subtraction of zero (right)', () => {
+    const fraction = new Fraction('3/2');
+    expect(fraction.lensSub(0).toFraction()).toBe('0');
+  });
+
+  it('has harmonic subtraction of zero (both)', () => {
+    const fraction = new Fraction(0);
+    expect(fraction.lensSub(0).toFraction()).toBe('0');
+  });
+
+  it('cancels harmonic addition with harmonic subtraction', () => {
+    const a = new Fraction(
+      Math.floor(Math.random() * 1000),
+      Math.floor(Math.random() * 1000) + 1
+    );
+    const b = new Fraction(
+      Math.floor(Math.random() * 1000),
+      Math.floor(Math.random() * 1000) + 1
+    );
+    const lensSum = a.lensAdd(b);
+    expect(lensSum.lensSub(b).equals(a)).toBe(true);
+    expect(lensSum.lensSub(a).equals(b)).toBe(true);
+  });
 });
