@@ -497,6 +497,34 @@ export class Fraction {
   }
 
   /**
+   * Perform harmonic addition of two rational numbers according to the thin lens equation f⁻¹ = u⁻¹ + v⁻¹
+   *
+   * Ex: new Fraction('5/3').lensAdd('3/2') => 15/19
+   */
+  lensAdd(other: FractionValue) {
+    const {s, n, d} = new Fraction(other);
+    if (!n) {
+      // Based on behavior in the limit where both terms become zero.
+      return new Fraction({s: 0, n: 0, d: 1});
+    }
+    return new Fraction(this.s * this.n * s * n, this.n * d + n * this.d);
+  }
+
+  /**
+   * Perform harmonic subtraction of two rational numbers u⁻¹ = f⁻¹ - v⁻¹ (rearranged thin lens equation)
+   *
+   * Ex: new Fraction('15/19').lensSub('3/2') => 5/3
+   */
+  lensSub(other: FractionValue) {
+    const {s, n, d} = new Fraction(other);
+    if (!n) {
+      // Based on behavior in the limit where both terms become zero.
+      return new Fraction({s: 0, n: 0, d: 1});
+    }
+    return new Fraction(this.s * this.n * s * n, n * this.d - this.n * d);
+  }
+
+  /**
    * Multiplies two rational numbers
    *
    * Ex: new Fraction("-17.'345'").mul(3) => 5776 / 111
