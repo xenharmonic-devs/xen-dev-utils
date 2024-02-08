@@ -528,7 +528,13 @@ export class Fraction {
    **/
   mul(other: FractionValue) {
     const {s, n, d} = new Fraction(other);
-    return new Fraction(this.s * this.n * s * n, this.d * d);
+    // Must pre-reduce to avoid blowing the limits
+    const ndFactor = gcd(this.n, d);
+    const dnFactor = gcd(this.d, n);
+    return new Fraction(
+      this.s * (this.n / ndFactor) * s * (n / dnFactor),
+      (this.d / dnFactor) * (d / ndFactor)
+    );
   }
 
   /**
@@ -541,7 +547,13 @@ export class Fraction {
     if (n === 0) {
       throw new Error('Division by Zero');
     }
-    return new Fraction(this.s * this.n * s * d, this.d * n);
+    // Must pre-reduce to avoid blowing the limits
+    const nFactor = gcd(this.n, n);
+    const dFactor = gcd(this.d, d);
+    return new Fraction(
+      this.s * (this.n / nFactor) * s * (d / dFactor),
+      (this.d / dFactor) * (n / nFactor)
+    );
   }
 
   /**

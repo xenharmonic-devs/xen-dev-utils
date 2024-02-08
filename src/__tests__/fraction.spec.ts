@@ -440,4 +440,11 @@ describe('Fraction', () => {
       foo = foo.mul(foo);
     }
   });
+
+  it('multiplies large cancelling factors', () => {
+    const one = new Fraction('1234567890/987654321').mul(
+      '987654321/1234567890'
+    );
+    expect(one.equals(1)).toBe(true);
+  });
 });

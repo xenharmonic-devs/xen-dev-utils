@@ -89,6 +89,12 @@ describe('Fraction to monzo converter', () => {
     ).toBeTruthy();
   });
 
+  it('converts a Pythagorean interval', () => {
+    const [monzo, residual] = toMonzoAndResidual('129140163/134217728', 6);
+    expect(monzo).toEqual([-27, 17, 0, 0, 0, 0]);
+    expect(residual.equals(1)).toBe(true);
+  });
+
   it('leaves residual 0 for zero (vector part)', () => {
     const [monzo, residual] = toMonzoAndResidual(0, 1);
     expect(residual.equals(0)).toBeTruthy();
