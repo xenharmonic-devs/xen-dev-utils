@@ -94,6 +94,12 @@ export class Fraction {
       this.s = Math.sign(numerator * denominator);
       this.n = Math.abs(numerator);
       this.d = Math.abs(denominator);
+      if (this.n > Number.MAX_SAFE_INTEGER) {
+        throw new Error('Numerator above safe limit');
+      }
+      if (this.d > Number.MAX_SAFE_INTEGER) {
+        throw new Error('Denominator above safe limit');
+      }
       if (this.d === 0) {
         throw new Error('Division by Zero');
       }
@@ -206,15 +212,6 @@ export class Fraction {
     if (isNaN(this.s) || isNaN(this.n) || isNaN(this.d)) {
       throw new Error('Cannot represent NaN as a fraction');
     }
-    /*
-    if (!isFinite(this.d)) {
-      if (!isFinite(this.n)) {
-        throw new Error('Both numerator and denominator cannot be infinite');
-      }
-      this.n = 0;
-      this.d = 1;
-    }
-    */
     if (this.n > Number.MAX_SAFE_INTEGER) {
       throw new Error('Numerator above safe limit');
     }

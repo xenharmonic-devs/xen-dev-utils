@@ -425,4 +425,19 @@ describe('Fraction', () => {
     expect(lensSum.lensSub(b).equals(a)).toBe(true);
     expect(lensSum.lensSub(a).equals(b)).toBe(true);
   });
+
+  it.fails('blows up on repeated division', () => {
+    let foo = new Fraction('3/2');
+    const bar = new Fraction('103/101');
+    for (let i = 0; i < 10; ++i) {
+      foo = foo.div(bar);
+    }
+  });
+
+  it.fails('blows up on repeated multiplication', () => {
+    let foo = new Fraction('103/101');
+    for (let i = 0; i < 4; ++i) {
+      foo = foo.mul(foo);
+    }
+  });
 });
