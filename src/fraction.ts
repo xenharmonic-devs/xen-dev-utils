@@ -480,7 +480,12 @@ export class Fraction {
    **/
   add(other: FractionValue) {
     const {s, n, d} = new Fraction(other);
-    return new Fraction(this.s * this.n * d + s * n * this.d, this.d * d);
+    // Must pre-reduce to avoid blowing the limits
+    const denominator = lcm(this.d, d);
+    return new Fraction(
+      this.s * this.n * (denominator / this.d) + s * n * (denominator / d),
+      denominator
+    );
   }
 
   /**
@@ -490,7 +495,12 @@ export class Fraction {
    **/
   sub(other: FractionValue) {
     const {s, n, d} = new Fraction(other);
-    return new Fraction(this.s * this.n * d - s * n * this.d, this.d * d);
+    // Must pre-reduce to avoid blowing the limits
+    const denominator = lcm(this.d, d);
+    return new Fraction(
+      this.s * this.n * (denominator / this.d) - s * n * (denominator / d),
+      denominator
+    );
   }
 
   /**
@@ -500,11 +510,16 @@ export class Fraction {
    */
   lensAdd(other: FractionValue) {
     const {s, n, d} = new Fraction(other);
-    if (!n) {
+    if (!n || !this.n) {
       // Based on behavior in the limit where both terms become zero.
       return new Fraction({s: 0, n: 0, d: 1});
     }
-    return new Fraction(this.s * this.n * s * n, this.n * d + n * this.d);
+    // Must pre-reduce to avoid blowing the limits
+    const numerator = lcm(this.n, n);
+    return new Fraction(
+      this.s * s * numerator,
+      (numerator / n) * d + (numerator / this.n) * this.d
+    );
   }
 
   /**
@@ -514,11 +529,16 @@ export class Fraction {
    */
   lensSub(other: FractionValue) {
     const {s, n, d} = new Fraction(other);
-    if (!n) {
+    if (!n || !this.n) {
       // Based on behavior in the limit where both terms become zero.
       return new Fraction({s: 0, n: 0, d: 1});
     }
-    return new Fraction(this.s * this.n * s * n, n * this.d - this.n * d);
+    // Must pre-reduce to avoid blowing the limits
+    const numerator = lcm(this.n, n);
+    return new Fraction(
+      this.s * s * numerator,
+      (numerator / this.n) * this.d - (numerator / n) * d
+    );
   }
 
   /**
@@ -562,10 +582,12 @@ export class Fraction {
    * Ex: new Fraction("4.'3'").mod("7/8") => (13/3) % (7/8) = (5/6)
    **/
   mod(other: FractionValue) {
-    other = new Fraction(other);
+    const {n, d} = new Fraction(other);
+    // Must pre-reduce to avoid blowing the limits
+    const denominator = lcm(this.d, d);
     return new Fraction(
-      (this.s * (other.d * this.n)) % (other.n * this.d),
-      this.d * other.d
+      (this.s * ((denominator / this.d) * this.n)) % (n * (denominator / d)),
+      denominator
     );
   }
 
@@ -575,10 +597,12 @@ export class Fraction {
    * Ex: new Fraction("-4.'3'").mmod("7/8") => (-13/3) % (7/8) = (1/24)
    **/
   mmod(other: FractionValue) {
-    other = new Fraction(other);
+    const {n, d} = new Fraction(other);
+    // Must pre-reduce to avoid blowing the limits
+    const denominator = lcm(this.d, d);
     return new Fraction(
-      mmod(this.s * (other.d, this.n), other.n * this.d),
-      this.d * other.d
+      mmod(this.s * ((denominator / this.d) * this.n), n * (denominator / d)),
+      denominator
     );
   }
 
@@ -705,8 +729,14 @@ export class Fraction {
    */
   divisible(other: FractionValue) {
     try {
-      other = new Fraction(other);
-      return !(!(other.n * this.d) || (this.n * other.d) % (other.n * this.d));
+      const {n, d} = new Fraction(other);
+      const nFactor = gcd(this.n, n);
+      const dFactor = gcd(this.d, d);
+      return !(
+        !n ||
+        ((this.n / nFactor) * (d / dFactor)) %
+          ((n / nFactor) * (this.d / dFactor))
+      );
     } catch {
       return false;
     }
@@ -719,7 +749,7 @@ export class Fraction {
    */
   gcd(other: FractionValue) {
     const {n, d} = new Fraction(other);
-    return new Fraction(gcd(n, this.n) * gcd(d, this.d), d * this.d);
+    return new Fraction(gcd(n, this.n), lcm(this.d, d));
   }
 
   /**
@@ -729,10 +759,10 @@ export class Fraction {
    */
   lcm(other: FractionValue) {
     const {n, d} = new Fraction(other);
-    if (n === 0 && this.n === 0) {
+    if (!n && !this.n) {
       return new Fraction({s: 0, n: 0, d: 1});
     }
-    return new Fraction(n * this.n, gcd(n, this.n) * gcd(d, this.d));
+    return new Fraction(lcm(n, this.n), gcd(d, this.d));
   }
 
   /**

@@ -447,4 +447,57 @@ describe('Fraction', () => {
     );
     expect(one.equals(1)).toBe(true);
   });
+
+  it('adds terms with large denominators', () => {
+    const a = new Fraction('123456789/94906267');
+    const b = new Fraction('987654321/94906267');
+    expect(a.add(b).equals('1111111110/94906267')).toBe(true);
+  });
+
+  it('subtracts terms with large denominators', () => {
+    const a = new Fraction('987654321/94906267');
+    const b = new Fraction('123456789/94906267');
+    expect(a.sub(b).equals('864197532/94906267'));
+  });
+
+  it('lens-adds terms with large numerators', () => {
+    const a = new Fraction('94906267/123456789');
+    const b = new Fraction('94906267/987654321');
+    expect(a.lensAdd(b).equals('94906267/1111111110')).toBe(true);
+  });
+
+  it('lens-subtracts terms with large numerators', () => {
+    const a = new Fraction('94906267/123456789');
+    const b = new Fraction('94906267/987654321');
+    expect(a.lensSub(b).equals('-94906267/864197532')).toBe(true);
+  });
+
+  it('mods terms with large denominators', () => {
+    const a = new Fraction('123456789/94906267');
+    const b = new Fraction('987654321/94906267');
+    expect(b.mod(a).equals('9/94906267')).toBe(true);
+  });
+
+  it('mmods terms with large denominators', () => {
+    const a = new Fraction('123456789/94906267');
+    const b = new Fraction('987654321/94906267');
+    expect(b.mmod(a).equals('9/94906267')).toBe(true);
+  });
+
+  it('checks divisibility of complex fractions', () => {
+    const a = new Fraction('123456789/94906267');
+    expect(a.mul(21).divisible(a)).toBe(true);
+  });
+
+  it('computes gcd of factors with large denominators', () => {
+    const a = new Fraction('123456789/94906267');
+    const b = new Fraction('987654321/94906267');
+    expect(a.gcd(b).equals('9/94906267')).toBe(true);
+  });
+
+  it('computes lcm of factors with with large numerators', () => {
+    const a = new Fraction('94906267/123456789');
+    const b = new Fraction('94906267/987654321');
+    expect(a.lcm(b).equals('94906267/9')).toBe(true);
+  });
 });
