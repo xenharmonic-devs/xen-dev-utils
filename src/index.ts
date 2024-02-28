@@ -299,3 +299,46 @@ export function ceilPow2(x: number) {
   }
   return 2 ** Math.ceil(Math.log2(x));
 }
+
+/**
+ * Create an iterator over the n'th Farey sequence. (All fractions between 0 and 1 inclusive.)
+ * @param maxDenominator Maximum denominator in the sequence.
+ * @yields Fractions in ascending order starting from 0/1 and ending at 1/1.
+ */
+export function* fareySequence(
+  maxDenominator: number
+): Generator<Fraction, undefined, undefined> {
+  let a = 0;
+  let b = 1;
+  let c = 1;
+  let d = maxDenominator;
+  yield new Fraction(a, b);
+  while (0 <= c && c <= maxDenominator) {
+    const k = Math.floor((maxDenominator + b) / d);
+    [a, b, c, d] = [c, d, k * c - a, k * d - b];
+    yield new Fraction(a, b);
+  }
+}
+
+/**
+ * Create an iterator over the interior of n'th Farey sequence. (All fractions between 0 and 1 exclusive.)
+ * @param maxDenominator Maximum denominator in the sequence.
+ * @yields Fractions in ascending order starting from 1/maxDenominator and ending at (maxDenominator-1)/maxDenominator.
+ */
+export function* fareyInterior(
+  maxDenominator: number
+): Generator<Fraction, undefined, undefined> {
+  if (maxDenominator < 2) {
+    return;
+  }
+  let a = 1;
+  let b = maxDenominator;
+  let c = 1;
+  let d = maxDenominator - 1;
+  yield new Fraction(a, b);
+  while (d > 1) {
+    const k = Math.floor((maxDenominator + b) / d);
+    [a, b, c, d] = [c, d, k * c - a, k * d - b];
+    yield new Fraction(a, b);
+  }
+}

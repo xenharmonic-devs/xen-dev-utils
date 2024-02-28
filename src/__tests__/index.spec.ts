@@ -1,5 +1,7 @@
 import {describe, it, expect} from 'vitest';
 import {
+  Fraction,
+  FractionSet,
   arraysEqual,
   binomial,
   ceilPow2,
@@ -9,6 +11,8 @@ import {
   div,
   dot,
   extendedEuclid,
+  fareyInterior,
+  fareySequence,
   gcd,
   iteratedEuclid,
   norm,
@@ -177,5 +181,91 @@ describe('Ceiling power of two', () => {
     expect(x).toBeLessThanOrEqual(p2);
     expect(p2).toBeLessThan(2 * x);
     expect(Math.log2(p2)).toBeCloseTo(Math.round(Math.log2(p2)));
+  });
+});
+
+describe('Farey sequence generator', () => {
+  it('generates all fractions with max denominator 6 between 0 and 1 inclusive', () => {
+    const F6 = Array.from(fareySequence(6)).map(f => f.toFraction());
+    expect(F6).toEqual([
+      '0',
+      '1/6',
+      '1/5',
+      '1/4',
+      '1/3',
+      '2/5',
+      '1/2',
+      '3/5',
+      '2/3',
+      '3/4',
+      '4/5',
+      '5/6',
+      '1',
+    ]);
+  });
+
+  it('agrees with the brute force method', () => {
+    const everything = new FractionSet();
+    const N = Math.floor(Math.random() * 50) + 1;
+    for (let d = 1; d <= N; ++d) {
+      for (let n = 0; n <= d; ++n) {
+        everything.add(new Fraction(n, d));
+      }
+    }
+    const brute = Array.from(everything);
+    brute.sort((a, b) => a.compare(b));
+    const farey = fareySequence(N);
+    for (const entry of brute) {
+      const f = farey.next().value!;
+      expect(entry.equals(f)).toBe(true);
+    }
+    expect(farey.next().done).toBe(true);
+  });
+});
+
+describe('Farey interior generator', () => {
+  it('generates all fractions with max denominator 8 between 0 and 1 exclusive', () => {
+    const Fi8 = Array.from(fareyInterior(8)).map(f => f.toFraction());
+    expect(Fi8).toEqual([
+      '1/8',
+      '1/7',
+      '1/6',
+      '1/5',
+      '1/4',
+      '2/7',
+      '1/3',
+      '3/8',
+      '2/5',
+      '3/7',
+      '1/2',
+      '4/7',
+      '3/5',
+      '5/8',
+      '2/3',
+      '5/7',
+      '3/4',
+      '4/5',
+      '5/6',
+      '6/7',
+      '7/8',
+    ]);
+  });
+
+  it('agrees with the brute force method', () => {
+    const everything = new FractionSet();
+    const N = Math.floor(Math.random() * 50) + 1;
+    for (let d = 1; d <= N; ++d) {
+      for (let n = 1; n < d; ++n) {
+        everything.add(new Fraction(n, d));
+      }
+    }
+    const brute = Array.from(everything);
+    brute.sort((a, b) => a.compare(b));
+    const farey = fareyInterior(N);
+    for (const entry of brute) {
+      const f = farey.next().value!;
+      expect(entry.equals(f)).toBe(true);
+    }
+    expect(farey.next().done).toBe(true);
   });
 });

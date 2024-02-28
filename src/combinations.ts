@@ -137,7 +137,10 @@ export function combinations<T>(set: T[]): T[][] {
  * @param k Size of combinations to search for.
  * @returns Generator of found combinations, size of a combination is k.
  */
-export function* iterKCombinations<T>(set: T[], k: number): Generator<T[]> {
+export function* iterKCombinations<T>(
+  set: T[],
+  k: number
+): Generator<T[], number, undefined> {
   // There is no way to take e.g. sets of 5 elements from
   // a set of 4.
   if (k > set.length || k <= 0) {
@@ -179,7 +182,9 @@ export function* iterKCombinations<T>(set: T[], k: number): Generator<T[]> {
  * @param set Array of objects of any type. They are treated as unique.
  * @returns Generator of arrays representing all possible non-empty combinations of elements in a set.
  */
-export function* iterCombinations<T>(set: T[]): Generator<T[]> {
+export function* iterCombinations<T>(
+  set: T[]
+): Generator<T[], number, undefined> {
   // Calculate all non-empty k-combinations
   let total = 0;
   for (let k = 1; k <= set.length; k++) {
