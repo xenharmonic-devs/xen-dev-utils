@@ -481,10 +481,11 @@ export class Fraction {
   add(other: FractionValue) {
     const {s, n, d} = new Fraction(other);
     // Must pre-reduce to avoid blowing the limits
-    const denominator = lcm(this.d, d);
+    const factor = gcd(this.d, d);
+    const df = d / factor;
     return new Fraction(
-      this.s * this.n * (denominator / this.d) + s * n * (denominator / d),
-      denominator
+      this.s * this.n * df + s * n * (this.d / factor),
+      df * this.d
     );
   }
 
@@ -496,10 +497,11 @@ export class Fraction {
   sub(other: FractionValue) {
     const {s, n, d} = new Fraction(other);
     // Must pre-reduce to avoid blowing the limits
-    const denominator = lcm(this.d, d);
+    const factor = gcd(this.d, d);
+    const df = d / factor;
     return new Fraction(
-      this.s * this.n * (denominator / this.d) - s * n * (denominator / d),
-      denominator
+      this.s * this.n * df - s * n * (this.d / factor),
+      df * this.d
     );
   }
 

@@ -48,7 +48,9 @@
     "premonzo-benchmark": "tsc -p tsconfig-benchmark.json",
     "monzo-benchmark": "node benchmarks/__benchmarks__/monzo.mark.js",
     "preprimes-benchmark": "tsc -p tsconfig-benchmark.json",
-    "primes-benchmark": "node benchmarks/__benchmarks__/primes.mark.js"
+    "primes-benchmark": "node benchmarks/__benchmarks__/primes.mark.js",
+    "prefraction-benchmark": "tsc -p tsconfig-benchmark.json",
+    "fraction-benchmark": "node benchmarks/__benchmarks__/fraction.mark.js"
   },
   "engines": {
     "node": ">=10.6.0"
