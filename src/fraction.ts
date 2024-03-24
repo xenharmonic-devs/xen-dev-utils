@@ -1,6 +1,7 @@
 // I'm rolling my own because fraction.js has trouble with TypeScript https://github.com/rawify/Fraction.js/issues/72
 // -Lumi
 
+import {valueToCents} from './conversion';
 import {PRIMES} from './primes';
 
 export type UnsignedFraction = {n: number; d: number};
@@ -395,7 +396,8 @@ export class Fraction {
   }
 
   /**
-   * Return a convergent of this fraction that is within the given tolerance.
+   * Return a convergent of this fraction that is within the given absolute tolerance.
+   * @param epsilon Absolute tolerance for error.
    */
   simplify(epsilon = 0.001) {
     const abs = this.abs();
@@ -408,7 +410,29 @@ export class Fraction {
         s = s.inverse().add(cont[k]);
       }
 
-      if (Math.abs(s.valueOf() - absValue) < epsilon) {
+      if (Math.abs(s.valueOf() - absValue) <= epsilon) {
+        return new Fraction({s: this.s, n: s.n, d: s.d} as Fraction);
+      }
+    }
+    return this.clone();
+  }
+
+  /**
+   * Return a convergent of this fraction that is within the given relative tolerance measured in cents.
+   * @param tolerance Relative tolerance measured in cents.
+   */
+  simplifyRelative(tolerance = 3.5) {
+    const abs = this.abs();
+    const cont = abs.toContinued();
+    const absCents = valueToCents(abs.valueOf());
+
+    for (let i = 1; i < cont.length; i++) {
+      let s = new Fraction({s: 1, n: cont[i - 1], d: 1} as Fraction);
+      for (let k = i - 2; k >= 0; k--) {
+        s = s.inverse().add(cont[k]);
+      }
+
+      if (Math.abs(valueToCents(s.valueOf()) - absCents) <= tolerance) {
         return new Fraction({s: this.s, n: s.n, d: s.d} as Fraction);
       }
     }

@@ -161,10 +161,22 @@ describe('Fraction', () => {
     }
   });
 
-  it('can simplify a random number', () => {
-    const value = Math.random() * 2;
+  it('can simplify a random number using an absolute metric', () => {
+    const value = Math.random() * 4 - 2;
     const fraction = new Fraction(value);
     expect(fraction.simplify().valueOf()).toBeCloseTo(value);
+  });
+
+  it('can simplify a random number using a relative metric', () => {
+    const value =
+      Math.exp(Math.random() * 20 - 10) *
+      (Math.floor(2 * Math.random()) * 2 - 1);
+    const fraction = new Fraction(value);
+    const simplified = fraction.simplifyRelative().valueOf();
+    expect(Math.sign(simplified)).toBe(Math.sign(value));
+    expect(
+      Math.abs(Math.log(Math.abs(simplified)) - Math.log(Math.abs(value)))
+    ).toBeLessThanOrEqual((Math.LN2 / 1200) * 3.5);
   });
 
   it('can parse a repeated decimal', () => {
