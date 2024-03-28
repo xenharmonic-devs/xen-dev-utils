@@ -26,13 +26,13 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- * </lisence>
+ * </license>
  *
  * Implements functions to calculate combinations of elements in JS Arrays.
  *
  * Functions:
- *   kCombinations(set, k) -- Return all k-sized combinations in a set
- *   combinations(set) -- Return all combinations of the set
+ *   kCombinations(set, k) -- Return all non-empty k-sized combinations in a set
+ *   combinations(set) -- Return all non-empty combinations of the set
  */
 
 /**
@@ -50,11 +50,13 @@
  * ```
  * @param set Array of objects of any type. They are treated as unique.
  * @param k Size of combinations to search for.
- * @returns Array of found combinations, size of a combination is k.
+ * @returns Array of found non-empty combinations, size of a combination is k.
  */
 export function kCombinations<T>(set: T[], k: number): T[][] {
   // There is no way to take e.g. sets of 5 elements from
   // a set of 4.
+  // All sets with 0 elements are empty.
+  // A set with negative amount of elements makes no sense.
   if (k > set.length || k <= 0) {
     return [];
   }
@@ -143,6 +145,8 @@ export function* iterKCombinations<T>(
 ): Generator<T[], number, undefined> {
   // There is no way to take e.g. sets of 5 elements from
   // a set of 4.
+  // All sets with 0 elements are empty.
+  // A set with negative amount of elements makes no sense.
   if (k > set.length || k <= 0) {
     return 0;
   }

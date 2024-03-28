@@ -276,9 +276,12 @@ export class Fraction {
   }
 
   /**
-   * Creates a string representation of a fraction with all digits
+   * Creates a string representation of a fraction with all digits.
    *
-   * Ex: new Fraction("100.'91823'").toString() => "100.'91823'"
+   * Example:
+   * ```ts
+   * new Fraction("100.'91823'").toString()  // "100.'91823'"
+   * ```
    **/
   toString() {
     let result = this.s < 0 ? '-' : '';
@@ -311,9 +314,12 @@ export class Fraction {
   }
 
   /**
-   * Returns an array of continued fraction elements
+   * Returns an array of continued fraction elements.
    *
-   * Ex: new Fraction("7/8").toContinued() => [0,1,7]
+   * Example:
+   * ```ts
+   * new Fraction("7/8").toContinued()  // [0, 1, 7]
+   * ```
    */
   toContinued() {
     const result = [];
@@ -331,9 +337,12 @@ export class Fraction {
   }
 
   /**
-   * Calculates the absolute value
+   * Calculates the absolute value.
    *
-   * Ex: new Fraction(-4).abs() => 4
+   * Example:
+   * ```ts
+   * new Fraction(-4).abs()  // 4
+   * ```
    **/
   abs() {
     return new Fraction({
@@ -344,18 +353,24 @@ export class Fraction {
   }
 
   /**
-   * Returns a decimal representation of the fraction
+   * Returns a decimal representation of the fraction.
    *
-   * Ex: new Fraction("100.'91823'").valueOf() => 100.91823918239183
+   * Example:
+   * ```ts
+   * new Fraction("100.'91823'").valueOf()  // 100.91823918239183
+   * ```
    **/
   valueOf() {
     return (this.s * this.n) / this.d;
   }
 
   /**
-   * Gets the inverse of the fraction, means numerator and denominator are exchanged
+   * Returns the inverse of the fraction, numerator and denominator are exchanged.
    *
-   * Ex: new Fraction(-3, 4).inverse() => -4 / 3
+   * Example:
+   * ```ts
+   * new Fraction(-3, 4).inverse()  // -4/3
+   * ```
    **/
   inverse() {
     if (this.n === 0) {
@@ -365,18 +380,24 @@ export class Fraction {
   }
 
   /**
-   * Inverts the sign of the current fraction
+   * Returns the additive inverse of the fraction.
    *
-   * Ex: new Fraction(-4).neg() => 4
+   * Example:
+   * ```ts
+   * new Fraction(-4).neg()  // 4
+   * ```
    **/
   neg() {
     return new Fraction({s: -this.s, n: this.n, d: this.d} as Fraction);
   }
 
   /**
-   * Returns a string-fraction representation of a Fraction object
+   * Returns a string-fraction representation of a Fraction object.
    *
-   * Ex: new Fraction("1.'3'").toFraction(true) => "4/3"
+   * Example:
+   * ```ts
+   * new Fraction("1.'3'").toFraction()  // "4/3"
+   * ```
    **/
   toFraction() {
     const n = this.s * this.n;
@@ -387,9 +408,12 @@ export class Fraction {
   }
 
   /**
-   * Clones the actual object
+   * Clones the actual object.
    *
-   * Ex: new Fraction("-17.'345'").clone()
+   * Example:
+   * ```ts
+   * new Fraction("-17.'345'").clone()  // new Fraction("-17.'345'")
+   * ```
    **/
   clone() {
     return new Fraction(this);
@@ -440,9 +464,12 @@ export class Fraction {
   }
 
   /**
-   * Calculates the floor of a rational number
+   * Calculates the floor of a rational number.
    *
-   * Ex: new Fraction("4.'3'").floor() => (4 / 1)
+   * Example:
+   * ```ts
+   * new Fraction("4.'3'").floor()  // 4/1
+   * ```
    **/
   floor() {
     if (this.d > Number.MAX_SAFE_INTEGER) {
@@ -454,9 +481,12 @@ export class Fraction {
   }
 
   /**
-   * Calculates the ceil of a rational number
+   * Calculates the ceil of a rational number.
    *
-   * Ex: new Fraction("4.'3'").ceil() => (5 / 1)
+   * Example:
+   * ```ts
+   * new Fraction("4.'3'").ceil()  // 5/1
+   * ```
    **/
   ceil() {
     if (this.d > Number.MAX_SAFE_INTEGER) {
@@ -471,9 +501,14 @@ export class Fraction {
   }
 
   /**
-   * Rounds a rational number
+   * Rounds a rational number.
    *
-   * Ex: new Fraction("4.'3'").round() => (4 / 1)
+   * Examples:
+   * ```ts
+   * new Fraction("4.'3'").floor()  // 4/1
+   * new Fraction("4.5").floor()    // 5/1
+   * new Fraction("4.'6'").floor()  // 5/1
+   * ```
    **/
   round() {
     try {
@@ -484,9 +519,15 @@ export class Fraction {
   }
 
   /**
-   * Rounds a rational number to a multiple of another rational number
+   * Rounds a rational number to a multiple of another rational number.
    *
-   * Ex: new Fraction('0.9').roundTo("1/8") => 7 / 8
+   * Examples:
+   * ```ts
+   * new Fraction("0.'7'").roundTo("1/9")   // 7/9
+   * new Fraction("0.78").roundTo("1/9")    // 7/9
+   * new Fraction("0.8'3'").roundTo("1/9")  // 8/9
+   * new Fraction("0.85").roundTo("1/9")    // 8/9
+   * ```
    **/
   roundTo(other: FractionValue) {
     const {n, d} = new Fraction(other);
@@ -498,9 +539,12 @@ export class Fraction {
   }
 
   /**
-   * Adds two rational numbers
+   * Adds two rational numbers.
    *
-   * Ex: new Fraction(\{n: 2, d: 3\}).add("14.9") => 467 / 30
+   * Example:
+   * ```ts
+   * new Fraction({n: 2, d: 3}).add("14.9")  // 467/30
+   * ```
    **/
   add(other: FractionValue) {
     const {s, n, d} = new Fraction(other);
@@ -514,9 +558,12 @@ export class Fraction {
   }
 
   /**
-   * Subtracts two rational numbers
+   * Subtracts two rational numbers.
    *
-   * Ex: new Fraction(\{n: 2, d: 3\}).add("14.9") => -427 / 30
+   * Example:
+   * ```ts
+   * new Fraction({n: 2, d: 3}).sub("14.9")  // -427/30
+   * ```
    **/
   sub(other: FractionValue) {
     const {s, n, d} = new Fraction(other);
@@ -530,9 +577,12 @@ export class Fraction {
   }
 
   /**
-   * Perform harmonic addition of two rational numbers according to the thin lens equation f⁻¹ = u⁻¹ + v⁻¹
+   * Perform harmonic addition of two rational numbers according to the thin lens equation f⁻¹ = u⁻¹ + v⁻¹.
    *
-   * Ex: new Fraction('5/3').lensAdd('3/2') => 15/19
+   * Example:
+   * ```ts
+   * new Fraction('5/3').lensAdd('3/2')  // 15/19
+   * ```
    */
   lensAdd(other: FractionValue) {
     const {s, n, d} = new Fraction(other);
@@ -549,9 +599,12 @@ export class Fraction {
   }
 
   /**
-   * Perform harmonic subtraction of two rational numbers u⁻¹ = f⁻¹ - v⁻¹ (rearranged thin lens equation)
+   * Perform harmonic subtraction of two rational numbers u⁻¹ = f⁻¹ - v⁻¹ (rearranged thin lens equation).
    *
-   * Ex: new Fraction('15/19').lensSub('3/2') => 5/3
+   * Example:
+   * ```ts
+   * new Fraction('15/19').lensSub('3/2')  // 5/3
+   * ```
    */
   lensSub(other: FractionValue) {
     const {s, n, d} = new Fraction(other);
@@ -568,9 +621,12 @@ export class Fraction {
   }
 
   /**
-   * Multiplies two rational numbers
+   * Multiplies two rational numbers.
    *
-   * Ex: new Fraction("-17.'345'").mul(3) => 5776 / 111
+   * Example:
+   * ```ts
+   * new Fraction("-17.'345'").mul(3)  // 5776/111
+   * ```
    **/
   mul(other: FractionValue) {
     const {s, n, d} = new Fraction(other);
@@ -586,7 +642,10 @@ export class Fraction {
   /**
    * Divides two rational numbers
    *
-   * Ex: new Fraction("-17.'345'").inverse().div(3)
+   * Example:
+   * ```ts
+   * new Fraction("-17.'345'").div(3)  // 5776/999
+   * ```
    **/
   div(other: FractionValue) {
     const {s, n, d} = new Fraction(other);
@@ -603,9 +662,13 @@ export class Fraction {
   }
 
   /**
-   * Calculates the modulo of two rational numbers - a more precise fmod
+   * Calculates the computational modulo of two rational numbers - a more precise fmod. Incorrectly processes signs.
    *
-   * Ex: new Fraction("4.'3'").mod("7/8") => (13/3) % (7/8) = (5/6)
+   * Examples:
+   * ```ts
+   * new Fraction("5/1").mod("3/1")   //   (5/1) % (3/1)  = 2/1
+   * new Fraction("-5/1").mod("3/1")  // -((5/1) % (3/1)) = -2/1
+   * ```
    **/
   mod(other: FractionValue) {
     const {n, d} = new Fraction(other);
@@ -618,9 +681,13 @@ export class Fraction {
   }
 
   /**
-   * Calculates the mathematically correct modulo of two rational numbers
+   * Calculates the mathematical modulo of two rational numbers. Correctly processes signs.
    *
-   * Ex: new Fraction("-4.'3'").mmod("7/8") => (-13/3) % (7/8) = (1/24)
+   * Examples:
+   * ```ts
+   * new Fraction("5/1").mod("3/1")   // (5/1) % (3/1)  = 2/1
+   * new Fraction("-5/1").mod("3/1")  // (-5/1) % (3/1) = (1/1) % (3/1) = 1/1
+   * ```
    **/
   mmod(other: FractionValue) {
     const {n, d} = new Fraction(other);
@@ -633,9 +700,15 @@ export class Fraction {
   }
 
   /**
-   * Calculates the fraction to some rational exponent, if possible
+   * Calculates the fraction to some rational exponent, if possible.
    *
-   * Ex: new Fraction(-1,2).pow(-3) => -8
+   * Examples:
+   * ```ts
+   * new Fraction("1/2").pow(2)      // 1/4
+   * new Fraction("-1/2").pow(-3)    // -8
+   * new Fraction("9/4").pow("3/2")  // 27/8
+   * new Fraction("2/1").pow("1/2")  // null
+   * ```
    */
   pow(other: FractionValue): Fraction | null {
     const {s, n, d} = new Fraction(other);
@@ -721,9 +794,14 @@ export class Fraction {
   }
 
   /**
-   * Compare if two rational numbers, return negative if this is less
+   * Compare two rational numbers, returns (this - other) which has the correct sign for `Array.sort()`.
    *
-   * Ex: new Fraction("19.6").equals("98/5");
+   * Examples:
+   * ```ts
+   * new Fraction("19.7").compare("98/5") // 0.1
+   * new Fraction("19.6").compare("98/5") // 0
+   * new Fraction("19.5").compare("98/5") // -0.1
+   * ```
    **/
   compare(other: FractionValue) {
     try {
@@ -737,7 +815,12 @@ export class Fraction {
   /**
    * Check if two rational numbers are the same
    *
-   * Ex: new Fraction("19.6").equals("98/5");
+   * Examples:
+   * ```ts
+   * new Fraction("19.7").equals("98/5") // false
+   * new Fraction("19.6").equals("98/5") // true
+   * new Fraction("19.5").equals("98/5") // false
+   * ```
    **/
   equals(other: FractionValue) {
     try {
@@ -750,8 +833,14 @@ export class Fraction {
 
   /**
    * Check if two rational numbers are divisible
+   * (i.e. this is an integer multiple of other)
    *
-   * Ex: new Fraction("19.6").divisible("1.5");
+   * Examples:
+   * ```ts
+   * new Fraction("7.6").divisible("5/2") // false
+   * new Fraction("7.5").divisible("5/2") // true
+   * new Fraction("7/4").divisible("5/2") // false
+   * ```
    */
   divisible(other: FractionValue) {
     try {
@@ -769,9 +858,12 @@ export class Fraction {
   }
 
   /**
-   * Calculates the fractional gcd of two rational numbers
+   * Calculates the fractional gcd of two rational numbers. (i.e. both this and other is divisible by the result)
    *
-   * Ex: new Fraction(5,8).gcd("3/7") => 1/56
+   * Example:
+   * ```ts
+   * new Fraction(5,8).gcd("3/7")  // 1/56
+   * ```
    */
   gcd(other: FractionValue) {
     const {n, d} = new Fraction(other);
@@ -779,9 +871,12 @@ export class Fraction {
   }
 
   /**
-   * Calculates the fractional lcm of two rational numbers
+   * Calculates the fractional lcm of two rational numbers. (i.e. the result is divisible by both this and other)
    *
-   * Ex: new Fraction(5,8).lcm("3/7") => 15
+   * Example:
+   * ```ts
+   * new Fraction(5,8).gcd("3/7")  // 15
+   * ```
    */
   lcm(other: FractionValue) {
     const {n, d} = new Fraction(other);
@@ -792,9 +887,15 @@ export class Fraction {
   }
 
   /**
-   * Geometrically reduce a rational number until it's between 1 and the other a.k.a. geometric modulo
+   * Geometrically reduce a rational number until its absolute value is between 1 and the absolute value of other, i.e. geometric modulo.
+   * Note: Returns a positive result for a negative modulo if the required number of divisions is even.
    *
-   * Ex: new Fraction(5,1).geoMod(2) => 5/4
+   * Examples:
+   * ```ts
+   * new Fraction(5, 1).geoMod(2)        // 5/4
+   * new Fraction(1, 11).geoMod(3)       // 27/11
+   * new Fraction(1, 11).geoMod("-1/3")  // 9/11
+   * ```
    */
   geoMod(other: FractionValue) {
     let {s, n, d} = this;
@@ -849,16 +950,28 @@ export class Fraction {
   }
 
   /**
-   * Check if the rational number is 1
+   * Check if the rational number is 1.
+   *
+   * Examples:
+   * ```ts
+   * new Fraction(9, 9).isUnity()      // true
+   * new Fraction("0.01e2").isUnity()  // true
+   * new Fraction(7, 6).isUnity()      // false
+   * ```
    */
   isUnity() {
     return this.s === 1 && this.n === 1 && this.d === 1;
   }
 
   /**
-   * Calculates the geometric absolute value
+   * Calculates the geometric absolute value. Discards sign.
    *
-   * Ex: new Fraction(2, 3).gabs() => 3/2
+   * Examples:
+   * ```ts
+   * new Fraction(3, 2).gabs()   // 3/2
+   * new Fraction(2, 3).gabs()   // 2/3
+   * new Fraction(-1, 2).gabs()  // 2/1
+   * ```
    **/
   gabs() {
     if (this.n < this.d) {
@@ -868,9 +981,14 @@ export class Fraction {
   }
 
   /**
-   * Calculate the greatest common radical between two rational numbers
+   * Calculate the greatest common radical between two rational numbers if it exists.
    *
-   * Ex: new Fraction(8).gcr(4) => 2
+   * Examples:
+   * ```ts
+   * new Fraction(8).gcr(4)          // 2
+   * new Fraction(81).gcr(6561)      // 9
+   * new Fraction("1/2").gcr("1/3")  // null
+   * ```
    */
   gcr(other: FractionValue, maxIter = 100) {
     let a = this.gabs();
@@ -891,9 +1009,19 @@ export class Fraction {
   }
 
   /**
-   * Calculate the logarithm of a rational number in the base of another a.k.a. logdivision
+   * Calculate the logarithm of a rational number in the base of another, i.e. logdivision if the result exists as a rational number.
    *
-   * Ex: new Fraction(64,27).log("16/9") => 3/2
+   * Examples:
+   * ```ts
+   * new Fraction(4).log(2)              // 2
+   * new Fraction(64,27).log("16/9")     // 3/2
+   * new Fraction(64,27).log("1/1")      // null
+   * new Fraction(64,27).log(7)          // null
+   *
+   * new Fraction(64,27).log("-16/9")    // null
+   * new Fraction(-64,27).log("16/9")    // null
+   * new Fraction(-64,27).log("-16/9")   // null
+   * ```
    */
   log(other: FractionValue, maxIter = 100) {
     const other_ = new Fraction(other);
@@ -927,9 +1055,13 @@ export class Fraction {
   }
 
   /**
-   * Calculate the least common radicand between two rational numbers
+   * Calculate the least common radicand between two rational numbers if it exists.
    *
-   * Ex: new Fraction(8).gcr(4) => 64
+   * Examples:
+   * ```ts
+   * new Fraction(8).lcr(4)          // 64
+   * new Fraction("1/2").lcr("1/3")  // null
+   * ```
    */
   lcr(other: FractionValue, maxIter = 100) {
     const other_ = new Fraction(other);
@@ -944,9 +1076,24 @@ export class Fraction {
   }
 
   /**
-   * Rounds a rational number to a power of another rational number
+   * Rounds a rational number to a power of another rational number.
    *
-   * Ex: new Fraction('5/4').geoRoundTo("9/8") => 81 / 64
+   * Examples:
+   * ```ts
+   * new Fraction('5/4').geoRoundTo("9/8")     // 81/64
+   * new Fraction('5/4').geoRoundTo("1/1")     // 1/1
+   *
+   * // handling negative values
+   *
+   * new Fraction('5/4').geoRoundTo("-9/8")    // 81/64
+   *
+   * new Fraction('10/7').geoRoundTo("9/8")    // 729/512
+   * new Fraction('10/7').geoRoundTo("-9/8")   // 6561/4096
+   *
+   * new Fraction('-5/4').geoRoundTo("9/8")    // null
+   *
+   * new Fraction('-5/4').geoRoundTo("-9/8")   // -9/8
+   * ```
    */
   geoRoundTo(other: FractionValue) {
     const other_ = new Fraction(other);
