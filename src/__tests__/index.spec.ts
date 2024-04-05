@@ -14,6 +14,8 @@ import {
   fareyInterior,
   fareySequence,
   gcd,
+  falsifyConstantStructure,
+  hasMarginConstantStructure,
   iteratedEuclid,
   norm,
   valueToCents,
@@ -267,5 +269,116 @@ describe('Farey interior generator', () => {
       expect(entry.equals(f)).toBe(true);
     }
     expect(farey.next().done).toBe(true);
+  });
+});
+
+describe('Constant structure falsifier', () => {
+  it('Rejects diatonic in 12-tone equal temperament with F-to-B against B-to-F', () => {
+    const steps = [2, 4, 5, 7, 9, 11, 12];
+    const [[lowAug4, highAug4], [lowDim5, highDim5]] =
+      falsifyConstantStructure(steps)!;
+    // C = -1
+    // D = 0
+    // E = 1
+    expect(lowAug4).toBe(2); // F
+    expect(highAug4).toBe(5); // B
+
+    expect(lowDim5).toBe(5); // B
+    expect(highDim5 % 7).toBe(2); // F
+  });
+
+  it('Accepts diatonic in 19-tone equal temperament', () => {
+    const steps = [3, 6, 8, 11, 14, 17, 19];
+    expect(falsifyConstantStructure(steps)).toBe(null);
+  });
+
+  it("Produces Zarlino's sequence in 311-tone equal temperament", () => {
+    const sizes: number[] = [];
+    const gs: number[] = [100, 182];
+    for (let i = 3; i < 60; ++i) {
+      const zarlino = [...gs];
+      zarlino.push(311);
+      zarlino.sort((a, b) => a - b);
+      if (falsifyConstantStructure(zarlino) === null) {
+        sizes.push(i);
+      }
+      const last = gs[gs.length - 1];
+      if (i & 1) {
+        gs.push((last + 100) % 311);
+      } else {
+        gs.push((last + 82) % 311);
+      }
+    }
+    expect(sizes).toEqual([3, 4, 7, 10, 17, 34, 58]);
+  });
+
+  it('Accepts the empty scale', () => {
+    expect(falsifyConstantStructure([])).toBe(null);
+  });
+
+  it('Accepts the trivial scale', () => {
+    expect(falsifyConstantStructure([1])).toBe(null);
+  });
+
+  it('Rejects a scale with a repeated step (early)', () => {
+    expect(falsifyConstantStructure([0, 1200])).toEqual([
+      [-1, 1],
+      [0, 1],
+    ]);
+  });
+
+  it('Rejects a scale with a repeated step (late)', () => {
+    expect(falsifyConstantStructure([1200, 1200])).toEqual([
+      [-1, 1],
+      [-1, 2],
+    ]);
+  });
+});
+
+describe('Constant structure checker with a margin of equivalence', () => {
+  it('Rejects diatonic in 12-tone equal temperament (zero margin)', () => {
+    const scaleCents = [200, 400, 500, 700, 900, 1100, 1200];
+    expect(hasMarginConstantStructure(scaleCents, 0)).toBe(false);
+  });
+
+  it('Accepts diatonic in 19-tone equal temperament (margin of 1 cent)', () => {
+    const scaleCents = [189.5, 378.9, 505.3, 694.7, 884.2, 1073.7, 1200];
+    expect(hasMarginConstantStructure(scaleCents, 1)).toBe(true);
+  });
+
+  const zarlino: number[] = [386.313714, 701.955001];
+  for (let i = 0; i < 31; ++i) {
+    const last = zarlino[zarlino.length - 1];
+    if (i & 1) {
+      zarlino.push((last + 315.641287) % 1200);
+    } else {
+      zarlino.push((last + 386.313714) % 1200);
+    }
+  }
+  zarlino.sort((a, b) => a - b);
+  zarlino.push(1200);
+
+  it('Accepts Zarlino[34] with a margin of 1 cent', () => {
+    expect(hasMarginConstantStructure(zarlino, 1)).toBe(true);
+  });
+
+  it('Rejects Zarlino[34] with a margin of 2 cents', () => {
+    expect(hasMarginConstantStructure(zarlino, 2)).toBe(false);
+  });
+
+  it('Accepts the empty scale', () => {
+    expect(hasMarginConstantStructure([], 0)).toBe(true);
+  });
+
+  it('Accepts the trivial scale', () => {
+    expect(hasMarginConstantStructure([1200], 0)).toBe(true);
+  });
+
+  it('Rejects a scale with a comma step (early)', () => {
+    expect(hasMarginConstantStructure([1, 1200], 2)).toBe(false);
+  });
+
+  it('Rejects a scale with a comma step (late)', () => {
+    expect(hasMarginConstantStructure([1199, 1200], 2)).toBe(false);
   });
 });
