@@ -342,3 +342,110 @@ export function* fareyInterior(
     yield new Fraction(a, b);
   }
 }
+
+/**
+ * Determine if an equally tempered scale has constant structure i.e. you can tell the interval class from the size of an interval.
+ * @param steps Musical intervals measured in steps not including the implicit 0 at the start, but including the interval of repetition at the end.
+ * @returns A pair of pairs of indices that have the same stepspan but different subtension. `null` if the scale has constant structure.
+ */
+export function falsifyConstantStructure(
+  steps: number[]
+): [[number, number], [number, number]] | null {
+  const n = steps.length;
+  if (!n) {
+    return null;
+  }
+  const period = steps[n - 1];
+  const scale = [...steps];
+  for (const step of steps) {
+    scale.push(period + step);
+  }
+
+  // Map from interval sizes to pairs of [index, subtension]
+  const subtensions = new Map<number, [number, number]>();
+
+  // Against implicit unison
+  for (let i = 0; i < n; i++) {
+    if (subtensions.has(scale[i])) {
+      return [subtensions.get(scale[i])!, [-1, i + 1]];
+    }
+    subtensions.set(scale[i], [-1, i + 1]);
+  }
+
+  // Against each other
+  for (let i = 0; i < n - 1; ++i) {
+    for (let j = 1; j < n; ++j) {
+      const width = scale[i + j] - scale[i];
+      if (subtensions.has(width)) {
+        const [k, l] = subtensions.get(width)!;
+        if (j !== l) {
+          return [
+            [k, k + l],
+            [i, i + j],
+          ];
+        }
+      }
+      // Add the observed width to the collection
+      subtensions.set(width, [i, j]);
+    }
+  }
+  return null;
+}
+
+/**
+ * Determine if a scale has constant structure i.e. you can tell the interval class from the size of an interval.
+ * @param scaleCents Musical intervals measured in cents not including the implicit 0 at the start, but including the interval of repetition at the end.
+ * @param margin Margin of equivalence between two intervals measured in cents.
+ * @returns `true` if the scale definitely has constant structure. (A `false` result may convert to `true` using a smaller margin.)
+ */
+export function hasMarginConstantStructure(
+  scaleCents: number[],
+  margin: number
+) {
+  const n = scaleCents.length;
+  if (!n) {
+    return true;
+  }
+  const period = scaleCents[n - 1];
+  const scale = [...scaleCents];
+  for (const cents of scaleCents) {
+    scale.push(period + cents);
+  }
+
+  // Map from interval sizes to (zero-indexed) interval classes a.k.a. subtensions
+  const subtensions = new Map<number, number>();
+
+  // Against unison
+  for (let i = 0; i < n; i++) {
+    // Check for margin equivalence
+    for (const existing of subtensions.keys()) {
+      if (Math.abs(existing - scale[i]) <= margin) {
+        return false;
+      }
+    }
+    subtensions.set(scale[i], i + 1);
+  }
+
+  // Against each other
+  for (let i = 0; i < n - 1; ++i) {
+    for (let j = 1; j < n; ++j) {
+      const width = scale[i + j] - scale[i];
+      // Try to get lucky with an exact match
+      if (subtensions.has(width) && subtensions.get(width) !== j) {
+        return false;
+      }
+      // Check for margin equivalence
+      for (const [existing, subtension] of subtensions.entries()) {
+        if (subtension === j) {
+          continue;
+        }
+        if (Math.abs(existing - width) <= margin) {
+          return false;
+        }
+      }
+      // Add the observed width to the collection
+      subtensions.set(width, j);
+    }
+  }
+  return true;
+}
