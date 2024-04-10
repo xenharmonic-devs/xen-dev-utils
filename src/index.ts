@@ -6,6 +6,7 @@ export * from './conversion';
 export * from './combinations';
 export * from './monzo';
 export * from './approximation';
+export * from './hashable';
 
 export interface AnyArray {
   [key: number]: any;
@@ -122,52 +123,6 @@ export function iteratedEuclid(params: Iterable<number>) {
     coefs.push(ee.coefB);
   }
   return coefs;
-}
-
-/**
- * Collection of unique fractions.
- */
-export class FractionSet extends Set<Fraction> {
-  /**
-   * Check `value` membership.
-   * @param value Value to check for membership.
-   * @returns A boolean asserting whether an element is present with the given value in the `FractionSet` object or not.
-   */
-  has(value: Fraction) {
-    for (const other of this) {
-      if (other.equals(value)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Appends `value` to the `FractionSet` object.
-   * @param value Value to append.
-   * @returns The `FractionSet` object with added value.
-   */
-  add(value: Fraction) {
-    if (this.has(value)) {
-      return this;
-    }
-    super.add(value);
-    return this;
-  }
-
-  /**
-   * Removes the element associated to the `value`.
-   * @param value Value to remove.
-   * @returns A boolean asserting whether an element was successfully removed or not. `FractionSet.prototype.has(value)` will return `false` afterwards.
-   */
-  delete(value: Fraction) {
-    for (const other of this) {
-      if (other.equals(value)) {
-        return super.delete(other);
-      }
-    }
-    return false;
-  }
 }
 
 // https://stackoverflow.com/a/37716142
