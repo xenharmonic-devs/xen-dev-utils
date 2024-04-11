@@ -12,7 +12,7 @@ export type Monzo = number[];
  * @param b The second monzo.
  * @returns `true` if the two values are equal when interpreted as fractions.
  */
-export function monzosEqual(a: Monzo, b: Monzo) {
+export function monzosEqual(a: Readonly<Monzo>, b: Readonly<Monzo>) {
   if (a === b) {
     return true;
   }
@@ -37,6 +37,8 @@ export function monzosEqual(a: Monzo, b: Monzo) {
   }
   return true;
 }
+
+// TODO: Make types readonly where applicable.
 
 /**
  * Add two monzos.

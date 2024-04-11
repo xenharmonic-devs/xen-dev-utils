@@ -1,7 +1,6 @@
 import {describe, it, expect} from 'vitest';
 import {
   Fraction,
-  FractionSet,
   arraysEqual,
   binomial,
   ceilPow2,
@@ -19,7 +18,10 @@ import {
   iteratedEuclid,
   norm,
   valueToCents,
+  F,
 } from '../index';
+import {HashMap, HashSet, Hashable} from '../hashable';
+import {DeepReadonly, Primitive} from 'ts-essentials';
 
 describe('Array equality tester', () => {
   it('works on integer arrays', () => {
@@ -207,11 +209,11 @@ describe('Farey sequence generator', () => {
   });
 
   it('agrees with the brute force method', () => {
-    const everything = new FractionSet();
+    const everything = new HashSet<DeepReadonly<Fraction>>();
     const N = Math.floor(Math.random() * 50) + 1;
     for (let d = 1; d <= N; ++d) {
       for (let n = 0; n <= d; ++n) {
-        everything.add(new Fraction(n, d));
+        everything.add(F(n, d));
       }
     }
     const brute = Array.from(everything);
@@ -254,11 +256,11 @@ describe('Farey interior generator', () => {
   });
 
   it('agrees with the brute force method', () => {
-    const everything = new FractionSet();
+    const everything = new HashSet<DeepReadonly<Fraction>>();
     const N = Math.floor(Math.random() * 50) + 1;
     for (let d = 1; d <= N; ++d) {
       for (let n = 1; n < d; ++n) {
-        everything.add(new Fraction(n, d));
+        everything.add(F(n, d));
       }
     }
     const brute = Array.from(everything);
@@ -380,5 +382,54 @@ describe('Constant structure checker with a margin of equivalence', () => {
 
   it('Rejects a scale with a comma step (late)', () => {
     expect(hasMarginConstantStructure([1199, 1200], 2)).toBe(false);
+  });
+});
+
+describe('Fractions as hashmap keys', () => {
+  it('can override values using equivalent keys', () => {
+    const hashMap = new HashMap([
+      [F(3, 2), 'fif'],
+      [F(2), 'octave'],
+    ]);
+    hashMap.set(F('5/4'), 'third');
+    hashMap.set(F(1.5), 'fifth');
+    const entries = Array.from(hashMap).sort((a, b) => a[0].compare(b[0]));
+    expect(entries).toEqual([
+      [{s: 1, n: 5, d: 4}, 'third'],
+      [{s: 1, n: 3, d: 2}, 'fifth'],
+      [{s: 1, n: 2, d: 1}, 'octave'],
+    ]);
+  });
+
+  it('plays nicely with mixed keys and mixed data', () => {
+    class OtherHashable extends Hashable {
+      name: string;
+      constructor(name: string) {
+        super();
+        this.name = name;
+      }
+      valueOf(): string {
+        return this.name;
+      }
+      strictEquals(other: Hashable | Primitive): boolean {
+        if (other instanceof OtherHashable) {
+          return this.name === other.name;
+        }
+        return false;
+      }
+    }
+    const hashMap = new HashMap<
+      number | string | Fraction | OtherHashable,
+      string | number | boolean
+    >([
+      [1, 'one'],
+      [F(1), 'other one'],
+      ['1', 1],
+      [Object.freeze(new OtherHashable('1')), true],
+    ]);
+    expect(hashMap.get(1)).toBe('one');
+    expect(hashMap.get(F('7/7'))).toBe('other one');
+    expect(hashMap.get('1')).toBe(1);
+    expect(hashMap.get(Object.freeze(new OtherHashable('1')))).toBe(true);
   });
 });

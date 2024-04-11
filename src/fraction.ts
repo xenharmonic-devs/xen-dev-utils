@@ -3,6 +3,8 @@
 
 import {valueToCents} from './conversion';
 import {PRIMES} from './primes';
+import {Hashable} from './hashable';
+import {DeepReadonly, Primitive} from 'ts-essentials';
 
 export type UnsignedFraction = {n: number; d: number};
 
@@ -76,7 +78,7 @@ export function mmod(a: number, b: number) {
  * new Fraction("13e-3");  // scientific notation
  * ```
  */
-export class Fraction {
+export class Fraction extends Hashable {
   /** Sign: +1, 0 or -1 */
   s: number;
   /** Numerator */
@@ -85,6 +87,7 @@ export class Fraction {
   d: number;
 
   constructor(numerator: FractionValue, denominator?: number) {
+    super();
     if (denominator !== undefined) {
       if (typeof numerator !== 'number') {
         throw new Error('Numerator must be a number when denominator is given');
@@ -832,6 +835,24 @@ export class Fraction {
   }
 
   /**
+   * Check if two {@link Fraction} instances represent the same rational number.
+   * Returns `false` for other {@link Hashable} objects.
+   * Examples:
+   * ```ts
+   * new Fraction("19.7").strictEquals(new Fraction("98/5")) // false
+   * new Fraction("19.6").strictEquals(new Fraction("98/5")) // true
+   * new Fraction("19.5").strictEquals(new Fraction("98/5")) // false
+   * ```
+   **/
+  strictEquals(other: Hashable | Primitive) {
+    if (other instanceof Fraction) {
+      const {s, n, d} = other;
+      return this.s === s && this.n === n && this.d === d;
+    }
+    return false;
+  }
+
+  /**
    * Check if two rational numbers are divisible
    * (i.e. this is an integer multiple of other)
    *
@@ -1113,4 +1134,17 @@ export class Fraction {
     }
     return other_.pow(exponent);
   }
+}
+
+/**
+ * Construct an immutable {@link Fraction} instance suitable for a key in a {@link HashMap} or a value in {@link HashSet}.
+ * @param numerator Integer numerator, floating point value, string or another {@link Fraction} to convert.
+ * @param denominator Integer denominator (defaults to `1`).
+ * @returns An immutable rational number.
+ */
+export function F(
+  numerator: FractionValue,
+  denominator?: number
+): DeepReadonly<Fraction> {
+  return Object.freeze(new Fraction(numerator, denominator));
 }
