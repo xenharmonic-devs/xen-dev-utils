@@ -84,7 +84,7 @@ export function ftom(frequency: number): [number, number] {
 
 /**
  * Convert MTS pitch value to 3-byte representation
- * @param number MTS pitch value
+ * @param mtsValue MTS pitch value
  * @returns Uint8Array 3-byte of 7-bit MTS data
  */
 export function mtsToMtsBytes(mtsValue: number): Uint8Array {
@@ -113,7 +113,7 @@ export function frequencyToMtsBytes(frequency: number): Uint8Array {
 
 /**
  * Convert 3-byte MTS value to frequency
- * @param Uint8Array of 3-bytes of 7-bit MTS values
+ * @param mtsBytes Uint8Array of 3-bytes of 7-bit MTS values
  * @returns frequency Frequency in Hertz
  */
 export function mtsBytesToMts(mtsBytes: Uint8Array): number {
@@ -131,7 +131,7 @@ export function mtsBytesToMts(mtsBytes: Uint8Array): number {
 
 /**
  * Convert 3-byte MTS value to frequency
- * @param Uint8Array of 3-bytes of 7-bit MTS values
+ * @param mtsBytes Uint8Array of 3-bytes of 7-bit MTS values
  * @returns frequency Frequency in Hertz
  */
 export function mtsBytesToFrequency(mtsBytes: Uint8Array): number {
@@ -141,7 +141,7 @@ export function mtsBytesToFrequency(mtsBytes: Uint8Array): number {
 }
 
 /** Convert MTS Data value into readable hex string
- * @param Uint8Array of 3-bytes of 7-bit MTS values
+ * @param mtsBytes Uint8Array of 3-bytes of 7-bit MTS values
  * @returns String representation of MTS value in hexadecimal
  *          can be used in MIDI messages
  */
