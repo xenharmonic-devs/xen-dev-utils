@@ -6,6 +6,18 @@ import {BIG_INT_PRIMES, PRIMES} from './primes';
  */
 export type Monzo = number[];
 
+// The limit at which ((n ^ (n-1)) & n) is no longer equal to the two's factor.
+const BIT_MAGIC_LIMIT = 2 ** 31;
+
+/**
+ * Calculate the absolute value of a BigInt.
+ * @param n Integer to measure.
+ * @returns Size of the integer as a BigInt.
+ */
+export function bigAbs(n: bigint) {
+  return n < 0n ? -n : n;
+}
+
 /**
  * Check if two monzos are equal.
  * @param a The first monzo.
@@ -162,7 +174,7 @@ export function toMonzo(n: FractionValue | bigint): Monzo {
   let probe = 1;
   let limitIndex = 0;
 
-  if (n < 0x100000000) {
+  if (n < BIT_MAGIC_LIMIT) {
     // Bit-magic for small 2-limit
     probe = (n ^ (n - 1)) & n;
     result[0] = Math.log2(probe);
@@ -223,89 +235,6 @@ function bigIntToMonzo(n: bigint) {
       result[limitIndex]++;
     }
   }
-}
-
-/**
- * Extract the exponents of the prime factors of a rational number.
- * @param n Rational number to convert to a monzo.
- * @param numberOfComponents Number of components in the result.
- * @returns The monzo representing `n` and a multiplicative residue that cannot be represented in the given limit.
- */
-export function toMonzoAndResidual(
-  n: bigint,
-  numberOfComponents: number
-): [Monzo, bigint];
-export function toMonzoAndResidual(
-  n: FractionValue,
-  numberOfComponents: number
-): [Monzo, Fraction];
-export function toMonzoAndResidual(
-  n: FractionValue | bigint,
-  numberOfComponents: number
-): [Monzo, Fraction] | [Monzo, bigint] {
-  if (typeof n === 'bigint') {
-    return bigIntToMonzoAndResidual(n, numberOfComponents);
-  }
-  n = new Fraction(n);
-  const numerator = n.n;
-  const denominator = n.d;
-
-  if (!n.n) {
-    return [Array(numberOfComponents).fill(0), new Fraction(0)];
-  }
-
-  let nProbe = 1;
-  let dProbe = 1;
-
-  const result = Array(numberOfComponents).fill(-1);
-  for (let i = 0; i < numberOfComponents; ++i) {
-    let lastProbe;
-    do {
-      lastProbe = nProbe;
-      nProbe *= PRIMES[i];
-      result[i]++;
-    } while (numerator % nProbe === 0);
-    nProbe = lastProbe;
-
-    // The fraction is in lowest terms so we know that positive components exclude negative components.
-    if (result[i]) {
-      continue;
-    }
-
-    result[i] = 1;
-    do {
-      lastProbe = dProbe;
-      dProbe *= PRIMES[i];
-      result[i]--;
-    } while (denominator % dProbe === 0);
-    dProbe = lastProbe;
-  }
-
-  return [result, (n as Fraction).div(new Fraction(nProbe, dProbe))];
-}
-
-function bigIntToMonzoAndResidual(
-  n: bigint,
-  numberOfComponents: number
-): [Monzo, bigint] {
-  if (!n) {
-    return [Array(numberOfComponents).fill(0), 0n];
-  }
-
-  let probe = 1n;
-
-  const result = Array(numberOfComponents).fill(-1);
-  for (let i = 0; i < numberOfComponents; ++i) {
-    let lastProbe;
-    do {
-      lastProbe = probe;
-      probe *= BIG_INT_PRIMES[i];
-      result[i]++;
-    } while (n % probe === 0n);
-    probe = lastProbe;
-  }
-
-  return [result, n / probe];
 }
 
 /**
@@ -383,7 +312,7 @@ export function primeLimit(
   let probe = 1;
   let limitIndex = 0;
 
-  if (n < 0x100000000) {
+  if (n < BIT_MAGIC_LIMIT) {
     // Bit-magic for small 2-limit
     probe = (n ^ (n - 1)) & n;
     if (n === probe) {
@@ -443,4 +372,224 @@ function bigIntPrimeLimit(
       return asOrdinal ? limitIndex + 1 : PRIMES[limitIndex];
     }
   }
+}
+
+/**
+ * Extract the exponents of the prime factors of a rational number.
+ * @param n Rational number to convert to a monzo.
+ * @param numberOfComponents Number of components in the result.
+ * @returns The monzo representing `n` and a multiplicative residue that cannot be represented in the given limit.
+ */
+export function toMonzoAndResidual(
+  n: bigint,
+  numberOfComponents: number
+): [Monzo, bigint];
+export function toMonzoAndResidual(
+  n: FractionValue,
+  numberOfComponents: number
+): [Monzo, Fraction];
+export function toMonzoAndResidual(
+  n: FractionValue | bigint,
+  numberOfComponents: number
+): [Monzo, Fraction] | [Monzo, bigint] {
+  if (typeof n === 'bigint') {
+    return bigIntToMonzoAndResidual(n, numberOfComponents);
+  }
+  n = new Fraction(n);
+
+  if (!n.n) {
+    return [Array(numberOfComponents).fill(0), new Fraction(0)];
+  }
+
+  let [n7, numerator] = intToMonzo7(n.n);
+  let [d7, denominator] = intToMonzo7(n.d);
+
+  const result: Monzo = Array(numberOfComponents).fill(-1);
+
+  result[0] = n7[0] - d7[0];
+  result[1] = n7[1] - d7[1];
+  result[2] = n7[2] - d7[2];
+  result[3] = n7[3] - d7[3];
+
+  let nProbe = 1;
+  let dProbe = 1;
+
+  for (let i = 4; i < numberOfComponents; ++i) {
+    let lastProbe: number;
+    do {
+      lastProbe = nProbe;
+      nProbe *= PRIMES[i];
+      result[i]++;
+    } while (numerator % nProbe === 0);
+    nProbe = lastProbe;
+
+    // The fraction is in lowest terms so we know that positive components exclude negative components.
+    if (result[i]) {
+      continue;
+    }
+
+    result[i] = 1;
+    do {
+      lastProbe = dProbe;
+      dProbe *= PRIMES[i];
+      result[i]--;
+    } while (denominator % dProbe === 0);
+    dProbe = lastProbe;
+  }
+
+  numerator /= nProbe;
+  denominator /= dProbe;
+
+  // Silly user, 7-limit is fine for everyone.
+  while (result.length > numberOfComponents) {
+    const exponent = result.pop()!;
+    if (exponent > 0) {
+      numerator *= PRIMES[result.length] ** exponent;
+    } else if (exponent < 0) {
+      denominator *= PRIMES[result.length] ** -exponent;
+    }
+  }
+
+  const residual = new Fraction(numerator, denominator);
+  residual.s = (n as Fraction).s;
+
+  return [result, residual];
+}
+
+function bigIntToMonzoAndResidual(
+  n: bigint,
+  numberOfComponents: number
+): [Monzo, bigint] {
+  if (!n) {
+    return [Array(numberOfComponents).fill(0), 0n];
+  }
+
+  let [result, residual] = bigIntToMonzo7(bigAbs(n));
+
+  let probe = 1n;
+
+  for (let i = 4; i < numberOfComponents; ++i) {
+    result.push(-1);
+    let lastProbe: bigint;
+    do {
+      lastProbe = probe;
+      probe *= BIG_INT_PRIMES[i];
+      result[i]++;
+    } while (residual % probe === 0n);
+    probe = lastProbe;
+  }
+
+  residual /= probe;
+
+  while (result.length > numberOfComponents) {
+    const exponent = result.pop()!;
+    residual *= BIG_INT_PRIMES[result.length] ** BigInt(exponent);
+  }
+
+  return [result, n < 0n ? -residual : residual];
+}
+
+// Factors of 315 factorized to monzos
+const M0 = [0, 0, 0, 0];
+const M1 = [0, 1, 0, 0];
+const M2 = [0, 0, 1, 0];
+const M3 = [0, 0, 0, 1];
+const M4 = [0, 2, 0, 0];
+const M5 = [0, 1, 1, 0];
+const M6 = [0, 1, 0, 1];
+const M7 = [0, 0, 1, 1];
+const M8 = [0, 2, 1, 0];
+const M9 = [0, 2, 0, 1];
+const Ma = [0, 1, 1, 1];
+const Mb = [0, 2, 1, 1];
+
+// prettier-ignore
+const MONZO_LOOKUP: [number, Monzo][] = [
+  [315, Mb], [1, M0], [1, M0], [3, M1], [1, M0], [5, M2], [3, M1], [7, M3], [1, M0], [9, M4], [5, M2], [1, M0], [3, M1], [1, M0], [7, M3],
+  [15, M5], [1, M0], [1, M0], [9, M4], [1, M0], [5, M2], [21, M6], [1, M0], [1, M0], [3, M1], [5, M2], [1, M0], [9, M4], [7, M3], [1, M0],
+  [15, M5], [1, M0], [1, M0], [3, M1], [1, M0], [35, M7], [9, M4], [1, M0], [1, M0], [3, M1], [5, M2], [1, M0], [21, M6], [1, M0], [1, M0],
+  [45, M8], [1, M0], [1, M0], [3, M1], [7, M3], [5, M2], [3, M1], [1, M0], [1, M0], [9, M4], [5, M2], [7, M3], [3, M1], [1, M0], [1, M0],
+  [15, M5], [1, M0], [1, M0], [63, M9], [1, M0], [5, M2], [3, M1], [1, M0], [1, M0], [3, M1], [35, M7], [1, M0], [9, M4], [1, M0], [1, M0],
+  [15, M5], [1, M0], [7, M3], [3, M1], [1, M0], [5, M2], [9, M4], [1, M0], [1, M0], [21, M6], [5, M2], [1, M0], [3, M1], [1, M0], [1, M0],
+  [45, M8], [7, M3], [1, M0], [3, M1], [1, M0], [5, M2], [3, M1], [1, M0], [7, M3], [9, M4], [5, M2], [1, M0], [3, M1], [1, M0], [1, M0],
+  [105, Ma], [1, M0], [1, M0], [9, M4], [1, M0], [5, M2], [3, M1], [7, M3], [1, M0], [3, M1], [5, M2], [1, M0], [9, M4], [1, M0], [7, M3],
+  [15, M5], [1, M0], [1, M0], [3, M1], [1, M0], [5, M2], [63, M9], [1, M0], [1, M0], [3, M1], [5, M2], [1, M0], [3, M1], [7, M3], [1, M0],
+  [45, M8], [1, M0], [1, M0], [3, M1], [1, M0], [35, M7], [3, M1], [1, M0], [1, M0], [9, M4], [5, M2], [1, M0], [21, M6], [1, M0], [1, M0],
+  [15, M5], [1, M0], [1, M0], [9, M4], [7, M3], [5, M2], [3, M1], [1, M0], [1, M0], [3, M1], [5, M2], [7, M3], [9, M4], [1, M0], [1, M0],
+  [15, M5], [1, M0], [1, M0], [21, M6], [1, M0], [5, M2], [9, M4], [1, M0], [1, M0], [3, M1], [35, M7], [1, M0], [3, M1], [1, M0], [1, M0],
+  [45, M8], [1, M0], [7, M3], [3, M1], [1, M0], [5, M2], [3, M1], [1, M0], [1, M0], [63, M9], [5, M2], [1, M0], [3, M1], [1, M0], [1, M0],
+  [15, M5], [7, M3], [1, M0], [9, M4], [1, M0], [5, M2], [3, M1], [1, M0], [7, M3], [3, M1], [5, M2], [1, M0], [9, M4], [1, M0], [1, M0],
+  [105, Ma], [1, M0], [1, M0], [3, M1], [1, M0], [5, M2], [9, M4], [7, M3], [1, M0], [3, M1], [5, M2], [1, M0], [3, M1], [1, M0], [7, M3],
+  [45, M8], [1, M0], [1, M0], [3, M1], [1, M0], [5, M2], [21, M6], [1, M0], [1, M0], [9, M4], [5, M2], [1, M0], [3, M1], [7, M3], [1, M0],
+  [15, M5], [1, M0], [1, M0], [9, M4], [1, M0], [35, M7], [3, M1], [1, M0], [1, M0], [3, M1], [5, M2], [1, M0], [63, M9], [1, M0], [1, M0],
+  [15, M5], [1, M0], [1, M0], [3, M1], [7, M3], [5, M2], [9, M4], [1, M0], [1, M0], [3, M1], [5, M2], [7, M3], [3, M1], [1, M0], [1, M0],
+  [45, M8], [1, M0], [1, M0], [21, M6], [1, M0], [5, M2], [3, M1], [1, M0], [1, M0], [9, M4], [35, M7], [1, M0], [3, M1], [1, M0], [1, M0],
+  [15, M5], [1, M0], [7, M3], [9, M4], [1, M0], [5, M2], [3, M1], [1, M0], [1, M0], [21, M6], [5, M2], [1, M0], [9, M4], [1, M0], [1, M0],
+  [15, M5], [7, M3], [1, M0], [3, M1], [1, M0], [5, M2], [9, M4], [1, M0], [7, M3], [3, M1], [5, M2], [1, M0], [3, M1], [1, M0], [1, M0]
+];
+
+const BIG_LOOKUP: [bigint, Monzo][] = MONZO_LOOKUP.map(l => [
+  BigInt(l[0]),
+  l[1],
+]);
+
+// XXX: Not resistant to zero, check your inputs.
+function intToMonzo7(n: number): [Monzo, number] {
+  const result = [0, 0, 0, 0];
+  if (n < BIT_MAGIC_LIMIT) {
+    // Bit-magic for small 2-limit
+    const twos = (n ^ (n - 1)) & n;
+    n /= twos;
+    // IEEE 754 guarantees that this works,
+    // and it's the fastest way I know that works in JS.
+    result[0] = Math.log2(twos);
+  } else {
+    while (!(n % 2)) {
+      result[0]++;
+      n /= 2;
+    }
+  }
+  while (true) {
+    const [factor, m] = MONZO_LOOKUP[n % 315];
+    if (factor === 1) {
+      break;
+    }
+    n /= factor;
+    result[1] += m[1];
+    result[2] += m[2];
+    result[3] += m[3];
+  }
+  return [result, n];
+}
+
+// XXX: Not resistant to zero, check your inputs.
+function bigIntToMonzo7(n: bigint): [Monzo, bigint] {
+  const result = [0, 0, 0, 0];
+  // Factors of two using bit magic
+  const twos = (n ^ (n - 1n)) & n;
+  n /= twos;
+  // IEEE 754 guarantees that this works up to n = 2n ** 1023n
+  result[0] += Math.log2(Number(twos));
+
+  // Absurd inputs require absurd solutions
+  if (result[0] === Infinity) {
+    result[0] = 0;
+    let probe = 1n;
+    while (probe < twos) {
+      result[0]++;
+      probe <<= 1n;
+    }
+  }
+
+  while (true) {
+    const [factor, m] = BIG_LOOKUP[Number(n % 315n)];
+    if (factor === 1n) {
+      break;
+    }
+    n /= factor;
+    result[1] += m[1];
+    result[2] += m[2];
+    result[3] += m[3];
+  }
+  return [result, n];
 }

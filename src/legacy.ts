@@ -162,3 +162,86 @@ function bigIntPrimeLimit(
     }
   }
 }
+
+/**
+ * Extract the exponents of the prime factors of a rational number.
+ * @param n Rational number to convert to a monzo.
+ * @param numberOfComponents Number of components in the result.
+ * @returns The monzo representing `n` and a multiplicative residue that cannot be represented in the given limit.
+ */
+export function toMonzoAndResidualLegacy(
+  n: bigint,
+  numberOfComponents: number
+): [Monzo, bigint];
+export function toMonzoAndResidualLegacy(
+  n: FractionValue,
+  numberOfComponents: number
+): [Monzo, Fraction];
+export function toMonzoAndResidualLegacy(
+  n: FractionValue | bigint,
+  numberOfComponents: number
+): [Monzo, Fraction] | [Monzo, bigint] {
+  if (typeof n === 'bigint') {
+    return bigIntToMonzoAndResidualLegacy(n, numberOfComponents);
+  }
+  n = new Fraction(n);
+  const numerator = n.n;
+  const denominator = n.d;
+
+  if (!n.n) {
+    return [Array(numberOfComponents).fill(0), new Fraction(0)];
+  }
+
+  let nProbe = 1;
+  let dProbe = 1;
+
+  const result = Array(numberOfComponents).fill(-1);
+  for (let i = 0; i < numberOfComponents; ++i) {
+    let lastProbe;
+    do {
+      lastProbe = nProbe;
+      nProbe *= PRIMES[i];
+      result[i]++;
+    } while (numerator % nProbe === 0);
+    nProbe = lastProbe;
+
+    // The fraction is in lowest terms so we know that positive components exclude negative components.
+    if (result[i]) {
+      continue;
+    }
+
+    result[i] = 1;
+    do {
+      lastProbe = dProbe;
+      dProbe *= PRIMES[i];
+      result[i]--;
+    } while (denominator % dProbe === 0);
+    dProbe = lastProbe;
+  }
+
+  return [result, (n as Fraction).div(new Fraction(nProbe, dProbe))];
+}
+
+function bigIntToMonzoAndResidualLegacy(
+  n: bigint,
+  numberOfComponents: number
+): [Monzo, bigint] {
+  if (!n) {
+    return [Array(numberOfComponents).fill(0), 0n];
+  }
+
+  let probe = 1n;
+
+  const result = Array(numberOfComponents).fill(-1);
+  for (let i = 0; i < numberOfComponents; ++i) {
+    let lastProbe;
+    do {
+      lastProbe = probe;
+      probe *= BIG_INT_PRIMES[i];
+      result[i]++;
+    } while (n % probe === 0n);
+    probe = lastProbe;
+  }
+
+  return [result, n / probe];
+}

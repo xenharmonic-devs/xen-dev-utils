@@ -8,6 +8,34 @@ import {
   toMonzoAndResidual,
 } from '../monzo';
 
+function toMonzoAndResidual11(n: number): [number[], number] {
+  const result = [0, 0, 0, 0, 0];
+  if (!n) {
+    return [result, n];
+  }
+  while (n % 2 === 0) {
+    n /= 2;
+    result[0]++;
+  }
+  while (n % 3 === 0) {
+    n /= 3;
+    result[1]++;
+  }
+  while (n % 5 === 0) {
+    n /= 5;
+    result[2]++;
+  }
+  while (n % 7 === 0) {
+    n /= 7;
+    result[3]++;
+  }
+  while (n % 11 === 0) {
+    n /= 11;
+    result[4]++;
+  }
+  return [result, n];
+}
+
 describe('Monzo converter', () => {
   it('can break down an integer to its prime components', () => {
     const monzo = toMonzo(360);
@@ -144,6 +172,62 @@ describe('Fraction to monzo converter', () => {
     expect(monzo).toHaveLength(2);
     expect(monzo[0]).toBe(1);
     expect(monzo[1]).toBe(0);
+  });
+
+  it('leaves negative residual for integers', () => {
+    const [monzo, residual] = toMonzoAndResidual(-10, 2);
+    expect(residual.toFraction()).toBe('-5');
+    expect(monzo).toHaveLength(2);
+    expect(monzo[0]).toBe(1);
+    expect(monzo[1]).toBe(0);
+  });
+
+  it('works just below the int32 boundary', () => {
+    const [monzo, residual] = toMonzoAndResidual(2 ** 30, 1);
+    expect(monzo).toEqual([30]);
+    expect(residual.isUnity()).toBe(true);
+  });
+
+  it('works at the int32 boundary', () => {
+    const [monzo, residual] = toMonzoAndResidual(2 ** 31, 1);
+    expect(monzo).toEqual([31]);
+    expect(residual.isUnity()).toBe(true);
+  });
+
+  it('works just above the int32 boundary', () => {
+    const [monzo, residual] = toMonzoAndResidual(2 ** 32, 1);
+    expect(monzo).toEqual([32]);
+    expect(residual.isUnity()).toBe(true);
+  });
+
+  it('works just below the IEEE limit', () => {
+    const [monzo, residual] = toMonzoAndResidual(2n ** 1023n, 1);
+    expect(monzo).toEqual([1023]);
+    expect(residual).toBe(1n);
+  });
+
+  it('works at the IEEE limit', () => {
+    const [monzo, residual] = toMonzoAndResidual(2n ** 1024n, 1);
+    expect(monzo).toEqual([1024]);
+    expect(residual).toBe(1n);
+  });
+
+  it('works just above the IEEE limit', () => {
+    const [monzo, residual] = toMonzoAndResidual(2n ** 1025n, 1);
+    expect(monzo).toEqual([1025]);
+    expect(residual).toBe(1n);
+  });
+
+  it('agrees with the reference implementation', () => {
+    for (let n = -1000; n <= 1000; ++n) {
+      const [monzo, residual] = toMonzoAndResidual(n, 5);
+      const [bigMonzo, bigResidual] = toMonzoAndResidual(BigInt(n), 5);
+      const [reference, refResidual] = toMonzoAndResidual11(n);
+      expect(monzo).toEqual(reference);
+      expect(bigMonzo).toEqual(reference);
+      expect(residual.equals(refResidual)).toBe(true);
+      expect(bigResidual).toBe(BigInt(refResidual));
+    }
   });
 });
 
