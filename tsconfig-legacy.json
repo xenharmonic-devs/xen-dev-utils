@@ -1,14 +1,14 @@
 {
   "extends": "./node_modules/gts/tsconfig-google.json",
   "compilerOptions": {
-    "rootDir": "./src/",
-    "outDir": "benchmarks",
+    "rootDir": "./src",
+    "outDir": "legacy",
     "lib": [
       "es2020"
     ],
-    "target": "es2020"
+    "target": "es2020",
   },
   "include": [
-    "src/__benchmarks__/*"
+    "src/legacy.ts"
   ]
 }

@@ -27,13 +27,11 @@
   ],
   "types": "dist/index.d.ts",
   "devDependencies": {
-    "@types/benchmark": "^2.1.5",
-    "@types/node": "^20.10.1",
-    "benchmark": "^2.1.4",
-    "gts": "^5.2.0",
-    "typedoc": "^0.25.4",
-    "typescript": "^5.3.2",
-    "vitest": "^0.34.6"
+    "@types/node": "^20.12.7",
+    "gts": "^5.3.0",
+    "typedoc": "^0.25.13",
+    "typescript": "^5.4.5",
+    "vitest": "^1.5.0"
   },
   "scripts": {
     "lint": "gts lint",
@@ -44,13 +42,10 @@
     "pretest": "npm run compile",
     "posttest": "npm run lint",
     "test": "vitest",
-    "doc": "typedoc src/index.ts . --name xen-dev-utils",
-    "premonzo-benchmark": "tsc -p tsconfig-benchmark.json",
-    "monzo-benchmark": "node benchmarks/__benchmarks__/monzo.mark.js",
-    "preprimes-benchmark": "tsc -p tsconfig-benchmark.json",
-    "primes-benchmark": "node benchmarks/__benchmarks__/primes.mark.js",
-    "prefraction-benchmark": "tsc -p tsconfig-benchmark.json",
-    "fraction-benchmark": "node benchmarks/__benchmarks__/fraction.mark.js"
+    "compile-legacy": "tsc -p tsconfig-legacy.json",
+    "prebench": "npm run compile && npm run compile-legacy",
+    "bench": "vitest bench",
+    "doc": "typedoc src/index.ts . --name xen-dev-utils"
   },
   "engines": {
     "node": ">=10.6.0"

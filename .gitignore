@@ -106,5 +106,5 @@ dist
 # TypeDoc
 docs
 
-# Benchmark
-benchmarks
+# Compiled legacy artifacts
+legacy
