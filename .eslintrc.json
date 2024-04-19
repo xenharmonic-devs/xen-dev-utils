@@ -6,6 +6,7 @@
     "@typescript-eslint/no-explicit-any": 0,
     "@typescript-eslint/ban-ts-comment": 0,
     "node/no-unpublished-import": ["error", {"allowModules": ["vitest"]}],
+    "prefer-const": ["error", {"destructuring": "all"}],
     "no-restricted-syntax": ["error", "SequenceExpression"]
   }
 }
