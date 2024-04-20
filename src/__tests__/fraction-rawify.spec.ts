@@ -989,14 +989,14 @@ const tests = [
     set: -3,
     fn: 'lcm',
     param: 3,
-    expect: '3',
+    expect: '-3', // Deviates from rawify's convention
   },
   {
     label: 'lcm(3,-3)',
     set: 3,
     fn: 'lcm',
     param: -3,
-    expect: '3',
+    expect: '-3', // Deviates from rawify's convention
   },
   {
     label: 'lcm(0,3)',

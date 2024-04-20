@@ -2,20 +2,81 @@ import {describe, it, expect} from 'vitest';
 import {Fraction, gcd, lcm, mmod} from '../fraction';
 
 describe('gcd', () => {
-  it('can find the greates common divisor of 12 and 15', () => {
+  it('can find the greatest common divisor of 12 and 15 (number)', () => {
     expect(gcd(12, 15)).toBe(3);
+  });
+
+  it('can find the greatest common divisor of 12 and 15 (bigint)', () => {
+    expect(gcd(12n, 15n)).toBe(3n);
+  });
+
+  it('has an identity element (left)', () => {
+    expect(gcd(12, 0)).toBe(12);
+  });
+
+  it('has an identity element (right)', () => {
+    expect(gcd(0, 12)).toBe(12);
+  });
+
+  it('has an identity element (self)', () => {
+    expect(gcd(0, 0)).toBe(0);
+  });
+
+  it('has an identity element (bigint)', () => {
+    expect(gcd(12n, 0n)).toBe(12n);
   });
 });
 
 describe('lcm', () => {
-  it('can find the least common multiple of 6 and 14', () => {
+  it('can find the least common multiple of 6 and 14 (number)', () => {
     expect(lcm(6, 14)).toBe(42);
+  });
+
+  it('can find the least common multiple of 6 and 14 (bigint)', () => {
+    expect(lcm(6n, 14n)).toBe(42n);
+  });
+
+  it('works with zero (left)', () => {
+    expect(lcm(0, 12)).toBe(0);
+  });
+
+  it('works with zero (right)', () => {
+    expect(lcm(12, 0)).toBe(0);
+  });
+
+  it('works with zero (both)', () => {
+    expect(lcm(0, 0)).toBe(0);
+  });
+
+  it('works with zero (bigint)', () => {
+    expect(lcm(0n, 12n)).toBe(0n);
+  });
+});
+
+describe('gcd with lcm', () => {
+  it('satisfies the identity for small integers', () => {
+    for (let i = -10; i <= 10; ++i) {
+      for (let j = -10; j <= 10; ++j) {
+        // We need to bypass (+0).toBe(-0) here...
+        expect(gcd(i, j) * lcm(i, j) === i * j, `failed with ${i}, ${j}`).toBe(
+          true
+        );
+        // This works, though.
+        const x = BigInt(i);
+        const y = BigInt(j);
+        expect(gcd(x, y) * lcm(x, y)).toBe(x * y);
+      }
+    }
   });
 });
 
 describe('mmod', () => {
-  it('works with negative numbers', () => {
+  it('works with negative numbers (number)', () => {
     expect(mmod(-5, 3)).toBe(1);
+  });
+
+  it('works with negative numbers (bigint)', () => {
+    expect(mmod(-5n, 3n)).toBe(1n);
   });
 });
 
@@ -303,6 +364,21 @@ describe('Fraction', () => {
     expect(fraction.gcr(Math.random())).toBeNull();
   });
 
+  it('treats unity as the identity in geometric gcd (left)', () => {
+    const fraction = new Fraction(12);
+    expect(fraction.gcr(1)!.equals(12)).toBe(true);
+  });
+
+  it('treats unity as the identity in geometric gcd (right)', () => {
+    const fraction = new Fraction(1);
+    expect(fraction.gcr(12)!.equals(12)).toBe(true);
+  });
+
+  it('treats unity as the identity in geometric gcd (self)', () => {
+    const fraction = new Fraction(1);
+    expect(fraction.gcr(1)!.equals(1)).toBe(true);
+  });
+
   it('has logdivision (integers)', () => {
     const fraction = new Fraction(9);
     expect(fraction.log(3)!.equals(2)).toBe(true);
@@ -356,7 +432,57 @@ describe('Fraction', () => {
 
   it('has a geometric lcm (fractions)', () => {
     const fraction = new Fraction(9, 16);
-    expect(fraction.lcr('64/27')!.equals('4096/729')).toBe(true);
+    // The result is subunitary for a subunitary argument by convention.
+    expect(fraction.lcr('64/27')!.equals('729/4096')).toBe(true);
+  });
+
+  it('has geometric lcm that works with unity (left)', () => {
+    const fraction = new Fraction(1, 2);
+    expect(fraction.lcr(1)!.equals(1)).toBe(true);
+  });
+
+  it('has geometric lcm that works with unity (right)', () => {
+    const fraction = new Fraction(1);
+    expect(fraction.lcr(2)!.equals(1)).toBe(true);
+  });
+
+  it('has geometric lcm that works with unity (both)', () => {
+    const fraction = new Fraction(1);
+    expect(fraction.lcr(1)!.equals(1)).toBe(true);
+  });
+
+  it('satisfies the gcr/lcr identity for small integers when it exists', () => {
+    for (let i = 1; i <= 10; ++i) {
+      for (let j = 1; j <= 10; ++j) {
+        const gcr = new Fraction(i).gcr(j);
+        if (gcr === null) {
+          continue;
+        }
+        const lcr = new Fraction(i).lcr(j)!;
+        expect(lcr.log(i)!.equals(new Fraction(j).log(gcr)!)).toBe(true);
+      }
+    }
+  });
+
+  it('satisfies the gcr/lcr identity between a small integer and a particular when it exists', () => {
+    for (let i = 1; i <= 10; ++i) {
+      const particular = new Fraction(i).inverse();
+      // Starting from 2 to avoid logdivision by unity.
+      for (let j = 2; j <= 10; ++j) {
+        const gcr = particular.gcr(j);
+        if (gcr === null) {
+          continue;
+        }
+        const lcr = particular.lcr(j)!;
+        expect(lcr.log(particular)!.equals(new Fraction(j).log(gcr)!)).toBe(
+          true
+        );
+
+        expect(new Fraction(j).gcr(particular)!.equals(gcr)).toBe(true);
+        expect(new Fraction(j).lcr(particular)!.equals(lcr)).toBe(true);
+        expect(lcr!.log(j)!.equals(particular.log(gcr)!)).toBe(true);
+      }
+    }
   });
 
   it('has geometric rounding (integers)', () => {
@@ -511,5 +637,41 @@ describe('Fraction', () => {
     const a = new Fraction('94906267/123456789');
     const b = new Fraction('94906267/987654321');
     expect(a.lcm(b).equals('94906267/9')).toBe(true);
+  });
+
+  it('satisfies the multiplicative identity between gcd and lcm for small integers', () => {
+    for (let i = -10; i <= 10; ++i) {
+      for (let j = -10; j <= 10; ++j) {
+        const f = new Fraction(i);
+        expect(
+          f
+            .gcd(j)
+            .mul(f.lcm(j))
+            .equals(i * j),
+          `failed with ${i}, ${j}`
+        ).toBe(true);
+      }
+    }
+  });
+
+  it('normalizes zero (integer)', () => {
+    const fraction = new Fraction(0);
+    expect(fraction.s).toBe(0);
+    expect(fraction.n).toBe(0);
+    expect(fraction.d).toBe(1);
+  });
+
+  it('normalizes zero (numerator)', () => {
+    const fraction = new Fraction({n: -0, d: 1});
+    expect(fraction.s).toBe(0);
+    expect(fraction.n).toBe(0);
+    expect(fraction.d).toBe(1);
+  });
+
+  it('normalizes zero (denominator)', () => {
+    const fraction = new Fraction({n: 0, d: -1});
+    expect(fraction.s).toBe(0);
+    expect(fraction.n).toBe(0);
+    expect(fraction.d).toBe(1);
   });
 });

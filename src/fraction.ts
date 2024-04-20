@@ -14,16 +14,25 @@ const MAX_CYCLE_LENGTH = 128;
 
 /**
  * Greatest common divisor of two integers.
+ *
+ * Zero is treated as the identity element: gcd(0, x) = gcd(x, 0) = x
+ *
+ * The sign of the result is essentially random for negative inputs.
  * @param a The first integer.
  * @param b The second integer.
  * @returns The largest integer that divides a and b.
  */
-export function gcd(a: number, b: number): number {
+export function gcd(a: number, b: number): number;
+export function gcd(a: bigint, b: bigint): bigint;
+export function gcd(a: number | bigint, b: typeof a): typeof a {
   if (!a) return b;
   if (!b) return a;
   while (true) {
+    // XXX: TypeScript trips up here for no reason.
+    // @ts-ignore
     a %= b;
     if (!a) return b;
+    // @ts-ignore
     b %= a;
     if (!b) return a;
   }
@@ -31,12 +40,19 @@ export function gcd(a: number, b: number): number {
 
 /**
  * Least common multiple of two integers.
+ *
+ * Return zero if either of the arguments is zero.
+ *
+ * Satisfies a * b = gcd * lcm. See {@link gcd} for consequences on negative inputs.
  * @param a The first integer.
  * @param b The second integer.
  * @returns The smallest integer that both a and b divide.
  */
-export function lcm(a: number, b: number): number {
-  return (Math.abs(a) / gcd(a, b)) * Math.abs(b);
+export function lcm(a: number, b: number): number;
+export function lcm(a: bigint, b: bigint): bigint;
+export function lcm(a: number | bigint, b: typeof a): typeof a {
+  // @ts-ignore
+  return a ? (a / gcd(a, b)) * b : a;
 }
 
 /**
@@ -45,7 +61,10 @@ export function lcm(a: number, b: number): number {
  * @param b The divisor.
  * @returns The remainder of Euclidean division of a by b.
  */
-export function mmod(a: number, b: number) {
+export function mmod(a: number, b: number): number;
+export function mmod(a: bigint, b: bigint): bigint;
+export function mmod(a: number | bigint, b: typeof a): typeof a {
+  // @ts-ignore
   return ((a % b) + b) % b;
 }
 
@@ -193,11 +212,13 @@ export class Fraction {
       } else {
         this.s = 1;
       }
-      if (numerator.n < 0) {
-        this.s = -this.s;
-      }
       if (numerator.d < 0) {
         this.s = -this.s;
+      }
+      if (numerator.n < 0) {
+        this.s = -this.s;
+      } else if (numerator.n === 0) {
+        this.s = 0;
       }
       this.n = Math.abs(numerator.n);
       this.d = Math.abs(numerator.d);
@@ -860,6 +881,8 @@ export class Fraction {
   /**
    * Calculates the fractional gcd of two rational numbers. (i.e. both this and other is divisible by the result)
    *
+   * Always returns a non-negative result.
+   *
    * Example:
    * ```ts
    * new Fraction(5,8).gcd("3/7")  // 1/56
@@ -873,17 +896,18 @@ export class Fraction {
   /**
    * Calculates the fractional lcm of two rational numbers. (i.e. the result is divisible by both this and other)
    *
+   * Has the same sign as the product of the rational numbers.
+   *
    * Example:
    * ```ts
    * new Fraction(5,8).gcd("3/7")  // 15
    * ```
    */
   lcm(other: FractionValue) {
-    const {n, d} = new Fraction(other);
-    if (!n && !this.n) {
-      return new Fraction({s: 0, n: 0, d: 1});
-    }
-    return new Fraction(lcm(n, this.n), gcd(d, this.d));
+    const {s, n, d} = new Fraction(other);
+    const result = new Fraction(lcm(n, this.n), gcd(d, this.d));
+    result.s = this.s * s;
+    return result;
   }
 
   /**
@@ -983,6 +1007,10 @@ export class Fraction {
   /**
    * Calculate the greatest common radical between two rational numbers if it exists.
    *
+   * Never returns a subunitary result.
+   *
+   * Treats unity as the identity element: gcr(1, x) = gcr(x, 1) = x
+   *
    * Examples:
    * ```ts
    * new Fraction(8).gcr(4)          // 2
@@ -1025,6 +1053,14 @@ export class Fraction {
    */
   log(other: FractionValue, maxIter = 100) {
     const other_ = new Fraction(other);
+    if (other_.isUnity()) {
+      if (this.isUnity()) {
+        // This convention follows from an identity between gcr and lcr
+        // Not entirely well-founded, but not entirely wrong either.
+        return new Fraction(1);
+      }
+      return null;
+    }
     const radical = this.gcr(other_, maxIter);
     if (radical === null) {
       return null;
@@ -1057,6 +1093,10 @@ export class Fraction {
   /**
    * Calculate the least common radicand between two rational numbers if it exists.
    *
+   * If either of the inputs is unitary returns unity (1).
+   *
+   * Returns a subunitary result if only one of the inputs is subunitary, superunitary otherwise.
+   *
    * Examples:
    * ```ts
    * new Fraction(8).lcr(4)          // 64
@@ -1069,10 +1109,13 @@ export class Fraction {
     if (radical === null) {
       return null;
     }
+    if (radical.isUnity()) {
+      return new Fraction(1);
+    }
     const base = 1 / Math.log(radical.n / radical.d);
     const n = Math.round(Math.log(this.n / this.d) * base);
     const d = Math.round(Math.log(other_.n / other_.d) * base);
-    return radical.pow(Math.abs(n * d));
+    return radical.pow(n * d);
   }
 
   /**
