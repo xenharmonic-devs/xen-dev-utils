@@ -82,6 +82,54 @@ describe('Monzo converter', () => {
         BigInt(5) ** BigInt(monzo[2])
     ).toBe(BigInt('360000000000000000000000'));
   });
+
+  it('works just below the int32 boundary', () => {
+    const monzo = toMonzo(2 ** 30);
+    expect(monzo).toEqual([30]);
+  });
+
+  it('works at the int32 boundary', () => {
+    const monzo = toMonzo(2 ** 31);
+    expect(monzo).toEqual([31]);
+  });
+
+  it('works just above the int32 boundary', () => {
+    const monzo = toMonzo(2 ** 32);
+    expect(monzo).toEqual([32]);
+  });
+
+  it('works just below the IEEE limit', () => {
+    const monzo = toMonzo(2n ** 1023n);
+    expect(monzo).toEqual([1023]);
+  });
+
+  it('works at the IEEE limit', () => {
+    const monzo = toMonzo(2n ** 1024n);
+    expect(monzo).toEqual([1024]);
+  });
+
+  it('works just above the IEEE limit', () => {
+    const monzo = toMonzo(2n ** 1025n);
+    expect(monzo).toEqual([1025]);
+  });
+
+  it('agrees with the reference implementation', () => {
+    for (let n = 1; n <= 1000; ++n) {
+      const monzo = toMonzo(n);
+      const bigMonzo = toMonzo(BigInt(n));
+      let [reference, refResidual] = toMonzoAndResidual11(n);
+      reference = reference.slice(0, monzo.length);
+      expect(monzo.slice(0, 5)).toEqual(reference);
+      expect(bigMonzo.slice(0, 5)).toEqual(reference);
+      if (refResidual !== 1) {
+        expect(monzo.length).toBeGreaterThan(5);
+        expect(bigMonzo.length).toBeGreaterThan(5);
+      } else {
+        expect(monzo.length).toBeLessThanOrEqual(5);
+        expect(bigMonzo.length).toBeLessThanOrEqual(5);
+      }
+    }
+  });
 });
 
 describe('Fraction to monzo converter', () => {
@@ -298,5 +346,29 @@ describe('Prime limit calculator', () => {
     expect(two).toBe(2);
     const limit = primeLimit(BigInt('1561327220802586898249028'));
     expect(limit).toBe(19);
+  });
+
+  it('works just below the int32 boundary', () => {
+    expect(primeLimit(2 ** 30)).toEqual(2);
+  });
+
+  it('works at the int32 boundary', () => {
+    expect(primeLimit(2 ** 31)).toEqual(2);
+  });
+
+  it('works just above the int32 boundary', () => {
+    expect(primeLimit(2 ** 32)).toEqual(2);
+  });
+
+  it('works just below the IEEE limit', () => {
+    expect(primeLimit(2n ** 1023n)).toEqual(2);
+  });
+
+  it('works at the IEEE limit', () => {
+    expect(primeLimit(2n ** 1024n)).toEqual(2);
+  });
+
+  it('works just above the IEEE limit', () => {
+    expect(primeLimit(2n ** 1025n)).toEqual(2);
   });
 });
