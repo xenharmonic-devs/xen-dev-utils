@@ -2,6 +2,7 @@ import {describe, it, expect} from 'vitest';
 import {Fraction} from '../fraction';
 import {
   monzoToBigInt,
+  monzoToCents,
   monzoToFraction,
   primeLimit,
   toMonzo,
@@ -370,5 +371,26 @@ describe('Prime limit calculator', () => {
 
   it('works just above the IEEE limit', () => {
     expect(primeLimit(2n ** 1025n)).toEqual(2);
+  });
+});
+
+describe('Monzo size measure', () => {
+  it('calculates the size of the perfect fourth accurately', () => {
+    expect(monzoToCents([2, -1])).toBeCloseTo(498.0449991346125, 12);
+  });
+
+  it('calculates the size of the neutrino accurately', () => {
+    // XXX: Produces 1.6359101573382162e-10. Three digits of accuracy, smh...
+    expect(monzoToCents([1889, -2145, 138, 424])).toBeCloseTo(
+      1.6361187484440885e-10,
+      13
+    );
+  });
+
+  it('calculates the size of the demiquartervice comma accurately', () => {
+    expect(monzoToCents([-3, 2, -1, -1, 0, 0, -1, 0, 2])).toBeCloseTo(
+      0.3636664332386927,
+      14
+    );
   });
 });

@@ -6,6 +6,7 @@ export * from './conversion';
 export * from './combinations';
 export * from './monzo';
 export * from './approximation';
+export {sum} from './polyfils/sum-precise';
 
 export interface AnyArray {
   [key: number]: any;

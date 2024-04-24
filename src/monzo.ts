@@ -1,5 +1,20 @@
 import {Fraction, FractionValue} from './fraction';
 import {BIG_INT_PRIMES, PRIMES} from './primes';
+import {
+  MAPPING_COMMA_CENTS,
+  MAPPING_COMMA_MONZOS,
+  MERCATOR_COMMA_CENTS,
+  MERCATOR_COMMA_MONZO,
+  PYTH_COMMA_CENTS,
+  PYTH_COMMA_MONZO,
+  PYTH_LIMMA_CENTS,
+  PYTH_LIMMA_MONZO,
+  PYTH_TONE_CENTS,
+  PYTH_TONE_MONZO,
+  SATANIC_COMMA_CENTS,
+  SATANIC_COMMA_MONZO,
+} from './commas';
+import {sum} from './polyfils/sum-precise';
 
 /**
  * Array of integers representing the exponents of prime numbers in the unique factorization of a rational number.
@@ -592,4 +607,85 @@ function bigIntToMonzo7(n: bigint): [Monzo, bigint] {
     result[3] += m[3];
   }
   return [result, n];
+}
+
+export function monzoToCents(monzo: Monzo) {
+  monzo = [...monzo];
+  while (monzo.length && !monzo[monzo.length - 1]) {
+    monzo.pop();
+  }
+  const terms = [];
+  while (monzo.length > 2) {
+    const component = monzo.pop()!;
+    terms.push(component * MAPPING_COMMA_CENTS[monzo.length]);
+    const comma = MAPPING_COMMA_MONZOS[monzo.length];
+    for (let i = 0; i < monzo.length; ++i) {
+      monzo[i] -= component * comma[i];
+    }
+  }
+  if (monzo.length === 2) {
+    while (monzo[1] >= 665) {
+      terms.push(SATANIC_COMMA_CENTS);
+      monzo[0] -= SATANIC_COMMA_MONZO[0];
+      monzo[1] -= SATANIC_COMMA_MONZO[1];
+    }
+    while (monzo[1] <= -665) {
+      terms.push(-SATANIC_COMMA_CENTS);
+      monzo[0] += SATANIC_COMMA_MONZO[0];
+      monzo[1] += SATANIC_COMMA_MONZO[1];
+    }
+
+    while (monzo[1] >= 53) {
+      terms.push(MERCATOR_COMMA_CENTS);
+      monzo[0] -= MERCATOR_COMMA_MONZO[0];
+      monzo[1] -= MERCATOR_COMMA_MONZO[1];
+    }
+    while (monzo[1] <= -53) {
+      terms.push(-MERCATOR_COMMA_CENTS);
+      monzo[0] += MERCATOR_COMMA_MONZO[0];
+      monzo[1] += MERCATOR_COMMA_MONZO[1];
+    }
+
+    while (monzo[1] >= 12) {
+      terms.push(PYTH_COMMA_CENTS);
+      monzo[0] -= PYTH_COMMA_MONZO[0];
+      monzo[1] -= PYTH_COMMA_MONZO[1];
+    }
+    while (monzo[1] <= -12) {
+      terms.push(-PYTH_COMMA_CENTS);
+      monzo[0] += PYTH_COMMA_MONZO[0];
+      monzo[1] += PYTH_COMMA_MONZO[1];
+    }
+
+    while (monzo[1] >= 5) {
+      terms.push(-PYTH_LIMMA_CENTS);
+      monzo[0] += PYTH_LIMMA_MONZO[0];
+      monzo[1] += PYTH_LIMMA_MONZO[1];
+    }
+    while (monzo[1] <= -5) {
+      terms.push(PYTH_LIMMA_CENTS);
+      monzo[0] -= PYTH_LIMMA_MONZO[0];
+      monzo[1] -= PYTH_LIMMA_MONZO[1];
+    }
+
+    while (monzo[1] >= 2) {
+      terms.push(PYTH_TONE_CENTS);
+      monzo[0] -= PYTH_TONE_MONZO[0];
+      monzo[1] -= PYTH_TONE_MONZO[1];
+    }
+    while (monzo[1] <= -2) {
+      terms.push(-PYTH_TONE_CENTS);
+      monzo[0] += PYTH_TONE_MONZO[0];
+      monzo[1] += PYTH_TONE_MONZO[1];
+    }
+  }
+  while (monzo.length) {
+    const component = monzo.pop()!;
+    terms.push(component * MAPPING_COMMA_CENTS[monzo.length]);
+    const comma = MAPPING_COMMA_MONZOS[monzo.length];
+    for (let i = 0; i < monzo.length; ++i) {
+      monzo[i] -= component * comma[i];
+    }
+  }
+  return sum(terms);
 }
