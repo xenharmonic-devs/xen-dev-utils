@@ -19,6 +19,7 @@ import {
   iteratedEuclid,
   norm,
   valueToCents,
+  monzoToCents,
 } from '../index';
 
 describe('Array equality tester', () => {
@@ -380,5 +381,39 @@ describe('Constant structure checker with a margin of equivalence', () => {
 
   it('Rejects a scale with a comma step (late)', () => {
     expect(hasMarginConstantStructure([1199, 1200], 2)).toBe(false);
+  });
+});
+
+describe('Monzo size measure', () => {
+  it('calculates the size of the perfect fourth accurately', () => {
+    expect(monzoToCents([2, -1])).toBeCloseTo(498.0449991346125, 12);
+  });
+
+  it('calculates the size of the rascal accurately', () => {
+    expect(monzoToCents([-7470, 2791, 1312])).toBeCloseTo(
+      5.959563411893381e-6,
+      24
+    );
+  });
+
+  it('calculates the size of the neutrino accurately', () => {
+    expect(monzoToCents([1889, -2145, 138, 424])).toBeCloseTo(
+      1.6361187484440885e-10,
+      24
+    );
+  });
+
+  it('calculates the size of the demiquartervice comma accurately', () => {
+    expect(monzoToCents([-3, 2, -1, -1, 0, 0, -1, 0, 2])).toBeCloseTo(
+      0.3636664332386927,
+      15
+    );
+  });
+
+  it('calculates the size of the negative junebug comma accurately', () => {
+    expect(monzoToCents([-1, 1, -1, -1, 1, -1, -1, 1, 1, -1, 1])).toBeCloseTo(
+      -6.104006661651758,
+      15
+    );
   });
 });

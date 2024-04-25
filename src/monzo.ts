@@ -279,6 +279,27 @@ export function monzoToBigInt(monzo: Iterable<number>) {
 }
 
 /**
+ * Convert a monzo to the BigInt fraction it represents.
+ * @param monzo Iterable of prime exponents.
+ * @returns Record with keys 'numerator' and 'denominator containing BigInts.
+ */
+export function monzoToBigNumeratorDenominator(monzo: Iterable<number>) {
+  let numerator = 1n;
+  let denominator = 1n;
+  let index = 0;
+  for (const component of monzo) {
+    if (component > 0) {
+      numerator *= BIG_INT_PRIMES[index] ** BigInt(component);
+    }
+    if (component < 0) {
+      denominator *= BIG_INT_PRIMES[index] ** BigInt(-component);
+    }
+    index++;
+  }
+  return {numerator, denominator};
+}
+
+/**
  * Calculate the prime limit of an integer or a fraction.
  * @param n Integer or fraction to calculate prime limit for.
  * @param asOrdinal Return the limit as an ordinal instead of a prime. (1 is #0, 2 is #1, 3 is #2, 5 is #3, etc.)
