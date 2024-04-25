@@ -1,4 +1,7 @@
 import {Fraction, mmod} from './fraction';
+import {Monzo, monzoToBigNumeratorDenominator} from './monzo';
+import {PRIME_CENTS} from './primes';
+import {sum} from './polyfills/sum-precise';
 
 export * from './fraction';
 export * from './primes';
@@ -6,6 +9,7 @@ export * from './conversion';
 export * from './combinations';
 export * from './monzo';
 export * from './approximation';
+export {sum} from './polyfills/sum-precise';
 
 export interface AnyArray {
   [key: number]: any;
@@ -229,11 +233,29 @@ export function clamp(minValue: number, maxValue: number, value: number) {
  * @returns The dot product.
  */
 export function dot(a: NumberArray, b: NumberArray): number {
+  const numComponents = Math.min(a.length, b.length);
   let result = 0;
-  for (let i = 0; i < Math.min(a.length, b.length); ++i) {
+  for (let i = 0; i < numComponents; ++i) {
     result += a[i] * b[i];
   }
   return result;
+}
+
+/**
+ * Calculate the inner (dot) product of two arrays of real numbers.
+ * The resulting terms are summed accurately using Shewchuk's algorithm.
+ * @param a The first array of numbers.
+ * @param b The second array of numbers.
+ * @returns The dot product.
+ */
+export function dotPrecise(a: NumberArray, b: NumberArray): number {
+  const numComponents = Math.min(a.length, b.length);
+  function* terms() {
+    for (let i = 0; i < numComponents; ++i) {
+      yield a[i] * b[i];
+    }
+  }
+  return sum(terms());
 }
 
 /**
@@ -448,4 +470,33 @@ export function hasMarginConstantStructure(
     }
   }
   return true;
+}
+
+const NATS_TO_CENTS = 1200 / Math.LN2;
+const IEEE_LIMIT = 2n ** 1024n;
+
+/**
+ * Measure the size of a monzo in cents.
+ * Monzos representing small rational numbers (commas) are measured accurately.
+ * @param monzo Array or prime exponents, possibly fractional.
+ * @returns The size of the represented number in cents (1200ths of an octave).
+ */
+export function monzoToCents(monzo: Monzo) {
+  const result = dotPrecise(monzo, PRIME_CENTS);
+  if (Math.abs(result) > 10) {
+    return result;
+  }
+  for (const component of monzo) {
+    if (!Number.isInteger(component)) {
+      return result;
+    }
+  }
+  let {numerator, denominator} = monzoToBigNumeratorDenominator(monzo);
+  let delta = numerator - denominator;
+  // The answer is smaller than 10 cents so no need to check delta here or worry about its sign
+  while (denominator >= IEEE_LIMIT) {
+    delta >>= 1n;
+    denominator >>= 1n;
+  }
+  return Math.log1p(Number(delta) / Number(denominator)) * NATS_TO_CENTS;
 }
