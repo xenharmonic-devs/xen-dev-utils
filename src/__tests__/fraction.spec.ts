@@ -674,4 +674,54 @@ describe('Fraction', () => {
     expect(fraction.n).toBe(0);
     expect(fraction.d).toBe(1);
   });
+
+  it('normalizes zero (infinite denominator)', () => {
+    const fraction = new Fraction({n: 123, d: Infinity});
+    expect(fraction.s).toBe(0);
+    expect(fraction.n).toBe(0);
+    expect(fraction.d).toBe(1);
+  });
+
+  it('normalizes zero (infinite second argument)', () => {
+    const fraction = new Fraction(-123, Infinity);
+    expect(fraction.s).toBe(0);
+    expect(fraction.n).toBe(0);
+    expect(fraction.d).toBe(1);
+  });
+
+  it('throws an informative error for (Infinity, 1)', () => {
+    expect(() => new Fraction(Infinity, 1)).throws(
+      'Cannot represent Infinity as a fraction'
+    );
+  });
+
+  it('throws an informative error for (-Infinity, 1)', () => {
+    expect(() => new Fraction(-Infinity, 1)).throws(
+      'Cannot represent Infinity as a fraction'
+    );
+  });
+
+  it('throws an informative error for Infinity', () => {
+    expect(() => new Fraction(Infinity)).throws(
+      'Cannot represent Infinity as a fraction'
+    );
+  });
+
+  it('throws an informative error for {n: Infinity, d:1}', () => {
+    expect(() => new Fraction({n: Infinity, d: 1})).throws(
+      'Cannot represent Infinity as a fraction'
+    );
+  });
+
+  it('throws for NaN (literal)', () => {
+    expect(() => new Fraction(NaN)).throws(
+      'Cannot represent NaN as a fraction'
+    );
+  });
+
+  it('throws for NaN (implicit)', () => {
+    expect(() => new Fraction(Infinity, Infinity)).throws(
+      'Cannot represent NaN as a fraction'
+    );
+  });
 });

@@ -114,11 +114,17 @@ export class Fraction {
       this.s = Math.sign(numerator * denominator);
       this.n = Math.abs(numerator);
       this.d = Math.abs(denominator);
-      if (this.n > Number.MAX_SAFE_INTEGER) {
-        throw new Error('Numerator above safe limit');
-      }
+
+      this.screenInfinity();
+
       if (this.d > Number.MAX_SAFE_INTEGER) {
         throw new Error('Denominator above safe limit');
+      }
+      if (this.n > Number.MAX_SAFE_INTEGER) {
+        if (!isFinite(this.n)) {
+          throw new Error('Cannot represent Infinity as a fraction');
+        }
+        throw new Error('Numerator above safe limit');
       }
       if (this.d === 0) {
         throw new Error('Division by Zero');
@@ -131,6 +137,9 @@ export class Fraction {
       this.s = Math.sign(numerator);
       this.n = Math.abs(numerator);
       this.d = 1;
+      if (!isFinite(this.n)) {
+        throw new Error('Cannot represent Infinity as a fraction');
+      }
       this.defloat();
     } else if (typeof numerator === 'string') {
       numerator = numerator.toLowerCase();
@@ -222,6 +231,7 @@ export class Fraction {
       }
       this.n = Math.abs(numerator.n);
       this.d = Math.abs(numerator.d);
+      this.screenInfinity();
       this.reduce();
     }
     this.validate();
@@ -235,6 +245,9 @@ export class Fraction {
       throw new Error('Cannot represent NaN as a fraction');
     }
     if (this.n > Number.MAX_SAFE_INTEGER) {
+      if (!isFinite(this.n)) {
+        throw new Error('Cannot represent Infinity as a fraction');
+      }
       throw new Error('Numerator above safe limit');
     }
     if (this.d > Number.MAX_SAFE_INTEGER) {
@@ -294,6 +307,20 @@ export class Fraction {
     const commonFactor = gcd(this.n, this.d);
     this.n /= commonFactor;
     this.d /= commonFactor;
+  }
+
+  /**
+   * Normalize infinite denominator into 0/1.
+   */
+  screenInfinity() {
+    if (!isFinite(this.d)) {
+      if (!isFinite(this.n)) {
+        throw new Error('Cannot represent NaN as a fraction');
+      }
+      this.s = 0;
+      this.n = 0;
+      this.d = 1;
+    }
   }
 
   /**
