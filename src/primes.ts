@@ -129,6 +129,30 @@ export function isPrime(n: number) {
 }
 
 /**
+ * Obtain the nth odd prime.
+ * @param n 1-based ordinal of the nth odd prime, or zero to obtain prime two.
+ * @returns The nth odd prime number or `2` if `n === 0`.
+ */
+export function nthPrime(n: number) {
+  if (n < PRIMES.length) {
+    return PRIMES[n];
+  }
+  n -= PRIMES.length;
+  let prime = 7927;
+  while (n) {
+    // Skip over known composites mod 6.
+    prime += 4;
+    n -= Number(isPrime(prime));
+    if (!n) {
+      return prime;
+    }
+    prime += 2;
+    n -= Number(isPrime(prime));
+  }
+  return prime;
+}
+
+/**
  * Generate an array of prime numbers.
  * @param start Smallest prime number to include (or the next smallest prime).
  * @param end Largest prime number to include (or the previous largest prime).
@@ -177,6 +201,63 @@ export function primes(start: number, end?: number) {
     if (isPrime(n)) {
       result.push(n);
     }
+  }
+  return result;
+}
+
+/**
+ * Obtain a range of odd primes starting at ordinal the given ordinal.
+ * @param start 1-based ordinal of the nth odd prime to start from, or zero to include prime two.
+ * @param end Range end. `end - start` elements are returned.
+ * @returns The primes in the range.
+ */
+export function primeRange(start: number, end: number) {
+  start = Math.round(Math.max(0, start));
+  end = Math.round(end);
+  if (end <= start) {
+    return [];
+  }
+  if (end <= PRIMES.length) {
+    return PRIMES.slice(start, end);
+  }
+  const result = PRIMES.slice(start);
+  start = Math.max(0, start - PRIMES.length);
+  end -= PRIMES.length;
+
+  // We skip over known composites mod 6.
+  let prime = 7927;
+  let delta: number;
+  let a = 4;
+  let b = 2;
+  while (start) {
+    prime += 4;
+    delta = Number(isPrime(prime));
+    start -= delta;
+    end -= delta;
+    if (!start) {
+      a = 2;
+      b = 4;
+      break;
+    }
+    prime += 2;
+    delta = Number(isPrime(prime));
+    start -= delta;
+    end -= delta;
+  }
+  while (end) {
+    if (isPrime(prime)) {
+      result.push(prime);
+      end--;
+      if (!end) {
+        return result;
+      }
+    }
+    prime += a;
+    if (isPrime(prime)) {
+      result.push(prime);
+      end--;
+    }
+    prime += b;
   }
   return result;
 }
