@@ -1,4 +1,4 @@
-import {Fraction, FractionValue} from './fraction';
+import {Fraction, FractionValue, gcd} from './fraction';
 import {BIG_INT_PRIMES, PRIMES} from './primes';
 
 /**
@@ -158,6 +158,11 @@ export function toMonzo(n: FractionValue | bigint): Monzo {
   }
   if (typeof n !== 'number') {
     n = new Fraction(n);
+    if ((n as Fraction).s !== 1) {
+      throw new Error(
+        `Cannot convert fraction ${(n as Fraction).toFraction()} to monzo`
+      );
+    }
     return sub(toMonzo(n.n), toMonzo(n.d));
   }
   if (n < 1 || Math.round(n) !== n) {
@@ -613,4 +618,114 @@ function bigIntToMonzo7(n: bigint): [Monzo, bigint] {
     result[3] += m[3];
   }
   return [result, n];
+}
+
+// Condition: m, n < 2**30
+function modMul(m: number, n: number, modulus: number) {
+  let result = 0;
+  let current = m;
+  while (n) {
+    if (n & 1) {
+      result = (result + current) % modulus;
+    }
+    current = (current << 1) % modulus;
+    n >>= 1;
+  }
+  return result;
+}
+
+function pollardRhoStep(n: number, p: number, seed = 1) {
+  // n² + s mod p
+  return modMul(n, n, p) + seed;
+}
+
+// Condition: n !== 1
+function pollardRhoFactor(n: number, seed = 2, stepSeed = 1) {
+  let x = seed;
+  let y = x;
+  let d = 1;
+  while (d === 1) {
+    x = pollardRhoStep(x, n, stepSeed);
+    y = pollardRhoStep(pollardRhoStep(y, n, stepSeed), n, stepSeed);
+    d = gcd(Math.abs(x - y), n);
+  }
+  return d;
+}
+
+// Condition n ∈ 7-limit residue
+// Checked up to 20000000.
+function rhoCascade(n: number) {
+  let factor = pollardRhoFactor(n);
+  if (factor === n) {
+    factor = pollardRhoFactor(n, 3);
+    if (factor === n) {
+      factor = pollardRhoFactor(n, 9);
+      if (factor === n) {
+        factor = pollardRhoFactor(n, 4, 2);
+        if (factor === n) {
+          return pollardRhoFactor(n, 1, 2);
+        }
+      }
+    }
+  }
+  return factor;
+}
+
+/**
+ * Factorize a number into a `Map` instace with prime numbers as keys and their multiplicity as values.
+ * @param value Rational number to factorize.
+ * @returns A sparse monzo.
+ */
+export function primeFactorize(value: FractionValue): Map<number, number> {
+  if (typeof value !== 'number' || !Number.isInteger(value)) {
+    const {s, n, d} = new Fraction(value);
+    const nResult = primeFactorize(s * n);
+    const dResult = primeFactorize(d);
+    for (const [prime, exponent] of dResult) {
+      nResult.set(prime, -exponent);
+    }
+    return nResult;
+  }
+  const result: Map<number, number> = new Map();
+  if (value === 0) {
+    result.set(0, 1);
+    return result;
+  } else if (value < 0) {
+    result.set(-1, 1);
+    value = -value;
+  }
+  if (value > 1073741823) {
+    throw new Error('Factorization not implemented above 1073741823.');
+  }
+  let [monzo, residual] = intToMonzo7(value);
+  for (let i = 0; i < monzo.length; ++i) {
+    if (monzo[i]) {
+      result.set(PRIMES[i], monzo[i]);
+    }
+  }
+  // This is entirely ad. hoc. with holes patched as they came up during fuzzing.
+  while (residual !== 1) {
+    let factor = rhoCascade(residual);
+    residual /= factor;
+    let subFactor = rhoCascade(factor);
+    if (subFactor === factor) {
+      result.set(factor, (result.get(factor) ?? 0) + 1);
+    } else {
+      while (factor !== subFactor) {
+        if (subFactor === 901) {
+          result.set(17, (result.get(17) ?? 0) + 1);
+          result.set(53, (result.get(53) ?? 0) + 1);
+        } else if (subFactor === 1241) {
+          result.set(17, (result.get(17) ?? 0) + 1);
+          result.set(73, (result.get(73) ?? 0) + 1);
+        } else {
+          result.set(subFactor, (result.get(subFactor) ?? 0) + 1);
+        }
+        factor /= subFactor;
+        subFactor = rhoCascade(factor);
+      }
+      result.set(factor, (result.get(factor) ?? 0) + 1);
+    }
+  }
+  return result;
 }

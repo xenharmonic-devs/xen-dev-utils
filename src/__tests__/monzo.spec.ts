@@ -3,10 +3,12 @@ import {Fraction} from '../fraction';
 import {
   monzoToBigInt,
   monzoToFraction,
+  primeFactorize,
   primeLimit,
   toMonzo,
   toMonzoAndResidual,
 } from '../monzo';
+import {isPrime} from '../primes';
 
 function toMonzoAndResidual11(n: number): [number[], number] {
   const result = [0, 0, 0, 0, 0];
@@ -129,6 +131,12 @@ describe('Monzo converter', () => {
         expect(bigMonzo.length).toBeLessThanOrEqual(5);
       }
     }
+  });
+
+  it('refuses to factor a negative fraction', () => {
+    expect(() => toMonzo('-1/2')).toThrow(
+      'Cannot convert fraction -1/2 to monzo'
+    );
   });
 });
 
@@ -370,5 +378,74 @@ describe('Prime limit calculator', () => {
 
   it('works just above the IEEE limit', () => {
     expect(primeLimit(2n ** 1025n)).toEqual(2);
+  });
+});
+
+describe('Sparse monzos', () => {
+  it('factorizes 12', () => {
+    const exponentByPrime = primeFactorize(12);
+    expect(exponentByPrime).toHaveLength(2);
+    expect(exponentByPrime.get(2)).toBe(2);
+    expect(exponentByPrime.get(3)).toBe(1);
+  });
+
+  it('factorizes 0', () => {
+    const factors = primeFactorize(0);
+    expect(factors).toHaveLength(1);
+    expect(factors.get(0)).toBe(1);
+  });
+
+  it('factorizes -35', () => {
+    const factors = primeFactorize(-35);
+    expect(factors).toHaveLength(3);
+    expect(factors.get(-1)).toBe(1);
+    expect(factors.get(5)).toBe(1);
+    expect(factors.get(7)).toBe(1);
+  });
+
+  it('factorizes 81/80', () => {
+    const factors = primeFactorize('81/80');
+    expect(factors).toHaveLength(3);
+    expect(factors.get(2)).toBe(-4);
+    expect(factors.get(3)).toBe(4);
+    expect(factors.get(5)).toBe(-1);
+  });
+
+  it('factorizes 1073741823', () => {
+    const factors = primeFactorize(1073741823);
+    expect(factors).toHaveLength(6);
+    expect(factors.get(3)).toBe(2);
+    expect(factors.get(7)).toBe(1);
+    expect(factors.get(11)).toBe(1);
+    expect(factors.get(31)).toBe(1);
+    expect(factors.get(151)).toBe(1);
+    expect(factors.get(331)).toBe(1);
+  });
+
+  it.each([
+    49305423, 4104956, 8375509, 27826943, 44852222, 22932439, 46933379,
+    59598447, 9693451, 54191546, 61834729, 26866018, 46410510, 47335837,
+    43839566,
+  ])('works on a tough case %s found during fuzzing', n => {
+    const exponentByPrime = primeFactorize(n);
+    let m = 1;
+    for (const prime of exponentByPrime.keys()) {
+      expect(isPrime(prime)).toBe(true);
+      m *= prime ** exponentByPrime.get(prime)!;
+    }
+    expect(m).toBe(n);
+  });
+
+  it.skip('fuzzes for more broken cases', () => {
+    for (let i = 0; i < 100; ++i) {
+      const n = Math.floor(Math.random() * 62837328) + 1;
+      const exponentByPrime = primeFactorize(n);
+      let m = 1;
+      for (const prime of exponentByPrime.keys()) {
+        expect(isPrime(prime)).toBe(true);
+        m *= prime ** exponentByPrime.get(prime)!;
+      }
+      expect(m).toBe(n);
+    }
   });
 });
