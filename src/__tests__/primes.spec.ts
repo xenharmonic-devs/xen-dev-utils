@@ -130,6 +130,10 @@ describe('Prime range generator', () => {
     expect(primeRange(0, 4)).toEqual([2, 3, 5, 7]);
   });
 
+  it('produces the first 4 primes (start is optional)', () => {
+    expect(primeRange(4)).toEqual([2, 3, 5, 7]);
+  });
+
   it('produces 5 primes starting from the 999th odd prime', () => {
     expect(primeRange(999, 999 + 5)).toEqual([7919, 7927, 7933, 7937, 7949]);
   });

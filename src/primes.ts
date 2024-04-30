@@ -206,12 +206,16 @@ export function primes(start: number, end?: number) {
 }
 
 /**
- * Obtain a range of odd primes starting at ordinal the given ordinal.
+ * Obtain a range of primes starting at the given ordinal. Prime 2 has ordinal 0.
  * @param start 1-based ordinal of the nth odd prime to start from, or zero to include prime two.
  * @param end Range end. `end - start` elements are returned.
  * @returns The primes in the range.
  */
-export function primeRange(start: number, end: number) {
+export function primeRange(start: number, end?: number) {
+  if (end === undefined) {
+    end = start;
+    start = 0;
+  }
   start = Math.round(Math.max(0, start));
   end = Math.round(end);
   if (end <= start) {
