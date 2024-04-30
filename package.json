@@ -1,7 +1,7 @@
 {
   "name": "xen-dev-utils",
   "author": "Lumi Pakkanen",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Utility functions used by the Scale Workshop ecosystem",
   "license": "MIT",
   "main": "dist/index",
