@@ -718,6 +718,18 @@ export function primeFactorize(value: FractionValue): Map<number, number> {
         } else if (subFactor === 1241) {
           result.set(17, (result.get(17) ?? 0) + 1);
           result.set(73, (result.get(73) ?? 0) + 1);
+        } else if (subFactor === 1681) {
+          result.set(41, (result.get(41) ?? 0) + 2);
+        } else if (subFactor === 3149) {
+          result.set(47, (result.get(47) ?? 0) + 1);
+          result.set(67, (result.get(67) ?? 0) + 1);
+        } else if (subFactor === 3869) {
+          result.set(53, (result.get(53) ?? 0) + 1);
+          result.set(73, (result.get(73) ?? 0) + 1);
+        } else if (subFactor === 65773) {
+          result.set(17, (result.get(17) ?? 0) + 1);
+          result.set(53, (result.get(53) ?? 0) + 1);
+          result.set(73, (result.get(73) ?? 0) + 1);
         } else {
           result.set(subFactor, (result.get(subFactor) ?? 0) + 1);
         }

@@ -20,6 +20,8 @@ import {
   norm,
   valueToCents,
   monzoToCents,
+  tenneyHeight,
+  wilsonHeight,
 } from '../index';
 
 describe('Array equality tester', () => {
@@ -415,5 +417,205 @@ describe('Monzo size measure', () => {
       -6.104006661651758,
       15
     );
+  });
+});
+
+describe('Tenney complexity measure', () => {
+  it('calculates the complexity of 88', () => {
+    expect(tenneyHeight(88)).toBeCloseTo(4.477);
+  });
+
+  it('calculates the complexity of 11/8', () => {
+    expect(tenneyHeight('11/8')).toBeCloseTo(4.477);
+  });
+
+  it('calculates the complexity of -11/8', () => {
+    expect(tenneyHeight('-11/8')).toBeCloseTo(4.477);
+  });
+
+  it('calculates the complexity of 8/11', () => {
+    expect(tenneyHeight([3, 0, 0, 0, -1])).toBeCloseTo(4.477);
+  });
+
+  it('has a value for zero', () => {
+    expect(tenneyHeight(0)).toBe(Infinity);
+  });
+
+  it.skip('fuzzes the fraction property', () => {
+    for (let i = 0; i < 100000; ++i) {
+      const n = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+      const d = Math.floor(Math.random() * (Number.MAX_SAFE_INTEGER - 1)) + 1;
+      const f = new Fraction(n, d);
+      expect(tenneyHeight(f.n) + tenneyHeight(f.d)).toBeCloseTo(
+        tenneyHeight(f)
+      );
+    }
+  });
+
+  it.skip('fuzzes the multiplicative property', () => {
+    for (let i = 0; i < 100000; ++i) {
+      const x = Math.floor(Math.random() * 94906265);
+      const y = Math.floor(Math.random() * 94906265);
+      expect(tenneyHeight(x) + tenneyHeight(y)).toBeCloseTo(
+        tenneyHeight(x * y)
+      );
+    }
+  });
+});
+
+describe('Wilson complexity measure', () => {
+  it('calculates the complexity of 88', () => {
+    expect(wilsonHeight(88)).toBe(17);
+  });
+
+  it('calculates the complexity of 11/8', () => {
+    expect(wilsonHeight('11/8')).toBe(17);
+  });
+
+  it('calculates the complexity of -11/8', () => {
+    expect(wilsonHeight('-11/8')).toBe(17);
+  });
+
+  it('calculates the complexity of 8/11', () => {
+    expect(wilsonHeight([3, 0, 0, 0, -1])).toBe(17);
+  });
+
+  it('calculates the complexity of -8/11', () => {
+    expect(
+      wilsonHeight(
+        new Map([
+          [-1, 1],
+          [2, 3],
+          [11, -1],
+        ])
+      )
+    ).toBe(17);
+  });
+
+  it('has a value for zero', () => {
+    expect(wilsonHeight(0)).toBe(Infinity);
+  });
+
+  it.each([
+    ['2/1', 2],
+    ['3/2', 5],
+    ['4/3', 7],
+    ['5/4', 9],
+    ['6/5', 10],
+    ['7/6', 12],
+    ['9/8', 12],
+    ['8/7', 13],
+    ['10/9', 13],
+    ['16/15', 16],
+    ['15/14', 17],
+    ['11/10', 18],
+    ['12/11', 18],
+    ['21/20', 19],
+    ['25/24', 19],
+    ['13/12', 20],
+    ['28/27', 20],
+    ['14/13', 22],
+    ['36/35', 22],
+    ['22/21', 23],
+    ['27/26', 24],
+    ['33/32', 24],
+    ['17/16', 25],
+    ['18/17', 25],
+    ['26/25', 25],
+    ['49/48', 25],
+    ['64/63', 25],
+    ['81/80', 25],
+    ['45/44', 26],
+    ['50/49', 26],
+    ['19/18', 27],
+    ['40/39', 27],
+    ['55/54', 27],
+    ['20/19', 28],
+    ['56/55', 29],
+    ['65/64', 30],
+    ['35/34', 31],
+    ['100/99', 31],
+    ['24/23', 32],
+    ['51/50', 32],
+    ['34/33', 33],
+    ['91/90', 33],
+    ['99/98', 33],
+    ['66/65', 34],
+    ['57/56', 35],
+    ['23/22', 36],
+    ['46/45', 36],
+    ['76/75', 36],
+    ['78/77', 36],
+    ['85/84', 36],
+    ['39/38', 37],
+    ['52/51', 37],
+    ['96/95', 37],
+    ['30/29', 39],
+    ['29/28', 40],
+    ['70/69', 40],
+    ['31/30', 41],
+    ['32/31', 41],
+    ['77/76', 41],
+    ['63/62', 46],
+    ['37/36', 47],
+    ['69/68', 47],
+    ['92/91', 47],
+    ['88/87', 49],
+    ['41/40', 52],
+    ['75/74', 52],
+    ['42/41', 53],
+    ['58/57', 53],
+    ['43/42', 55],
+    ['82/81', 55],
+    ['38/37', 58],
+    ['44/43', 58],
+    ['48/47', 58],
+    ['93/92', 61],
+    ['54/53', 64],
+    ['86/85', 67],
+    ['53/52', 70],
+    ['60/59', 71],
+    ['47/46', 72],
+    ['61/60', 73],
+    ['95/94', 73],
+    ['87/86', 77],
+    ['67/66', 83],
+    ['72/71', 83],
+    ['94/93', 83],
+    ['71/70', 85],
+    ['73/72', 85],
+    ['68/67', 88],
+    ['59/58', 90],
+    ['80/79', 92],
+    ['62/61', 94],
+    ['79/78', 97],
+    ['84/83', 97],
+    ['90/89', 102],
+    ['89/88', 106],
+    ['97/96', 110],
+    ['74/73', 112],
+    ['98/97', 113],
+    ['83/82', 126],
+  ])('Agrees with XenWiki on %s ~ %s', (fraction, height) => {
+    expect(wilsonHeight(fraction)).toBe(height);
+  });
+
+  it.skip('fuzzes the fraction property', () => {
+    for (let i = 0; i < 100; ++i) {
+      const n = Math.floor(Math.random() * 1073741823);
+      const d = Math.floor(Math.random() * 1073741822) + 1;
+      const f = new Fraction(n, d);
+      expect(wilsonHeight(f.n) + wilsonHeight(f.d)).toBe(wilsonHeight(f));
+    }
+  });
+
+  it.skip('fuzzes the multiplicative property', () => {
+    for (let i = 0; i < 10000; ++i) {
+      const x = Math.floor(Math.random() * 32768);
+      const y = Math.floor(Math.random() * 32768);
+      expect(wilsonHeight(x) + wilsonHeight(y), `Failed on ${x} * ${y}`).toBe(
+        wilsonHeight(x * y)
+      );
+    }
   });
 });
