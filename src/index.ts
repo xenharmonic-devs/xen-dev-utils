@@ -1,6 +1,6 @@
-import {Fraction, mmod} from './fraction';
-import {Monzo, monzoToBigNumeratorDenominator} from './monzo';
-import {PRIME_CENTS} from './primes';
+import {Fraction, FractionValue, mmod} from './fraction';
+import {Monzo, monzoToBigNumeratorDenominator, primeFactorize} from './monzo';
+import {LOG_PRIMES, PRIMES, PRIME_CENTS} from './primes';
 import {sum} from './polyfills/sum-precise';
 
 export * from './fraction';
@@ -499,4 +499,51 @@ export function monzoToCents(monzo: Monzo) {
     denominator >>= 1n;
   }
   return Math.log1p(Number(delta) / Number(denominator)) * NATS_TO_CENTS;
+}
+
+/**
+ * Given fraction p/q calculate log(abs(p*q)).
+ * @param value Rational number or an array of its prime exponents.
+ * @returns The Tenney-height of the number.
+ */
+export function tenneyHeight(value: Monzo | FractionValue) {
+  if (Array.isArray(value)) {
+    return dotPrecise(
+      value.map(x => Math.abs(x)),
+      LOG_PRIMES
+    );
+  }
+  const {s, n, d} = new Fraction(value);
+  if (!s) {
+    return Infinity;
+  }
+  return Math.log(n) + Math.log(d);
+}
+
+/**
+ * Given fraction p/q calculate sopfr(p) + sopfr(q), ignoring sign.
+ * @param value Rational number, an array of its prime exponents or a `Map` of its prime exponents.
+ * @returns Sum of prime factors with repetition of p*q.
+ */
+export function wilsonHeight(
+  value: Monzo | FractionValue | Map<number, number>
+) {
+  if (Array.isArray(value)) {
+    return dot(
+      value.map(x => Math.abs(x)),
+      PRIMES
+    );
+  }
+  if (!(value instanceof Map)) {
+    value = primeFactorize(value);
+  }
+  if (value.has(0)) {
+    return Infinity;
+  }
+  value.delete(-1);
+  let result = 0;
+  for (const [prime, exponent] of value) {
+    result += Math.abs(exponent) * prime;
+  }
+  return result;
 }
