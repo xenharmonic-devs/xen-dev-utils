@@ -694,16 +694,28 @@ export function primeFactorize(value: FractionValue): Map<number, number> {
     result.set(-1, 1);
     value = -value;
   }
-  if (value > 1073741823) {
-    throw new Error('Factorization not implemented above 1073741823.');
+  if (value > Number.MAX_SAFE_INTEGER) {
+    throw new Error(
+      `Factorization not implemented above ${Number.MAX_SAFE_INTEGER}.`
+    );
   }
   let [monzo, residual] = intToMonzo7(value);
+  if (residual > 1073741823) {
+    throw new Error(
+      'Factorization not implemented when 7-limit residual > 1073741823.'
+    );
+  }
   for (let i = 0; i < monzo.length; ++i) {
     if (monzo[i]) {
       result.set(PRIMES[i], monzo[i]);
     }
   }
-  // This is entirely ad. hoc. with holes patched as they came up during fuzzing.
+  // Skip cascade for known primes.
+  if (PRIMES.includes(residual)) {
+    result.set(residual, 1);
+    return result;
+  }
+  // This is entirely ad hoc with holes patched as they came up during fuzzing.
   while (residual !== 1) {
     let factor = rhoCascade(residual);
     residual /= factor;

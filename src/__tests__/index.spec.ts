@@ -24,6 +24,8 @@ import {
   wilsonHeight,
 } from '../index';
 
+const FUZZ = 'FUZZ' in process.env;
+
 describe('Array equality tester', () => {
   it('works on integer arrays', () => {
     expect(arraysEqual([1, 2, 3], [1, 2, 3])).toBeTruthy();
@@ -600,7 +602,7 @@ describe('Wilson complexity measure', () => {
     expect(wilsonHeight(fraction)).toBe(height);
   });
 
-  it.skip('fuzzes the fraction property', () => {
+  it.runIf(FUZZ)('fuzzes the fraction property', () => {
     for (let i = 0; i < 100; ++i) {
       const n = Math.floor(Math.random() * 1073741823);
       const d = Math.floor(Math.random() * 1073741822) + 1;
@@ -609,7 +611,7 @@ describe('Wilson complexity measure', () => {
     }
   });
 
-  it.skip('fuzzes the multiplicative property', () => {
+  it.runIf(FUZZ)('fuzzes the multiplicative property', () => {
     for (let i = 0; i < 10000; ++i) {
       const x = Math.floor(Math.random() * 32768);
       const y = Math.floor(Math.random() * 32768);

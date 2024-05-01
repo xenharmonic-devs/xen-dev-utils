@@ -42,6 +42,7 @@
     "pretest": "npm run compile",
     "posttest": "npm run lint",
     "test": "vitest",
+    "fuzz": "FUZZ=1 vitest",
     "compile-legacy": "tsc -p tsconfig-legacy.json",
     "prebench": "npm run compile && npm run compile-legacy",
     "bench": "vitest bench",

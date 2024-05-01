@@ -10,6 +10,8 @@ import {
 } from '../monzo';
 import {isPrime} from '../primes';
 
+const FUZZ = 'FUZZ' in process.env;
+
 function toMonzoAndResidual11(n: number): [number[], number] {
   const result = [0, 0, 0, 0, 0];
   if (!n) {
@@ -442,6 +444,7 @@ describe('Sparse monzos', () => {
     17719 * 21909,
     15812 * 27083,
     21097 * 29468,
+    30038 * 7605,
   ])('works on a tough case %s found during fuzzing', n => {
     const exponentByPrime = primeFactorize(n);
     let m = 1;
@@ -452,7 +455,7 @@ describe('Sparse monzos', () => {
     expect(m).toBe(n);
   });
 
-  it.skip('fuzzes for more broken cases', () => {
+  it.runIf(FUZZ)('fuzzes for more broken cases', () => {
     for (let i = 0; i < 100; ++i) {
       const n = Math.floor(Math.random() * 62837328) + 1;
       const exponentByPrime = primeFactorize(n);
