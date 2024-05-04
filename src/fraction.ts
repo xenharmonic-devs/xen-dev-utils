@@ -362,6 +362,44 @@ export class Fraction {
   }
 
   /**
+   * Serialize the fraction to a JSON compatible object.
+   * @returns An object with properties 'n', and 'd' corresponding to a signed numerator and an unsigned denominator respectively.
+   */
+  toJSON(): UnsignedFraction {
+    return {
+      n: this.n * this.s,
+      d: this.d,
+    };
+  }
+
+  /**
+   * Revive a {@link Fraction} instance produced by Fraction.toJSON(). Return everything else as is.
+   *
+   * Intended usage:
+   * ```ts
+   * const data = JSON.parse(serializedData, Fraction.reviver);
+   * ```
+   *
+   * @param key Property name.
+   * @param value Property value.
+   * @returns Deserialized {@link Fraction} instance or other data without modifications.
+   * @throws An error if the numerator or denominator exceeds `Number.MAX_SAFE_INTEGER`.
+   */
+  static reviver(key: string, value: any) {
+    if (
+      typeof value === 'object' &&
+      'n' in value &&
+      Number.isInteger(value.n) &&
+      'd' in value &&
+      Number.isInteger(value.d) &&
+      Object.keys(value).length === 2
+    ) {
+      return new Fraction(value as UnsignedFraction);
+    }
+    return value;
+  }
+
+  /**
    * Returns an array of continued fraction elements.
    *
    * Example:

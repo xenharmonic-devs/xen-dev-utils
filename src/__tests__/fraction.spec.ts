@@ -725,3 +725,43 @@ describe('Fraction', () => {
     );
   });
 });
+
+describe('JSON serialization', () => {
+  it('can serialize an array of fractions along with other data', () => {
+    const serialized = JSON.stringify([
+      new Fraction(42),
+      2,
+      new Fraction(-5, 3),
+      new Fraction('1.234'),
+      'hello',
+      new Fraction({s: 0, n: 0, d: 1}),
+    ]);
+
+    expect(serialized).toBe(
+      '[{"n":42,"d":1},2,{"n":-5,"d":3},{"n":617,"d":500},"hello",{"n":0,"d":1}]'
+    );
+  });
+
+  it('can revive an array of fractions along with other data', () => {
+    const serialized =
+      '[{"n":42,"d":1},2,{"n":-5,"d":3},{"n":617,"d":500},"hello",{"n":0,"d":1}]';
+    const data = JSON.parse(serialized, Fraction.reviver);
+    expect(data).toHaveLength(6);
+
+    expect(data[0]).toBeInstanceOf(Fraction);
+    expect(data[0]).toEqual({s: 1, n: 42, d: 1});
+
+    expect(data[1]).toBe(2);
+
+    expect(data[2]).toBeInstanceOf(Fraction);
+    expect(data[2]).toEqual({s: -1, n: 5, d: 3});
+
+    expect(data[3]).toBeInstanceOf(Fraction);
+    expect(data[3].equals('1.234')).toBe(true);
+
+    expect(data[4]).toBe('hello');
+
+    expect(data[5]).toBeInstanceOf(Fraction);
+    expect(data[5]).toEqual({s: 0, n: 0, d: 1});
+  });
+});
