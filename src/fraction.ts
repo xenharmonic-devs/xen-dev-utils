@@ -388,6 +388,7 @@ export class Fraction {
   static reviver(key: string, value: any) {
     if (
       typeof value === 'object' &&
+      value !== null &&
       'n' in value &&
       Number.isInteger(value.n) &&
       'd' in value &&
