@@ -787,6 +787,31 @@ export class Fraction {
   }
 
   /**
+   * Calculates the square root of the rational number.
+   *
+   * Examples:
+   * ```ts
+   * new Fraction("9/4").sqrt() // 3/2
+   * new Fraction(-1).sqrt()    // null
+   * ```
+   * @returns The positive square root if it exists as a rational number.
+   */
+  sqrt(): Fraction | null {
+    if (this.s < 0) {
+      return null;
+    }
+    const n = Math.round(Math.sqrt(this.n));
+    if (n * n !== this.n) {
+      return null;
+    }
+    const d = Math.round(Math.sqrt(this.d));
+    if (d * d !== this.d) {
+      return null;
+    }
+    return new Fraction(n, d);
+  }
+
+  /**
    * Calculates the fraction to some rational exponent, if possible.
    *
    * Examples:
@@ -821,10 +846,17 @@ export class Fraction {
       }
       return new Fraction(-1);
     }
+    if (n === 1 && d === 2) {
+      const sqrt = this.sqrt();
+      if (sqrt) {
+        return s > 0 ? sqrt : sqrt.inverse();
+      }
+      return null;
+    }
     let nProbe = 1;
     let dProbe = 1;
     let limitIndex = 0;
-    let numerator = this.s;
+    let numerator = n % 2 ? this.s : 1;
     let denominator = 1;
     do {
       if (limitIndex >= PRIMES.length) {

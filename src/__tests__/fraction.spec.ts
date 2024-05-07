@@ -119,11 +119,39 @@ describe('Fraction', () => {
   it('can calculate the square root of 36/25', () => {
     const fraction = new Fraction(36, 25);
     const half = new Fraction(1, 2);
-    const result = fraction.pow(half);
+    const result = fraction.pow(half)!;
     expect(result).not.toBeNull();
-    expect(result!.s).toBe(1);
-    expect(result!.n).toBe(6);
-    expect(result!.d).toBe(5);
+    expect(result.s).toBe(1);
+    expect(result.n).toBe(6);
+    expect(result.d).toBe(5);
+  });
+
+  it('can calculate the inverse square root of 36/25', () => {
+    const fraction = new Fraction(36, 25);
+    const negHalf = new Fraction(-1, 2);
+    const result = fraction.pow(negHalf)!;
+    expect(result).not.toBeNull();
+    expect(result.s).toBe(1);
+    expect(result.n).toBe(5);
+    expect(result.d).toBe(6);
+  });
+
+  it('can calculate (-125/27) ** (1/3)', () => {
+    const fraction = new Fraction(-125, 27);
+    const result = fraction.pow('1/3')!;
+    expect(result).not.toBeNull();
+    expect(result.s).toBe(-1);
+    expect(result.n).toBe(5);
+    expect(result.d).toBe(3);
+  });
+
+  it('can calculate (-125/27) ** (2/3)', () => {
+    const fraction = new Fraction(-125, 27);
+    const result = fraction.pow('2/3')!;
+    expect(result).not.toBeNull();
+    expect(result.s).toBe(1);
+    expect(result.n).toBe(25);
+    expect(result.d).toBe(9);
   });
 
   it('infers zeroes for decimal components', () => {
@@ -723,6 +751,30 @@ describe('Fraction', () => {
     expect(() => new Fraction(Infinity, Infinity)).throws(
       'Cannot represent NaN as a fraction'
     );
+  });
+
+  it('calculates the square root of 9/4', () => {
+    const fraction = new Fraction(9, 4).sqrt()!;
+    expect(fraction.equals('3/2')).toBe(true);
+  });
+
+  it('gives up on root 3', () => {
+    const nil = new Fraction(3).sqrt();
+    expect(nil).toBeNull();
+  });
+
+  it('gives up on root -1', () => {
+    const nil = new Fraction(-1).sqrt();
+    expect(nil).toBeNull();
+  });
+
+  // Passes, but takes about 409094ms
+  it.skip('works on every square within the supported limit', () => {
+    let n = 0;
+    while (n * n < Number.MAX_SAFE_INTEGER) {
+      expect(new Fraction(n * n).sqrt()!.equals(n)).toBe(true);
+      ++n;
+    }
   });
 });
 
