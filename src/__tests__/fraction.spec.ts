@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {Fraction, gcd, lcm, mmod} from '../fraction';
+import {Fraction, gcd, lcm, mmod, modc} from '../fraction';
 
 describe('gcd', () => {
   it('can find the greatest common divisor of 12 and 15 (number)', () => {
@@ -77,6 +77,34 @@ describe('mmod', () => {
 
   it('works with negative numbers (bigint)', () => {
     expect(mmod(-5n, 3n)).toBe(1n);
+  });
+
+  it('produces NaN for 1 % 0', () => {
+    expect(mmod(1, 0)).toBeNaN();
+  });
+
+  it('throws for 1n % 0n', () => {
+    expect(() => mmod(1n, 0n)).toThrow();
+  });
+});
+
+describe('Ceiling modulo', () => {
+  it('works like clockwork', () => {
+    expect([...Array(13).keys()].map(i => modc(i, 12))).toEqual([
+      12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+    ]);
+  });
+
+  it('works with negative numbers (bigint)', () => {
+    expect(modc(-5n, 3n)).toBe(1n);
+  });
+
+  it('produces 0 for 1 % 0', () => {
+    expect(modc(1, 0)).toBe(0);
+  });
+
+  it('produces 0n for 1n % 0n', () => {
+    expect(modc(1n, 0n)).toBe(0n);
   });
 });
 

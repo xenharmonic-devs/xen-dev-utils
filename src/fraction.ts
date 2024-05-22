@@ -69,6 +69,22 @@ export function mmod(a: number | bigint, b: typeof a): typeof a {
 }
 
 /**
+ * Ceiling modulo.
+ * @param a The dividend.
+ * @param b The divisor.
+ * @returns The remainder of Euclidean division of a by b where b modc b === b.
+ */
+export function modc(a: number, b: number): number;
+export function modc(a: bigint, b: bigint): bigint;
+export function modc(a: number | bigint, b: typeof a): typeof a {
+  if (!b) {
+    return b;
+  }
+  // @ts-ignore
+  return ((a % b) + b) % b || b;
+}
+
+/**
  *
  * This class offers the possibility to calculate fractions.
  * You can pass a fraction in different formats: either as two integers, an integer, a floating point number or a string.
