@@ -22,6 +22,8 @@ import {
   monzoToCents,
   tenneyHeight,
   wilsonHeight,
+  modInv,
+  mmod,
 } from '../index';
 
 const FUZZ = 'FUZZ' in process.env;
@@ -619,5 +621,61 @@ describe('Wilson complexity measure', () => {
         wilsonHeight(x * y)
       );
     }
+  });
+});
+
+describe('Modular inverse calculator', () => {
+  it('finds modular inverses when they exist', () => {
+    for (let a = -30; a < 30; ++a) {
+      for (let b = 2; b < 20; ++b) {
+        const c = Math.abs(gcd(a, b));
+        if (c !== 1) {
+          expect(() => modInv(a, b)).toThrow();
+        } else {
+          expect(mmod(a * modInv(a, b), b)).toBe(1);
+        }
+      }
+    }
+  });
+
+  it("finds the next best alternative even if a true modular inverse doesn't exist", () => {
+    for (let a = -30; a < 30; ++a) {
+      for (let b = 1; b < 20; ++b) {
+        let c = Math.abs(gcd(a, b));
+        if (c === b) {
+          c = 0;
+        }
+        expect(mmod(a * modInv(a, b, false), b)).toBe(c);
+      }
+    }
+  });
+
+  it('can be used to break 15edo into 3 interleaved circles of fifths', () => {
+    const edo = 15;
+    const gen = 9;
+    const genInv = modInv(gen, edo, false);
+    const numCycles = mmod(gen * genInv, edo);
+    function f(step: number) {
+      const c = mmod(step, numCycles);
+      return mmod((step - c) * genInv, edo) + c;
+    }
+    expect([...Array(16).keys()].map(f)).toEqual([
+      0, // Root
+      1, // Root + 1
+      2, // Root + 2
+      6, // Gen * 2
+      7, // +1
+      8, // +2
+      12, // Gen * 4
+      13, // +1
+      14, // +2
+      3, // Gen
+      4, // Gen + 1
+      5, // Gen + 1
+      9, // Gen * 3
+      10, // +1
+      11, // +2
+      0, // Circle closes
+    ]);
   });
 });

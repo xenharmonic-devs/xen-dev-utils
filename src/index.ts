@@ -129,6 +129,23 @@ export function iteratedEuclid(params: Iterable<number>) {
 }
 
 /**
+ * Find modular inverse of a (mod b).
+ * @param a Number to find modular inverse of.
+ * @param b Modulus.
+ * @param strict Ensure that a * modInv(a, b) = 1 (mod b). If `strict = false` we have a * modInv(a, b) = gdc(a, b) (mod b) instead.
+ * @returns The modular inverse in the range {0, 1, ..., b - 1}.
+ */
+export function modInv(a: number, b: number, strict = true) {
+  const {gcd, coefA} = extendedEuclid(a, b);
+  if (strict && gcd !== 1) {
+    throw new Error(
+      `${a} does not have a modular inverse modulo ${b} since they're not coprime`
+    );
+  }
+  return mmod(coefA, b);
+}
+
+/**
  * Collection of unique fractions.
  */
 export class FractionSet extends Set<Fraction> {
