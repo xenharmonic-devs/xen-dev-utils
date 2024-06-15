@@ -159,19 +159,13 @@ export class Fraction {
       this.defloat();
     } else if (typeof numerator === 'string') {
       numerator = numerator.toLowerCase();
-      this.n = 1;
       this.d = 1;
+      let exponent: undefined | string;
       if (numerator.includes('e')) {
-        const [mantissa, exponent] = numerator.split('e', 2);
-        numerator = mantissa;
-        const e = parseInt(exponent, 10);
-        if (e > 0) {
-          this.n = 10 ** e;
-        } else if (e < 0) {
-          this.d = 10 ** -e;
-        }
+        [numerator, exponent] = numerator.split('e', 2);
       }
       if (numerator.includes('/')) {
+        this.n = 1;
         if (numerator.includes('.')) {
           throw new Error('Parameters must be integer');
         }
@@ -195,15 +189,23 @@ export class Fraction {
         } else {
           this.s = 1;
         }
-        let m = n ? parseInt(n, 10) : 0;
-        if (this.n < 0) {
+        if (n.startsWith('-')) {
           throw new Error('Double sign');
         }
-        for (const c of f) {
-          m = 10 * m + parseInt(c, 10);
+        this.n = 0;
+        for (const c of f.split('').reverse()) {
+          this.n += this.d * parseInt(c, 10);
           this.d *= 10;
+          if (this.d > Number.MAX_SAFE_INTEGER) {
+            throw new Error('Decimal string too complex');
+          }
+          const factor = gcd(this.n, this.d);
+          this.n /= factor;
+          this.d /= factor;
         }
-        this.n *= m;
+        if (n) {
+          this.n += parseInt(n, 10) * this.d;
+        }
         if (r) {
           r = r.replace(/'/g, '');
           if (r.length) {
@@ -212,7 +214,9 @@ export class Fraction {
               throw new Error('Cycle too long');
             }
             const cycleD = (10 ** r.length - 1) * 10 ** f.length;
-            this.n = this.n * cycleD + this.d * cycleN;
+            const factor = gcd(cycleD, this.d);
+            this.d /= factor;
+            this.n = this.n * (cycleD / factor) + this.d * cycleN;
             this.d *= cycleD;
           }
         }
@@ -227,6 +231,15 @@ export class Fraction {
       if (this.d === 0) {
         throw new Error('Division by Zero');
       }
+      if (exponent) {
+        const e = parseInt(exponent, 10);
+        if (e > 0) {
+          this.n *= 10 ** e;
+        } else if (e < 0) {
+          this.d *= 10 ** -e;
+        }
+      }
+      this.validate();
       this.reduce();
     } else {
       if (numerator.d === 0) {
@@ -248,9 +261,9 @@ export class Fraction {
       this.n = Math.abs(numerator.n);
       this.d = Math.abs(numerator.d);
       this.screenInfinity();
+      this.validate();
       this.reduce();
     }
-    this.validate();
   }
 
   /**
