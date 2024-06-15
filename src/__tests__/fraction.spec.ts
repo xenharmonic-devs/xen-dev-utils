@@ -847,4 +847,15 @@ describe('JSON serialization', () => {
 
     expect(data[6]).toBeNull();
   });
+
+  it('either parses or rejects increasingly accurate decimals', () => {
+    for (let i = 1; i < 20; ++i) {
+      try {
+        const f = new Fraction('0.' + '9'.repeat(i));
+        expect(f.toFraction()).toBe('9'.repeat(i) + '/' + '1' + '0'.repeat(i));
+      } catch (e) {
+        expect(e.message).toBe('Decimal string too complex');
+      }
+    }
+  });
 });
