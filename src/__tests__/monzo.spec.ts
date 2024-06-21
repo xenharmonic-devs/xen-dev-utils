@@ -1,6 +1,9 @@
 import {describe, it, expect} from 'vitest';
 import {Fraction} from '../fraction';
 import {
+  fractionalAdd,
+  fractionalMonzosEqual,
+  fractionalNorm,
   monzoToBigInt,
   monzoToFraction,
   primeFactorize,
@@ -466,5 +469,33 @@ describe('Sparse monzos', () => {
       }
       expect(m).toBe(n);
     }
+  });
+});
+
+describe('Fractional monzo methods', () => {
+  it('test for equality between two monzos (equal)', () => {
+    const yes = fractionalMonzosEqual(
+      ['1/2', '7/9'],
+      [0.5, new Fraction(14, 18), 0]
+    );
+    expect(yes).toBe(true);
+  });
+
+  it('test for equality between two monzos (not equal)', () => {
+    const no = fractionalMonzosEqual(
+      ['1/2', '7/9'],
+      [0.75, new Fraction(7, 9)]
+    );
+    expect(no).toBe(false);
+  });
+
+  it('adds two fractional monzos', () => {
+    const result = fractionalAdd(['1/2', '2/3'], [new Fraction(1), 0.75]);
+    expect(result.map(f => f.toFraction())).toEqual(['3/2', '17/12']);
+  });
+
+  it('measures the naïve squared length of a fractional monzo', () => {
+    const l2 = fractionalNorm([0.5, '1/3', '5/7']);
+    expect(l2.toFraction()).toBe('1537/1764');
   });
 });

@@ -6,6 +6,16 @@ import {BIG_INT_PRIMES, PRIMES} from './primes';
  */
 export type Monzo = number[];
 
+/**
+ * Array of rational numbers representing the exponents of prime numbers in the unique factorization of a radical number i.e. n-th root.
+ */
+export type FractionalMonzo = Fraction[];
+
+/**
+ * Array of rational-looking numbers suitable as arguments for methods that work with fractional monzos.
+ */
+export type ProtoFractionalMonzo = FractionValue[];
+
 // The limit at which ((n ^ (n-1)) & n) is no longer equal to the two's factor.
 const BIT_MAGIC_LIMIT = 2 ** 31;
 
@@ -28,7 +38,7 @@ export function monzosEqual(a: Monzo, b: Monzo) {
   if (a === b) {
     return true;
   }
-  for (let i = 0; i < Math.min(a.length, b.length); ++i) {
+  for (let i = Math.min(a.length, b.length) - 1; i >= 0; --i) {
     if (a[i] !== b[i]) {
       return false;
     }
@@ -51,18 +61,71 @@ export function monzosEqual(a: Monzo, b: Monzo) {
 }
 
 /**
+ * Check if two fractional monzos are equal.
+ * @param a The first monzo.
+ * @param b The second monzo.
+ * @returns `true` if the two values are equal.
+ */
+export function fractionalMonzosEqual(
+  a: ProtoFractionalMonzo,
+  b: ProtoFractionalMonzo
+): boolean {
+  if (a === b) {
+    return true;
+  }
+  for (let i = Math.min(a.length, b.length) - 1; i >= 0; --i) {
+    if (!new Fraction(a[i]).equals(b[i])) {
+      return false;
+    }
+  }
+  if (a.length > b.length) {
+    for (let i = b.length; i < a.length; ++i) {
+      if (new Fraction(a[i]).n) {
+        return false;
+      }
+    }
+  }
+  if (b.length > a.length) {
+    for (let i = a.length; i < b.length; ++i) {
+      if (new Fraction(b[i]).n) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+/**
  * Add two monzos.
  * @param a The first monzo.
  * @param b The second monzo.
  * @returns A monzo that represents the product of the two numbers represented by `a` and `b`.
  */
 export function add(a: Monzo, b: Monzo): Monzo {
-  if (a.length < b.length) {
-    return add(b, a);
-  }
   const result = [...a];
-  for (let i = 0; i < b.length; ++i) {
+  for (let i = Math.min(a.length, b.length) - 1; i >= 0; --i) {
     result[i] += b[i];
+  }
+  result.push(...b.slice(result.length));
+  return result;
+}
+
+/**
+ * Add two fractional monzos.
+ * @param a The first monzo.
+ * @param b The second monzo.
+ * @returns A monzo that represents the product of the two numbers represented by `a` and `b`.
+ */
+export function fractionalAdd(
+  a: ProtoFractionalMonzo,
+  b: ProtoFractionalMonzo
+): FractionalMonzo {
+  const result: FractionalMonzo = a.map(f => new Fraction(f));
+  for (let i = Math.min(a.length, b.length) - 1; i >= 0; --i) {
+    result[i] = result[i].add(b[i]);
+  }
+  while (result.length < b.length) {
+    result.push(new Fraction(b[result.length]));
   }
   return result;
 }
@@ -75,11 +138,31 @@ export function add(a: Monzo, b: Monzo): Monzo {
  */
 export function sub(a: Monzo, b: Monzo): Monzo {
   const result = [...a];
-  for (let i = 0; i < Math.min(a.length, b.length); ++i) {
+  for (let i = Math.min(a.length, b.length) - 1; i >= 0; --i) {
     result[i] -= b[i];
   }
   while (result.length < b.length) {
     result.push(-b[result.length]);
+  }
+  return result;
+}
+
+/**
+ * Subtract two fractional monzos.
+ * @param a The first monzo.
+ * @param b The second monzo.
+ * @returns A monzo that represents the division of the two numbers represented by `a` and `b`.
+ */
+export function fractionalSub(
+  a: ProtoFractionalMonzo,
+  b: ProtoFractionalMonzo
+): FractionalMonzo {
+  const result: FractionalMonzo = a.map(f => new Fraction(f));
+  for (let i = Math.min(a.length, b.length) - 1; i >= 0; --i) {
+    result[i] = result[i].sub(b[i]);
+  }
+  while (result.length < b.length) {
+    result.push(new Fraction(b[result.length]).neg());
   }
   return result;
 }
@@ -95,6 +178,62 @@ export function scale(monzo: Monzo, amount: number) {
 }
 
 /**
+ * Scale a monzo by a scalar.
+ * @param monzo The monzo to scale.
+ * @param amount The amount to scale by.
+ * @returns The scalar multiple.
+ */
+export function fractionalScale(
+  monzo: ProtoFractionalMonzo,
+  amount: FractionValue
+): FractionalMonzo {
+  return monzo.map(component => new Fraction(component).mul(amount));
+}
+
+/**
+ * Calculate the inner (dot) product of two arrays of rational numbers.
+ * @param a The first array of numbers.
+ * @param b The second array of numbers.
+ * @returns The dot product.
+ */
+export function fractionalDot(
+  a: ProtoFractionalMonzo,
+  b: ProtoFractionalMonzo
+): Fraction {
+  let result = new Fraction(0);
+  for (let i = Math.min(a.length, b.length) - 1; i >= 0; --i) {
+    result = result.add(new Fraction(a[i]).mul(b[i]));
+  }
+  return result;
+}
+
+/**
+ * Calculate the norm (vector length) of an array of rational numbers.
+ * @param array The array to measure.
+ * @param type Type of measurement. (Euclidean norm can be obtained using L2 and calling .sqrt() on the result.)
+ * @returns The length of the vector.
+ */
+export function fractionalNorm(
+  array: ProtoFractionalMonzo,
+  type: 'L2' | 'taxicab' | 'maximum' = 'L2'
+): Fraction {
+  let result = new Fraction(0);
+  for (let i = 0; i < array.length; ++i) {
+    const a = new Fraction(array[i]).abs();
+    if (type === 'taxicab') {
+      result = result.add(a);
+    } else if (type === 'maximum') {
+      if (result.compare(a) < 0) {
+        result = a;
+      }
+    } else {
+      result = result.add(a.mul(a));
+    }
+  }
+  return result;
+}
+
+/**
  * Multiply two monzos component-wise.
  * @param monzo The first monzo.
  * @param weights The second monzo. Missing values interpreted as 1 (no change).
@@ -102,8 +241,22 @@ export function scale(monzo: Monzo, amount: number) {
  */
 export function applyWeights(monzo: Monzo, weights: Monzo) {
   const result = [...monzo];
-  for (let i = 0; i < Math.min(monzo.length, weights.length); ++i) {
+  for (let i = Math.min(monzo.length, weights.length) - 1; i >= 0; --i) {
     result[i] *= weights[i];
+  }
+  return result;
+}
+
+/**
+ * Divide two monzos component-wise.
+ * @param monzo The first monzo.
+ * @param weights The second monzo. Missing values interpreted as 1 (no change).
+ * @returns The first monzo unweighted by the second.
+ */
+export function unapplyWeights(monzo: Monzo, weights: Monzo) {
+  const result = [...monzo];
+  for (let i = Math.min(monzo.length, weights.length) - 1; i >= 0; --i) {
+    result[i] /= weights[i];
   }
   return result;
 }
