@@ -1,11 +1,23 @@
 import {describe, expect, it} from 'vitest';
 import {
+  det,
+  eye,
+  fractionalDet,
+  fractionalEye,
   fractionalGram,
+  fractionalInv,
   fractionalLenstraLenstraLovasz,
+  fractionalMatmul,
+  fractionalTranspose,
   gram,
+  inv,
   lenstraLenstraLovasz,
+  matmul,
+  minor,
+  transpose,
 } from '../basis';
 import {
+  FractionalMonzo,
   applyWeights,
   fractionalDot,
   fractionalMonzosEqual,
@@ -18,6 +30,17 @@ import {dot} from '../number-array';
 import {LOG_PRIMES} from '../primes';
 
 const FUZZ = 'FUZZ' in process.env;
+
+function naiveDet(matrix: number[][]): number {
+  if (!matrix.length) {
+    return 1;
+  }
+  let result = 0;
+  for (let i = 0; i < matrix.length; ++i) {
+    result += (-1) ** i * matrix[0][i] * naiveDet(minor(matrix, 0, i));
+  }
+  return result;
+}
 
 describe('Gram process', () => {
   it('orthogonalizes a basis', () => {
@@ -320,5 +343,314 @@ describe('Precise LLL basis reduction', () => {
         expect(e.message).includes('above safe limit');
       }
     }
+  });
+});
+
+describe('Matrix multiplication', () => {
+  it('multiplies two matrices', () => {
+    const A = [
+      [1, 0, 1],
+      [2, 1, 1],
+      [0, 1, 1],
+      [1, 1, 2],
+    ];
+    const B = [
+      [1, 2, 1],
+      [2, 3, 1],
+      [4, 2, 2],
+    ];
+    const C = matmul(A, B);
+    expect(C).toEqual([
+      [5, 4, 3],
+      [8, 9, 5],
+      [6, 5, 3],
+      [11, 9, 6],
+    ]);
+  });
+
+  it('multiplies two matrices (fractions)', () => {
+    const A = [
+      [1, 0, 1],
+      [2, 1, 1],
+      [0, 0.5, 1],
+      [1, 1, 2],
+    ];
+    const B = [
+      [1, 2, 1],
+      [2, 3, 1],
+      ['4/3', 2, 2],
+    ];
+    const C = fractionalMatmul(A, B);
+    expect(C.map(row => row.map(f => f.toFraction()))).toEqual([
+      ['7/3', '4', '3'],
+      ['16/3', '9', '5'],
+      ['7/3', '7/2', '5/2'],
+      ['17/3', '9', '6'],
+    ]);
+  });
+});
+
+describe('Matrix inverse', () => {
+  it('computes a 3x3 inverse', () => {
+    const mat = [
+      [2, -1], // Missing entry interpreted as 0
+      [-1, 2, -1],
+      [0, -1, 2],
+    ];
+    const inverse = inv(mat).map(row => row.map(x => Math.round(4 * x) / 4));
+    expect(inverse).toEqual([
+      [0.75, 0.5, 0.25],
+      [0.5, 1, 0.5],
+      [0.25, 0.5, 0.75],
+    ]);
+  });
+
+  it('computes another 3x3 inverse', () => {
+    const mat = [
+      [-2, -1, 2],
+      [2, 1, 4],
+      [-3, 3, -1],
+    ];
+    const inverse = inv(mat).map(row => row.map(x => Math.round(100000 * x)));
+    expect(inverse).toEqual([
+      [-24074, 9259, -11111],
+      [-18519, 14815, 22222],
+      [16667, 16667, 0],
+    ]);
+  });
+
+  it('throws for non-square matrix', () => {
+    expect(() =>
+      inv([
+        [1, 2],
+        [3, 4],
+        [5, 6],
+      ])
+    ).toThrow('Non-square matrix');
+  });
+
+  it('throws for singular matrix', () => {
+    expect(() =>
+      inv([
+        [1, 0],
+        [0, 0],
+      ])
+    ).toThrow('Matrix is singular');
+  });
+
+  it('computes a 3x3 with fractional entries', () => {
+    const mat = [
+      [2, -1], // Missing entry interpreted as 0
+      [-1, '2/1', -1],
+      [0, -1, '2'],
+    ];
+    const inverse = fractionalInv(mat).map(row => row.map(x => x.toFraction()));
+    expect(inverse).toEqual([
+      ['3/4', '1/2', '1/4'],
+      ['1/2', '1', '1/2'],
+      ['1/4', '1/2', '3/4'],
+    ]);
+  });
+
+  it('computes another 3x3 inverse with fractional result', () => {
+    const mat = [
+      [-2, -1, 2],
+      [2, 1, 4],
+      [-3, 3, -1],
+    ];
+    const inverse = fractionalInv(mat).map(row => row.map(x => x.toFraction()));
+    expect(inverse).toEqual([
+      ['-13/54', '5/54', '-1/9'],
+      ['-5/27', '4/27', '2/9'],
+      ['1/6', '1/6', '0'],
+    ]);
+  });
+
+  it('throws for non-square matrix with fractional entries', () => {
+    expect(() =>
+      fractionalInv([
+        [1, 2],
+        [3, 4],
+        [5, 6],
+      ])
+    ).toThrow('Non-square matrix');
+  });
+
+  it('throws for singular matrix with fractional entries', () => {
+    expect(() =>
+      fractionalInv([
+        [1, 0],
+        [0, 0],
+      ])
+    ).toThrow('Matrix is singular');
+  });
+
+  it.runIf(FUZZ)('fuzzes for random inverses', () => {
+    for (let k = 0; k < 10000; ++k) {
+      const mat: number[][] = [];
+      const N = Math.ceil(1 + Math.random() * 10);
+      for (let i = 0; i < N; ++i) {
+        const row: number[] = [];
+        for (let j = 0; j < N; ++j) {
+          row.push(Math.random() * 10 - 5);
+        }
+        mat.push(row);
+      }
+      const inverse = inv(mat);
+      const I = matmul(mat, inverse).map(row =>
+        row.map(x => Math.round(x * 1024) / 1024 || 0)
+      );
+      expect(I).toEqual(eye(N));
+    }
+  });
+
+  it.runIf(FUZZ)('fuzzes for random inverses (fractional)', () => {
+    for (let k = 0; k < 1000; ++k) {
+      const mat: number[][] = [];
+      const N = Math.ceil(1 + Math.random() * 7);
+      for (let i = 0; i < N; ++i) {
+        const row: number[] = [];
+        for (let j = 0; j < N; ++j) {
+          row.push(Math.round(Math.random() * 10 - 5));
+        }
+        mat.push(row);
+      }
+      const determinant = naiveDet(mat);
+      let inverse: FractionalMonzo[] | undefined;
+      try {
+        inverse = fractionalInv(mat);
+      } catch (e) {
+        if (!determinant) {
+          expect(e.message).toBe('Matrix is singular');
+        }
+        /** empty */
+      }
+      if (inverse) {
+        expect(determinant).not.toBe(0);
+        const I = fractionalMatmul(mat, inverse);
+        expect(I).toEqual(fractionalEye(N));
+      }
+    }
+  });
+});
+
+describe('Determinant', () => {
+  it('computes the determinant of a 3x3 matrix', () => {
+    const mat = [
+      [-2, -1, 2],
+      [2, 1, 4],
+      [-3, 3, -1],
+    ];
+    const determinant = det(mat);
+    expect(determinant).toBe(54);
+  });
+
+  it('computes 0 for the origin', () => {
+    const mat = [[0, 0], []];
+    const determinant = det(mat);
+    expect(determinant).toBe(0);
+  });
+
+  it('computes the area of a square', () => {
+    const sides = [
+      [1, 1],
+      [-1, 1],
+    ];
+    const determinant = det(sides);
+    expect(determinant).toBe(2);
+  });
+
+  it('computes the volume of a skew-aligned box', () => {
+    const sides = [
+      [1, 1, 1],
+      [-Math.SQRT2, Math.SQRT1_2, Math.SQRT1_2],
+      [0, 1, -1],
+    ];
+    const determinant = det(sides);
+    expect(determinant).toBe(-3 * Math.SQRT2);
+  });
+
+  it('computes the determinant of a 3x3 matrix with fractional entries', () => {
+    const mat = [
+      [-2, -1, 2],
+      [2, 0.5, 4],
+      [-3, 3, '-1/3'],
+    ];
+    const d = fractionalDet(mat);
+    expect(d.toFraction()).toBe('152/3');
+  });
+
+  it('computes the determinant of a 4x4 matrix', () => {
+    const mat = [
+      [-0, -1, 3, 2],
+      [-0, -3, -0, 3],
+      [2, 1, 0, -4],
+      [-4, -3, -5, -3],
+    ];
+    expect(det(mat)).toBe(-186);
+  });
+
+  it('computes the determinant of a 4x4 matrix (fractional)', () => {
+    const mat = [
+      [-0, -1, 3, 2],
+      [-0, -3, -0, 3],
+      [2, 1, 0, -4],
+      [-4, -3, -5, -3],
+    ];
+    expect(fractionalDet(mat).valueOf()).toBe(-186);
+  });
+
+  it.runIf(FUZZ)('agrees with the naïve implementation', () => {
+    for (let i = 0; i < 1000; ++i) {
+      const mat: number[][] = [];
+      const N = Math.ceil(1 + Math.random() * 8);
+      for (let i = 0; i < N; ++i) {
+        const row: number[] = [];
+        for (let j = 0; j < N; ++j) {
+          row.push(Math.random() * 10 - 5);
+        }
+        mat.push(row);
+      }
+      const determinant = det(mat);
+      const naive = naiveDet(mat);
+      expect(determinant).toBeCloseTo(naive);
+    }
+  });
+
+  it.runIf(FUZZ)('agrees with the naïve implementation (fractional)', () => {
+    for (let i = 0; i < 100; ++i) {
+      const mat: number[][] = [];
+      const N = Math.ceil(1 + Math.random() * 8);
+      for (let i = 0; i < N; ++i) {
+        const row: number[] = [];
+        for (let j = 0; j < N; ++j) {
+          row.push(Math.round(Math.random() * 10 - 5));
+        }
+        mat.push(row);
+      }
+      const determinant = fractionalDet(mat);
+      const naive = naiveDet(mat);
+      expect(determinant.valueOf()).toBe(naive);
+    }
+  });
+});
+
+describe('Transpose', () => {
+  it('transposes a 3x2 matrix', () => {
+    const mat = [[1, 2], [3], [4, 5]];
+    expect(transpose(mat)).toEqual([
+      [1, 3, 4],
+      [2, 0, 5],
+    ]);
+  });
+
+  it('transposes a 3x2 matrix with rational entries', () => {
+    const mat = [[1, 0.5], [3], ['2/7', 5]];
+    expect(
+      fractionalTranspose(mat).map(row => row.map(f => f.toFraction()))
+    ).toEqual([
+      ['1', '3', '2/7'],
+      ['1/2', '0', '5'],
+    ]);
   });
 });
