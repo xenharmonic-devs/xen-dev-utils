@@ -2,6 +2,8 @@ import {Fraction, FractionValue} from './fraction';
 import {
   FractionalMonzo,
   ProtoFractionalMonzo,
+  add,
+  fractionalAdd,
   fractionalDot,
   fractionalScale,
   fractionalSub,
@@ -437,12 +439,35 @@ export function fractionalInv(matrix: ProtoFractionalMonzo[]) {
 }
 
 /**
- * Compute the matrix product of two arrays of arrays of numbers.
+ * Compute the matrix product of two matrices or vectors.
  * @param A The left operand.
  * @param B The right operand.
  * @returns The matrix product of the operands.
  */
-export function matmul(A: number[][], B: number[][]) {
+export function matmul(A: number[], B: number[]): number;
+export function matmul(A: number[], B: number[][]): number[];
+export function matmul(A: number[][], B: number[]): number[];
+export function matmul(A: number[][], B: number[][]): number[][];
+export function matmul(A: number[] | number[][], B: number[] | number[][]) {
+  let numVectors = 0;
+  if (!Array.isArray(A[0])) {
+    A = [A as number[]];
+    numVectors++;
+  }
+  if (!Array.isArray(B[0])) {
+    B = (B as number[]).map(c => [c]);
+    numVectors++;
+  }
+  const result = matmul_(A as number[][], B as number[][]);
+  if (numVectors === 1) {
+    return result.flat();
+  } else if (numVectors === 2) {
+    return result[0][0];
+  }
+  return result;
+}
+
+function matmul_(A: number[][], B: number[][]) {
   const height = A.length;
   let width = 0;
   for (const row of B) {
@@ -471,12 +496,53 @@ export function matmul(A: number[][], B: number[][]) {
 }
 
 /**
- * Compute the matrix product of two arrays of arrays of fractions.
+ * Compute the matrix product of two matrices or vectors.
  * @param A The left operand.
  * @param B The right operand.
  * @returns The matrix product of the operands.
  */
 export function fractionalMatmul(
+  A: ProtoFractionalMonzo,
+  B: ProtoFractionalMonzo
+): Fraction;
+export function fractionalMatmul(
+  A: ProtoFractionalMonzo,
+  B: ProtoFractionalMonzo[]
+): FractionalMonzo;
+export function fractionalMatmul(
+  A: ProtoFractionalMonzo[],
+  B: ProtoFractionalMonzo
+): FractionalMonzo;
+export function fractionalMatmul(
+  A: ProtoFractionalMonzo[],
+  B: ProtoFractionalMonzo[]
+): FractionalMonzo[];
+export function fractionalMatmul(
+  A: ProtoFractionalMonzo | ProtoFractionalMonzo[],
+  B: ProtoFractionalMonzo | ProtoFractionalMonzo[]
+) {
+  let numVectors = 0;
+  if (!Array.isArray(A[0])) {
+    A = [A as ProtoFractionalMonzo];
+    numVectors++;
+  }
+  if (!Array.isArray(B[0])) {
+    B = (B as ProtoFractionalMonzo).map(c => [c]);
+    numVectors++;
+  }
+  const result = fractionalMatmul_(
+    A as ProtoFractionalMonzo[],
+    B as ProtoFractionalMonzo[]
+  );
+  if (numVectors === 1) {
+    return result.flat();
+  } else if (numVectors === 2) {
+    return result[0][0];
+  }
+  return result;
+}
+
+export function fractionalMatmul_(
   A: ProtoFractionalMonzo[],
   B: ProtoFractionalMonzo[]
 ): FractionalMonzo[] {
@@ -681,4 +747,93 @@ export function minor(matrix: any[][], i: number, j: number) {
     row.splice(j, 1);
   }
   return matrix;
+}
+
+/**
+ * Scale a matrix by a scalar.
+ * @param matrix The matrix to scale.
+ * @param amount The amount to scale by.
+ * @returns The scalar multiple.
+ */
+export function matscale(matrix: number[][], amount: number) {
+  return matrix.map(row => scale(row, amount));
+}
+
+/**
+ * Add two matrices.
+ * @param A The first matrix.
+ * @param B The second matrix.
+ * @returns The sum.
+ */
+export function matadd(A: number[][], B: number[][]) {
+  const result: number[][] = [];
+  const numRows = Math.max(A.length, B.length);
+  for (let i = 0; i < numRows; ++i) {
+    result.push(add(A[i] ?? [], B[i] ?? []));
+  }
+  return result;
+}
+
+/**
+ * Subtract two matrices.
+ * @param A The matrix to subtract from.
+ * @param B The matrix to subtract by.
+ * @returns The difference.
+ */
+export function matsub(A: number[][], B: number[][]) {
+  const result: number[][] = [];
+  const numRows = Math.max(A.length, B.length);
+  for (let i = 0; i < numRows; ++i) {
+    result.push(sub(A[i] ?? [], B[i] ?? []));
+  }
+  return result;
+}
+
+/**
+ * Scale a matrix by a scalar.
+ * @param matrix The matrix to scale.
+ * @param amount The amount to scale by.
+ * @returns The scalar multiple.
+ */
+export function fractionalMatscale(
+  matrix: ProtoFractionalMonzo[],
+  amount: FractionValue
+) {
+  return matrix.map(row => fractionalScale(row, amount));
+}
+
+/**
+ * Add two matrices.
+ * @param A The first matrix.
+ * @param B The second matrix.
+ * @returns The sum.
+ */
+export function fractionalMatadd(
+  A: ProtoFractionalMonzo[],
+  B: ProtoFractionalMonzo[]
+) {
+  const result: FractionalMonzo[] = [];
+  const numRows = Math.max(A.length, B.length);
+  for (let i = 0; i < numRows; ++i) {
+    result.push(fractionalAdd(A[i] ?? [], B[i] ?? []));
+  }
+  return result;
+}
+
+/**
+ * Subtract two matrices.
+ * @param A The matrix to subtract from.
+ * @param B The matrix to subtract by.
+ * @returns The difference.
+ */
+export function fractionalMatsub(
+  A: ProtoFractionalMonzo[],
+  B: ProtoFractionalMonzo[]
+) {
+  const result: FractionalMonzo[] = [];
+  const numRows = Math.max(A.length, B.length);
+  for (let i = 0; i < numRows; ++i) {
+    result.push(fractionalSub(A[i] ?? [], B[i] ?? []));
+  }
+  return result;
 }

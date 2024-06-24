@@ -1,5 +1,8 @@
 # Change log
 
+## 0.10.1
+ * Feature: Accept vectors in `matmul` and `fractionalMatmul` and adjust return types accordingly.
+ * Feature: `matscale`, `matadd`, `matsub` and fractional variants. [#41](https://github.com/xenharmonic-devs/xen-dev-utils/issues/41)
 ## 0.10.0
  * Feature: New array type `FractionalMonzo` with vector methods `fractionalMonzosEqual`, `fractionalAdd`, `fractionalSub`, `fractionalDot`, `fractionalScale` and `fractionalNorm`.
  * Feature: Unnormalized Gram-Schmidt orthogonalization `gram` and `fractionalGram`.

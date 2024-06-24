@@ -7,11 +7,17 @@ import {
   fractionalGram,
   fractionalInv,
   fractionalLenstraLenstraLovasz,
+  fractionalMatadd,
+  fractionalMatscale,
+  fractionalMatsub,
   fractionalMatmul,
   fractionalTranspose,
   gram,
   inv,
   lenstraLenstraLovasz,
+  matadd,
+  matscale,
+  matsub,
   matmul,
   minor,
   transpose,
@@ -368,6 +374,33 @@ describe('Matrix multiplication', () => {
     ]);
   });
 
+  it('multiplies a matrix with a vector', () => {
+    const A = [
+      [1, 2],
+      [3, 4],
+    ];
+    const v = [5, 6];
+    const u = matmul(A, v);
+    expect(u).toEqual([17, 39]);
+  });
+
+  it('multiplies a vector with a matrix', () => {
+    const A = [
+      [1, 2],
+      [3, 4],
+    ];
+    const v = [5, 6];
+    const u = matmul(v, A);
+    expect(u).toEqual([23, 34]);
+  });
+
+  it('multiplies a vector with a vector', () => {
+    const u = [1, 2];
+    const v = [5, 6];
+    const s = matmul(u, v);
+    expect(s).toEqual(17);
+  });
+
   it('multiplies two matrices (fractions)', () => {
     const A = [
       [1, 0, 1],
@@ -387,6 +420,33 @@ describe('Matrix multiplication', () => {
       ['7/3', '7/2', '5/2'],
       ['17/3', '9', '6'],
     ]);
+  });
+
+  it('multiplies a matrix with a vector (fractions)', () => {
+    const A = [
+      [1, 2],
+      [3, 0.5],
+    ];
+    const v = [5, '1/3'];
+    const u = fractionalMatmul(A, v);
+    expect(u.map(f => f.toFraction())).toEqual(['17/3', '91/6']);
+  });
+
+  it('multiplies a vector with a matrix (fractions)', () => {
+    const A = [
+      [1, 2],
+      [3, '1/3'],
+    ];
+    const v = [5, 0.5];
+    const u = fractionalMatmul(v, A);
+    expect(u.map(f => f.toFraction())).toEqual(['13/2', '61/6']);
+  });
+
+  it('multiplies a vector with a vector (fractions)', () => {
+    const u = [0.5, 2];
+    const v = [5, '5/7'];
+    const s = fractionalMatmul(u, v);
+    expect(s.toFraction()).toBe('55/14');
   });
 });
 
@@ -651,6 +711,67 @@ describe('Transpose', () => {
     ).toEqual([
       ['1', '3', '2/7'],
       ['1/2', '0', '5'],
+    ]);
+  });
+});
+
+describe('Auxiliary matrix methods', () => {
+  it('scales', () => {
+    const A = [
+      [1, 2],
+      [3, 4],
+    ];
+    expect(matscale(A, 2)).toEqual([
+      [2, 4],
+      [6, 8],
+    ]);
+    expect(
+      fractionalMatscale(A, 2).map(row => row.map(f => f.valueOf()))
+    ).toEqual([
+      [2, 4],
+      [6, 8],
+    ]);
+  });
+
+  it('adds', () => {
+    const A = [
+      [1, 2],
+      [3, 4],
+    ];
+    const B = [
+      [-1, 5],
+      [6, 7],
+    ];
+    expect(matadd(A, B)).toEqual([
+      [0, 7],
+      [9, 11],
+    ]);
+    expect(
+      fractionalMatadd(A, B).map(row => row.map(f => f.valueOf()))
+    ).toEqual([
+      [0, 7],
+      [9, 11],
+    ]);
+  });
+
+  it('subtracts', () => {
+    const A = [
+      [1, 2],
+      [3, 4],
+    ];
+    const B = [
+      [-1, 5],
+      [6, 7],
+    ];
+    expect(matsub(A, B)).toEqual([
+      [2, -3],
+      [-3, -3],
+    ]);
+    expect(
+      fractionalMatsub(A, B).map(row => row.map(f => f.valueOf()))
+    ).toEqual([
+      [2, -3],
+      [-3, -3],
     ]);
   });
 });
