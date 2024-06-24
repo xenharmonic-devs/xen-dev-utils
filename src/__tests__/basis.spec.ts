@@ -33,7 +33,8 @@ import {
   unapplyWeights,
 } from '../monzo';
 import {dot} from '../number-array';
-import {LOG_PRIMES} from '../primes';
+import {LOG_PRIMES, PRIMES} from '../primes';
+import {Fraction} from '../fraction';
 
 const FUZZ = 'FUZZ' in process.env;
 
@@ -479,6 +480,22 @@ describe('Matrix inverse', () => {
     ]);
   });
 
+  it.each([2, 3, 4, 5, 6, 7, 8, 9, 10, 11])(
+    'computes inverse of a Vandermonde matrix %s',
+    (N: number) => {
+      const mat: number[][] = [];
+      for (const p of PRIMES.slice(0, N)) {
+        const row = [...Array(N).keys()].map(i => p ** -i);
+        mat.push(row);
+      }
+      expect(
+        matmul(mat, inv(mat)).map(row =>
+          row.map(x => Math.round(10000 * x) / 10000 || 0)
+        )
+      ).toEqual(eye(N));
+    }
+  );
+
   it('throws for non-square matrix', () => {
     expect(() =>
       inv([
@@ -525,6 +542,22 @@ describe('Matrix inverse', () => {
       ['1/6', '1/6', '0'],
     ]);
   });
+
+  it.each([2, 3, 4, 5, 6])(
+    'computes exact inverse of a Vandermonde matrix %s',
+    (N: number) => {
+      const mat: Fraction[][] = [];
+      for (const p of PRIMES.slice(0, N)) {
+        const row = [...Array(N).keys()].map(i => new Fraction(p).pow(-i)!);
+        mat.push(row);
+      }
+      expect(
+        fractionalMatmul(mat, fractionalInv(mat)).map(row =>
+          row.map(x => x.valueOf())
+        )
+      ).toEqual(eye(N));
+    }
+  );
 
   it('throws for non-square matrix with fractional entries', () => {
     expect(() =>
@@ -604,6 +637,24 @@ describe('Determinant', () => {
     const determinant = det(mat);
     expect(determinant).toBe(54);
   });
+
+  it.each([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])(
+    'computes the determinant of a Vandermonde matrix %s',
+    (N: number) => {
+      const mat: number[][] = [];
+      for (const p of PRIMES.slice(0, N)) {
+        const row = [...Array(N).keys()].map(i => p ** -i);
+        mat.push(row);
+      }
+      let analytic = 1;
+      for (let i = 0; i < N; ++i) {
+        for (let j = i + 1; j < N; ++j) {
+          analytic *= 1 / PRIMES[j] - 1 / PRIMES[i];
+        }
+      }
+      expect(det(mat) / analytic).toBeCloseTo(1, 1);
+    }
+  );
 
   it('computes 0 for the origin', () => {
     const mat = [[0, 0], []];

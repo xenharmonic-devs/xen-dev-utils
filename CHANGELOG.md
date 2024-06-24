@@ -1,5 +1,7 @@
 # Change log
 
+## 0.10.2
+ * Tweak: Make matrix inversion and determinant more stable numerically. [#42](https://github.com/xenharmonic-devs/xen-dev-utils/issues/42)
 ## 0.10.1
  * Feature: Accept vectors in `matmul` and `fractionalMatmul` and adjust return types accordingly.
  * Feature: `matscale`, `matadd`, `matsub` and fractional variants. [#41](https://github.com/xenharmonic-devs/xen-dev-utils/issues/41)

@@ -296,25 +296,26 @@ export function inv(matrix: number[][]) {
   }
   // Put ones along the diagonal, zeros in the lower triangle
   for (let x = 0; x < width; ++x) {
-    let s = matrix[x][x];
-    if (!s) {
-      // Row echelon form
-      for (let y = x + 1; y < height; ++y) {
-        if (matrix[y][x]) {
-          let temp = matrix[y];
-          matrix[y] = matrix[x];
-          matrix[x] = temp;
+    // Maintain row echelon form by pivoting on the most dominant row.
+    let pivot: number | undefined;
+    let s = 0;
+    for (let y = x; y < height; ++y) {
+      if (Math.abs(matrix[y][x]) > Math.abs(s)) {
+        pivot = y;
+        s = matrix[y][x];
+      }
+    }
+    if (pivot === undefined) {
+      throw new Error('Matrix is singular');
+    }
+    if (x !== pivot) {
+      let temp = matrix[pivot];
+      matrix[pivot] = matrix[x];
+      matrix[x] = temp;
 
-          temp = result[y];
-          result[y] = result[x];
-          result[x] = temp;
-          break;
-        }
-      }
-      s = matrix[x][x];
-      if (!s) {
-        throw new Error('Matrix is singular');
-      }
+      temp = result[pivot];
+      result[pivot] = result[x];
+      result[x] = temp;
     }
     if (s !== 1) {
       s = 1 / s;
@@ -389,7 +390,8 @@ export function fractionalInv(matrix: ProtoFractionalMonzo[]) {
   for (let x = 0; x < width; ++x) {
     let s = matrix_[x][x];
     if (!s.n) {
-      // Row echelon form
+      // Row echelon form (pivoting makes no difference over rationals)
+      // TODO: Figure out if there's a strategy to avoid blowing safe limits during manipulation.
       for (let y = x + 1; y < height; ++y) {
         if (matrix_[y][x].n) {
           let temp = matrix_[y];
@@ -598,23 +600,24 @@ export function det(matrix: number[][]) {
   matrix = matrix.map(row => [...row]);
   let result = 1;
   for (let x = 0; x < width; ++x) {
-    let d = matrix[x][x];
-    if (!d) {
-      // Row echelon form
-      for (let y = x + 1; y < height; ++y) {
-        if (matrix[y][x]) {
-          const temp = matrix[y];
-          matrix[y] = matrix[x];
-          matrix[x] = temp;
+    // Maintain row echelon form by pivoting on the most dominant row.
+    let pivot: number | undefined;
+    let d = 0;
+    for (let y = x; y < height; ++y) {
+      if (Math.abs(matrix[y][x]) > Math.abs(d)) {
+        pivot = y;
+        d = matrix[y][x];
+      }
+    }
+    if (pivot === undefined) {
+      return 0;
+    }
+    if (x !== pivot) {
+      const temp = matrix[pivot];
+      matrix[pivot] = matrix[x];
+      matrix[x] = temp;
 
-          result = -result;
-          break;
-        }
-      }
-      d = matrix[x][x];
-      if (!d) {
-        return 0;
-      }
+      result = -result;
     }
     result *= d;
     d = 1 / d;
