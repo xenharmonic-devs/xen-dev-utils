@@ -1,16 +1,19 @@
 import {Fraction, FractionValue} from './fraction';
 import {
   FractionalMonzo,
+  Monzo,
   ProtoFractionalMonzo,
   add,
   fractionalAdd,
   fractionalDot,
   fractionalScale,
   fractionalSub,
+  monzosEqual,
   scale,
   sub,
 } from './monzo';
 import {dot} from './number-array';
+import {transpose, hnf, integerDet, antitranspose, padMatrix} from './hnf';
 
 /**
  * Result of Gram–Schmidt process without normalization.
@@ -695,27 +698,6 @@ export function fractionalDet(matrix: ProtoFractionalMonzo[]) {
 }
 
 /**
- * Transpose a 2-D matrix (swap rows and columns).
- * @param matrix Matrix to transpose.
- * @returns The transpose.
- */
-export function transpose(matrix: number[][]) {
-  let width = 0;
-  for (const row of matrix) {
-    width = Math.max(row.length, width);
-  }
-  const result: number[][] = [];
-  for (let i = 0; i < width; ++i) {
-    const row: number[] = [];
-    for (let j = 0; j < matrix.length; ++j) {
-      row.push(matrix[j][i] ?? 0);
-    }
-    result.push(row);
-  }
-  return result;
-}
-
-/**
  * Transpose a 2-D matrix with rational entries (swap rows and columns).
  * @param matrix Matrix to transpose.
  * @returns The transpose.
@@ -839,4 +821,155 @@ export function fractionalMatsub(
     result.push(fractionalSub(A[i] ?? [], B[i] ?? []));
   }
   return result;
+}
+
+// Finds the Hermite normal form and 'defactors' it.
+// Defactoring is also known as saturation.
+// This removes torsion from the map.
+// Algorithm as described by:
+//
+// Clément Pernet and William Stein.
+// Fast Computation of HNF of Random Integer Matrices.
+// Journal of Number Theory.
+// https://doi.org/10.1016/j.jnt.2010.01.017
+// See section 8.
+
+/**
+ * Compute the Hermite normal form with torsion removed.
+ * @param M The input matrix.
+ * @returns The defactored Hermite normal form.
+ */
+export function defactoredHnf(M: number[][]): number[][] {
+  // Need to convert to bigint so that intermediate results don't blow up.
+  const bigM = M.map(row => row.map(BigInt));
+  const K = hnf(transpose(bigM));
+  while (K.length > M.length) {
+    K.pop();
+  }
+  const determinant = integerDet(K);
+  if (determinant === 1n) {
+    return hnf(bigM).map(row => row.map(Number));
+  }
+  const S = inv(transpose(K).map(row => row.map(Number)));
+  const D = matmul(S, M).map(row => row.map(Math.round));
+  return hnf(D);
+}
+
+/**
+ * Compute the canonical form of the input.
+ * @param M Input maps.
+ * @returns Defactored Hermite normal form or the antitranspose sandwich for commas bases.
+ */
+export function canonical(M: number[][]): number[][] {
+  for (const row of M) {
+    if (row.length < M.length) {
+      // Comma basis
+      return antitranspose(defactoredHnf(antitranspose(M)));
+    }
+  }
+  return defactoredHnf(M);
+}
+
+// Babai's nearest plane algorithm for solving approximate CVP
+// `basis` should be LLL reduced first
+
+/**
+ * Solve approximate CVP using Babai's nearest plane algorithm.
+ * @param v Vector to reduce.
+ * @param basis LLL basis to reduce with.
+ * @param dual Optional precalculated geometric duals of the orthogonalized basis.
+ * @returns The reduced vector.
+ */
+export function nearestPlane(
+  v: number[],
+  basis: number[][],
+  dual?: number[][]
+) {
+  if (dual === undefined) {
+    ({dual} = gram(basis));
+  }
+  let b = [...v];
+
+  for (let i = dual.length - 1; i >= 0; --i) {
+    const mu = dot(b, dual[i]);
+    b = sub(b, scale(basis[i], Math.round(mu)));
+  }
+  return sub(v, b);
+}
+
+/**
+ * Respell a monzo represting a rational number to a simpler form.
+ * @param monzo Array of prime exponents to simplify.
+ * @param commas Monzos representing near-unisons to simplify by. Should be LLL reduced to work properly.
+ * @param commaOrthoDuals Optional precalculated geometric duals of the orthogonalized comma basis.
+ * @returns An array of prime exponents representing a simpler rational number.
+ */
+export function respell(
+  monzo: Monzo,
+  commas: Monzo[],
+  commaOrthoDuals?: Monzo[]
+) {
+  return sub(monzo, nearestPlane(monzo, commas, commaOrthoDuals));
+}
+
+/**
+ * Solve Ax = b in the integers.
+ * @param A Coefficients of unknowns.
+ * @param b Target vector or a matrix of column vectors.
+ * @returns A vector mapped to the target vector by A or a matrix of row vectors.
+ */
+export function solveDiophantine(A: number[][], b: number[][]): number[][];
+export function solveDiophantine(A: number[][], b: number[]): number[];
+export function solveDiophantine(
+  A: number[][],
+  b: number[] | number[][]
+): typeof b {
+  const hasMultiple = Array.isArray(b[0]);
+
+  // Need to convert to bigint so that intermediate results don't blow up.
+  const {width, height, zero, M} = padMatrix(A.map(row => row.map(BigInt)));
+  if (hasMultiple) {
+    const pb = padMatrix(b as number[][]);
+    for (let i = 0; i < height; ++i) {
+      M[i].push(...pb.M[i].map(BigInt));
+    }
+  } else {
+    for (let i = 0; i < height; ++i) {
+      M[i].push(BigInt((b[i] as number) ?? zero));
+    }
+  }
+  const H = hnf(M);
+  while (H.length > width) {
+    H.pop();
+  }
+  const c: any = [];
+  if (hasMultiple) {
+    for (const row of H) {
+      c.push(row.splice(width, row.length - width).map(Number));
+    }
+  } else {
+    for (const row of H) {
+      c.push(Number(row.pop()!));
+    }
+  }
+  const S = inv(H.map(row => row.map(Number)));
+  const sol = hasMultiple
+    ? matmul(S, c).map(row => (row as any).map(Math.round))
+    : matmul(S, c).map(Math.round);
+
+  // Check solution(s).
+  const bb: any = matmul(A, sol);
+  if (hasMultiple) {
+    for (let i = 0; i < b.length; ++i) {
+      if (!monzosEqual((b as number[][])[i], bb[i])) {
+        throw new Error('Could not solve system');
+      }
+    }
+  } else {
+    if (!monzosEqual(b as number[], bb)) {
+      throw new Error('Could not solve system');
+    }
+  }
+
+  return sol;
 }
