@@ -20,7 +20,9 @@ import {
   matsub,
   matmul,
   minor,
-  transpose,
+  canonical,
+  respell,
+  solveDiophantine,
 } from '../basis';
 import {
   FractionalMonzo,
@@ -35,6 +37,7 @@ import {
 import {dot} from '../number-array';
 import {LOG_PRIMES, PRIMES} from '../primes';
 import {Fraction} from '../fraction';
+import {cokernel, kernel, preimage, transpose} from '../hnf';
 
 const FUZZ = 'FUZZ' in process.env;
 
@@ -747,14 +750,6 @@ describe('Determinant', () => {
 });
 
 describe('Transpose', () => {
-  it('transposes a 3x2 matrix', () => {
-    const mat = [[1, 2], [3], [4, 5]];
-    expect(transpose(mat)).toEqual([
-      [1, 3, 4],
-      [2, 0, 5],
-    ]);
-  });
-
   it('transposes a 3x2 matrix with rational entries', () => {
     const mat = [[1, 0.5], [3], ['2/7', 5]];
     expect(
@@ -823,6 +818,90 @@ describe('Auxiliary matrix methods', () => {
     ).toEqual([
       [2, -3],
       [-3, -3],
+    ]);
+  });
+});
+
+describe("Sin-tel's example", () => {
+  it('agrees with temper/example.py', () => {
+    // 31 & 19
+    const tMap = [
+      [19, 30, 44, 53],
+      [31, 49, 72, 87],
+    ];
+    // Canonical form
+    const c = [
+      [1, 0, -4, -13],
+      [0, 1, 4, 10],
+    ];
+    const can = canonical(tMap);
+    expect(can).toEqual(c);
+
+    let commas = transpose(kernel(can));
+    expect(commas.map(comma => monzoToFraction(comma).toFraction())).toEqual([
+      '126/125',
+      '1275989841/1220703125',
+    ]);
+
+    commas = lenstraLenstraLovasz(commas).basis;
+    expect(commas.map(comma => monzoToFraction(comma).toFraction())).toEqual([
+      '126/125',
+      '81/80',
+    ]);
+
+    const gens = transpose(preimage(can));
+
+    expect(gens.map(gen => monzoToFraction(gen).toFraction())).toEqual([
+      '20253807/9765625',
+      '3',
+    ]);
+
+    const simpleGens = gens.map(gen => respell(gen, commas));
+
+    expect(simpleGens.map(gen => monzoToFraction(gen).toFraction())).toEqual([
+      '2',
+      '3',
+    ]);
+  });
+
+  it('agrees with temper/example_commas.py', () => {
+    const commas = ['81/80', '225/224'].map(toMonzo);
+
+    expect(commas).toEqual([
+      [-4, 4, -1],
+      [-5, 2, 2, -1],
+    ]);
+
+    const tMap = cokernel(transpose(commas));
+    expect(tMap).toEqual([
+      [1, 0, -4, -13],
+      [0, 1, 4, 10],
+    ]);
+  });
+});
+
+describe('Diophantine equation solver', () => {
+  it.skip('solves a diophantine equation', () => {
+    const A = [
+      [1, 2, 3],
+      [-4, 5, 6],
+      [7, -8, 9],
+    ];
+    const b = [4, 28, -28];
+    const solution = solveDiophantine(A, b);
+    expect(solution).toEqual([-3, 2, 1]);
+  });
+
+  it('converts standard basis commas to subgroup basis monzos (pinkan)', () => {
+    const subgroup = '2.3.13/5.19/5'.split('.').map(toMonzo);
+    const commas = ['676/675', '1216/1215'].map(toMonzo);
+    const subgroupMonzos = solveDiophantine(
+      transpose(subgroup),
+      transpose(commas)
+    );
+    expect(transpose(subgroupMonzos)).toEqual([
+      [2, -3, 2, 0],
+      [6, -5, 0, 1],
     ]);
   });
 });

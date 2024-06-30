@@ -11,6 +11,7 @@ export * from './monzo';
 export * from './approximation';
 export * from './number-array';
 export * from './basis';
+export * from './hnf';
 export {sum} from './polyfills/sum-precise';
 
 export interface AnyArray {
