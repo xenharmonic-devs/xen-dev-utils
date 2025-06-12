@@ -775,6 +775,36 @@ export class Fraction {
   }
 
   /**
+   * Checks if this fraction is divisible by another.
+   * 
+   * @param other - The fraction to check divisibility against
+   * @returns true if this fraction is divisible by other
+   * @example
+   * ```ts
+   * new Fraction(6, 2).divisible(2)  // true
+   * new Fraction(5, 2).divisible(2)  // false
+   * ```
+   */
+  divisible(other: FractionValue): boolean {
+    try {
+      const {s, n, d} = new Fraction(other);
+      if (n === 0) {
+        return false;
+      }
+      // Must pre-reduce to avoid blowing the limits
+      const nFactor = gcd(this.n, n);
+      const dFactor = gcd(this.d, d);
+      const result = new Fraction(
+        this.s * (this.n / nFactor) * s * (d / dFactor),
+        (this.d / dFactor) * (n / nFactor)
+      );
+      return result.n === Math.floor(result.n) && result.d === 1;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
    * Calculates the geometric modulo of two rational numbers.
    * This is used in geometric operations and radical calculations.
    * 
@@ -785,7 +815,10 @@ export class Fraction {
   geoMod(other: FractionValue): Fraction {
     const other_ = new Fraction(other);
     if (other_.s < 0) {
-      throw new Error('Cannot perform geometric modulo with negative base');
+      // For negative base, compute as if base is positive, then flip the sign of the result
+      const absResult = this.abs().geoMod(other_.abs());
+      absResult.s = -absResult.s;
+      return absResult;
     }
     if (this.s < 0) {
       throw new Error('Cannot perform geometric modulo with negative value');
@@ -1248,5 +1281,24 @@ export class Fraction {
       return n.toString();
     }
     return `${n}/${this.d}`;
+  }
+
+  /**
+   * Rounds a rational number to a multiple of another rational number.
+   * 
+   * @param other - The fraction to round to a multiple of
+   * @returns A new Fraction representing the rounded value
+   * @example
+   * ```ts
+   * new Fraction("0.'7'").roundTo("1/9")   // 7/9
+   * new Fraction("0.78").roundTo("1/9")    // 7/9
+   * ```
+   */
+  roundTo(other: FractionValue) {
+    const {n, d} = new Fraction(other);
+    return new Fraction(
+      this.s * Math.round((this.n * d) / (this.d * n)) * n,
+      d
+    );
   }
 }
