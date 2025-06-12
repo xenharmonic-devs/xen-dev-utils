@@ -21,9 +21,18 @@ export interface AnyArray {
 
 /**
  * Check if the contents of two arrays are equal using '==='.
- * @param a The first array.
- * @param b The second array.
- * @returns True if the arrays are component-wise equal.
+ * This function performs a deep comparison of array elements.
+ * 
+ * @param a - The first array to compare
+ * @param b - The second array to compare
+ * @returns True if the arrays have the same length and all elements are equal
+ * 
+ * @example
+ * ```ts
+ * arraysEqual([1, 2, 3], [1, 2, 3])  // true
+ * arraysEqual([1, 2, 3], [1, 2, 4])  // false
+ * arraysEqual([1, 2], [1, 2, 3])     // false
+ * ```
  */
 export function arraysEqual(a: AnyArray, b: AnyArray) {
   if (a === b) {
@@ -41,22 +50,34 @@ export function arraysEqual(a: AnyArray, b: AnyArray) {
 }
 
 /**
- * Floor division.
- * @param a The dividend.
- * @param b The divisor.
- * @returns The quotient of Euclidean division of a by b.
+ * Floor division - returns the quotient of Euclidean division.
+ * This is equivalent to Math.floor(a / b).
+ * 
+ * @param a - The dividend
+ * @param b - The divisor
+ * @returns The largest integer less than or equal to a/b
+ * 
+ * @example
+ * ```ts
+ * div(7, 3)   // 2
+ * div(-7, 3)  // -3
+ * div(7, -3)  // -3
+ * ```
  */
 export function div(a: number, b: number): number {
   return Math.floor(a / b);
 }
 
-/** Result of the extended Euclidean algorithm. */
+/**
+ * Result of the extended Euclidean algorithm.
+ * This type represents the coefficients and quotients found by the algorithm.
+ */
 export type ExtendedEuclid = {
-  /** Bézout coefficient of the first parameter.  */
+  /** Bézout coefficient of the first parameter */
   coefA: number;
-  /** Bézout coefficient of the second parameter.  */
+  /** Bézout coefficient of the second parameter */
   coefB: number;
-  /** Greatest common divisor of the parameters. */
+  /** Greatest common divisor of the parameters */
   gcd: number;
   /** Quotient of the first parameter when divided by the gcd */
   quotientA: number;
@@ -66,16 +87,28 @@ export type ExtendedEuclid = {
 
 // https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm#Pseudocode
 /**
- * Extended Euclidean algorithm for integers a and b:
- * Find x and y such that ax + by = gcd(a, b).
+ * Extended Euclidean algorithm for integers a and b.
+ * Finds x and y such that ax + by = gcd(a, b).
+ * 
+ * @param a - The first integer
+ * @param b - The second integer
+ * @returns An object containing:
+ *   - Bézout coefficients (coefA, coefB)
+ *   - Greatest common divisor (gcd)
+ *   - Quotients (quotientA, quotientB)
+ * 
+ * @example
  * ```ts
- * result.gcd = a * result.coefA + b * result.coefB;  // = gcd(a, b)
- * result.quotientA = div(a, gcd(a, b));
- * result.quotientB = div(b, gcd(a, b));
+ * const result = extendedEuclid(240, 46);
+ * // result = {
+ * //   coefA: -9,
+ * //   coefB: 47,
+ * //   gcd: 2,
+ * //   quotientA: 120,
+ * //   quotientB: 23
+ * // }
+ * // 240 * (-9) + 46 * 47 = 2
  * ```
- * @param a The first integer.
- * @param b The second integer.
- * @returns Bézout coefficients, gcd and quotients.
  */
 export function extendedEuclid(a: number, b: number): ExtendedEuclid {
   if (isNaN(a) || isNaN(b)) {
@@ -128,10 +161,20 @@ export function iteratedEuclid(params: Iterable<number>) {
 
 /**
  * Find modular inverse of a (mod b).
- * @param a Number to find modular inverse of.
- * @param b Modulus.
- * @param strict Ensure that a * modInv(a, b) = 1 (mod b). If `strict = false` we have a * modInv(a, b) = gdc(a, b) (mod b) instead.
- * @returns The modular inverse in the range {0, 1, ..., b - 1}.
+ * The modular inverse of a modulo b is a number x such that (a * x) mod b = 1.
+ * 
+ * @param a - Number to find modular inverse of
+ * @param b - Modulus
+ * @param strict - If true, ensures that a and b are coprime
+ * @returns The modular inverse in the range {0, 1, ..., b - 1}
+ * @throws {Error} If strict is true and a and b are not coprime
+ * 
+ * @example
+ * ```ts
+ * modInv(3, 11)    // 4
+ * modInv(3, 11, true)  // 4
+ * modInv(2, 4, true)   // Error: 2 does not have a modular inverse modulo 4
+ * ```
  */
 export function modInv(a: number, b: number, strict = true) {
   const {gcd, coefA} = extendedEuclid(a, b);

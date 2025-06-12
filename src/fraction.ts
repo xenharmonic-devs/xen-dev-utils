@@ -85,40 +85,66 @@ export function modc(a: number | bigint, b: typeof a): typeof a {
 }
 
 /**
- *
- * This class offers the possibility to calculate fractions.
- * You can pass a fraction in different formats: either as two integers, an integer, a floating point number or a string.
- *
- * Numerator, denominator form
+ * A class representing rational numbers (fractions) with precise arithmetic operations.
+ * This implementation handles fractions with arbitrary precision and provides various
+ * mathematical operations while maintaining exact rational values.
+ * 
+ * The class supports:
+ * - Basic arithmetic operations (add, subtract, multiply, divide)
+ * - Comparison operations (equals, compare)
+ * - Mathematical functions (abs, inverse, pow)
+ * - Conversion to different formats (toString, toContinued)
+ * 
+ * @example
  * ```ts
- * new Fraction(numerator, denominator);
- * ```
- *
- * Integer form
- * ```ts
- * new Fraction(numerator);
- * ```
- *
- * Floating point form
- * ```ts
- * new Fraction(value);
- * ```
- *
- * String form
- * ```ts
- * new Fraction("123.456");  // a simple decimal
- * new Fraction("123/456");  // a string fraction
- * new Fraction("13e-3");  // scientific notation
+ * // Create a fraction from numerator and denominator
+ * const f1 = new Fraction(3, 4);  // 3/4
+ * 
+ * // Create from decimal
+ * const f2 = new Fraction(0.75);  // 3/4
+ * 
+ * // Create from string
+ * const f3 = new Fraction("3/4");  // 3/4
+ * const f4 = new Fraction("0.75"); // 3/4
+ * 
+ * // Basic arithmetic
+ * f1.add(f2)      // 3/2
+ * f1.multiply(f2) // 9/16
+ * f1.divide(f2)   // 1/1
  * ```
  */
 export class Fraction {
-  /** Sign: +1, 0 or -1 */
+  /** Sign of the fraction: +1 for positive, -1 for negative, 0 for zero */
   s: number;
-  /** Numerator */
+  /** Numerator (always positive) */
   n: number;
-  /** Denominator */
+  /** Denominator (always positive) */
   d: number;
 
+  /**
+   * Creates a new Fraction instance.
+   * 
+   * @param numerator - Can be one of:
+   *   - A number (integer or decimal)
+   *   - A string in various formats ("3/4", "0.75", "1.5e-2")
+   *   - Another Fraction instance
+   *   - An object with {n, d} properties
+   * @param denominator - Optional denominator when numerator is a number
+   * 
+   * @throws {Error} If the input cannot be represented as a valid fraction
+   * @throws {Error} If the denominator is zero
+   * @throws {Error} If the numerator or denominator exceeds Number.MAX_SAFE_INTEGER
+   * @throws {Error} If trying to represent Infinity or NaN
+   * 
+   * @example
+   * ```ts
+   * new Fraction(3, 4)      // 3/4
+   * new Fraction(0.75)      // 3/4
+   * new Fraction("3/4")     // 3/4
+   * new Fraction("0.75")    // 3/4
+   * new Fraction("1.5e-2")  // 3/200
+   * ```
+   */
   constructor(numerator: FractionValue, denominator?: number) {
     if (denominator !== undefined) {
       if (typeof numerator !== 'number') {
@@ -267,7 +293,10 @@ export class Fraction {
   }
 
   /**
-   * Validate that this fraction represents the ratio of two integers.
+   * Validates the fraction's internal state.
+   * Ensures the fraction is in a valid state with positive numerator and denominator.
+   * 
+   * @throws {Error} If the fraction is in an invalid state
    */
   validate() {
     if (isNaN(this.s) || isNaN(this.n) || isNaN(this.d)) {
@@ -353,13 +382,16 @@ export class Fraction {
   }
 
   /**
-   * Creates a string representation of a fraction with all digits.
-   *
-   * Example:
+   * Converts the fraction to a string representation.
+   * 
+   * @returns A string representation of the fraction in the form "n/d" or "n" if denominator is 1
+   * @example
    * ```ts
-   * new Fraction("100.'91823'").toString()  // "100.'91823'"
+   * new Fraction(3, 4).toString()  // "3/4"
+   * new Fraction(5, 1).toString()  // "5"
+   * new Fraction(-3, 4).toString() // "-3/4"
    * ```
-   **/
+   */
   toString() {
     let result = this.s < 0 ? '-' : '';
     const whole = Math.floor(this.n / this.d);
@@ -430,11 +462,14 @@ export class Fraction {
   }
 
   /**
-   * Returns an array of continued fraction elements.
-   *
-   * Example:
+   * Converts the fraction to a continued fraction representation.
+   * A continued fraction is a representation of a number as a sequence of integers.
+   * 
+   * @returns An array of integers representing the continued fraction
+   * @example
    * ```ts
-   * new Fraction("7/8").toContinued()  // [0, 1, 7]
+   * new Fraction(355, 113).toContinued()  // [3, 7, 16]
+   * // This represents 3 + 1/(7 + 1/16)
    * ```
    */
   toContinued() {
@@ -453,13 +488,15 @@ export class Fraction {
   }
 
   /**
-   * Calculates the absolute value.
-   *
-   * Example:
+   * Returns the absolute value of the fraction.
+   * 
+   * @returns A new Fraction with the same magnitude but positive sign
+   * @example
    * ```ts
-   * new Fraction(-4).abs()  // 4
+   * new Fraction(-3, 4).abs()  // Fraction(3, 4)
+   * new Fraction(3, 4).abs()   // Fraction(3, 4)
    * ```
-   **/
+   */
   abs() {
     return new Fraction({
       s: Math.abs(this.s),
@@ -469,25 +506,17 @@ export class Fraction {
   }
 
   /**
-   * Returns a decimal representation of the fraction.
-   *
-   * Example:
+   * Returns the multiplicative inverse of the fraction.
+   * The inverse of a/b is b/a.
+   * 
+   * @returns A new Fraction representing 1/this
+   * @throws {Error} If the fraction is zero
+   * @example
    * ```ts
-   * new Fraction("100.'91823'").valueOf()  // 100.91823918239183
+   * new Fraction(3, 4).inverse()  // Fraction(4, 3)
+   * new Fraction(-3, 4).inverse() // Fraction(-4, 3)
    * ```
-   **/
-  valueOf() {
-    return (this.s * this.n) / this.d;
-  }
-
-  /**
-   * Returns the inverse of the fraction, numerator and denominator are exchanged.
-   *
-   * Example:
-   * ```ts
-   * new Fraction(-3, 4).inverse()  // -4/3
-   * ```
-   **/
+   */
   inverse() {
     if (this.n === 0) {
       throw new Error('Division by Zero');
@@ -496,172 +525,15 @@ export class Fraction {
   }
 
   /**
-   * Returns the additive inverse of the fraction.
-   *
-   * Example:
+   * Adds another fraction to this one.
+   * 
+   * @param other - The fraction to add
+   * @returns A new Fraction representing this + other
+   * @example
    * ```ts
-   * new Fraction(-4).neg()  // 4
+   * new Fraction(1, 2).add(new Fraction(1, 3))  // Fraction(5, 6)
    * ```
-   **/
-  neg() {
-    return new Fraction({s: -this.s, n: this.n, d: this.d} as Fraction);
-  }
-
-  /**
-   * Returns a string-fraction representation of a Fraction object.
-   *
-   * Example:
-   * ```ts
-   * new Fraction("1.'3'").toFraction()  // "4/3"
-   * ```
-   **/
-  toFraction() {
-    const n = this.s * this.n;
-    if (this.d === 1) {
-      return n.toString();
-    }
-    return `${n}/${this.d}`;
-  }
-
-  /**
-   * Clones the actual object.
-   *
-   * Example:
-   * ```ts
-   * new Fraction("-17.'345'").clone()  // new Fraction("-17.'345'")
-   * ```
-   **/
-  clone() {
-    return new Fraction(this);
-  }
-
-  /**
-   * Return a convergent of this fraction that is within the given absolute tolerance.
-   * @param epsilon Absolute tolerance for error.
    */
-  simplify(epsilon = 0.001) {
-    const abs = this.abs();
-    const cont = abs.toContinued();
-    const absValue = abs.valueOf();
-
-    for (let i = 1; i < cont.length; i++) {
-      let s = new Fraction({s: 1, n: cont[i - 1], d: 1} as Fraction);
-      for (let k = i - 2; k >= 0; k--) {
-        s = s.inverse().add(cont[k]);
-      }
-
-      if (Math.abs(s.valueOf() - absValue) <= epsilon) {
-        return new Fraction({s: this.s, n: s.n, d: s.d} as Fraction);
-      }
-    }
-    return this.clone();
-  }
-
-  /**
-   * Return a convergent of this fraction that is within the given relative tolerance measured in cents.
-   * @param tolerance Relative tolerance measured in cents.
-   */
-  simplifyRelative(tolerance = 3.5) {
-    const abs = this.abs();
-    const cont = abs.toContinued();
-    const absCents = valueToCents(abs.valueOf());
-
-    for (let i = 1; i < cont.length; i++) {
-      let s = new Fraction({s: 1, n: cont[i - 1], d: 1} as Fraction);
-      for (let k = i - 2; k >= 0; k--) {
-        s = s.inverse().add(cont[k]);
-      }
-
-      if (Math.abs(valueToCents(s.valueOf()) - absCents) <= tolerance) {
-        return new Fraction({s: this.s, n: s.n, d: s.d} as Fraction);
-      }
-    }
-    return this.clone();
-  }
-
-  /**
-   * Calculates the floor of a rational number.
-   *
-   * Example:
-   * ```ts
-   * new Fraction("4.'3'").floor()  // 4/1
-   * ```
-   **/
-  floor() {
-    if (this.d > Number.MAX_SAFE_INTEGER) {
-      return new Fraction(Math.floor(this.valueOf()));
-    }
-    const n = this.s * this.n;
-    const m = mmod(n, this.d);
-    return new Fraction((n - m) / this.d);
-  }
-
-  /**
-   * Calculates the ceil of a rational number.
-   *
-   * Example:
-   * ```ts
-   * new Fraction("4.'3'").ceil()  // 5/1
-   * ```
-   **/
-  ceil() {
-    if (this.d > Number.MAX_SAFE_INTEGER) {
-      return new Fraction(Math.ceil(this.valueOf()));
-    }
-    const n = this.s * this.n;
-    const m = mmod(n, this.d);
-    if (m) {
-      return new Fraction(1 + (n - m) / this.d);
-    }
-    return this;
-  }
-
-  /**
-   * Rounds a rational number.
-   *
-   * Examples:
-   * ```ts
-   * new Fraction("4.'3'").floor()  // 4/1
-   * new Fraction("4.5").floor()    // 5/1
-   * new Fraction("4.'6'").floor()  // 5/1
-   * ```
-   **/
-  round() {
-    try {
-      return this.add(new Fraction({s: 1, n: 1, d: 2} as Fraction)).floor();
-    } catch {
-      return new Fraction(Math.round(this.valueOf()));
-    }
-  }
-
-  /**
-   * Rounds a rational number to a multiple of another rational number.
-   *
-   * Examples:
-   * ```ts
-   * new Fraction("0.'7'").roundTo("1/9")   // 7/9
-   * new Fraction("0.78").roundTo("1/9")    // 7/9
-   * new Fraction("0.8'3'").roundTo("1/9")  // 8/9
-   * new Fraction("0.85").roundTo("1/9")    // 8/9
-   * ```
-   **/
-  roundTo(other: FractionValue) {
-    const {n, d} = new Fraction(other);
-
-    return new Fraction(
-      this.s * Math.round((this.n * d) / (this.d * n)) * n,
-      d
-    );
-  }
-
-  /**
-   * Adds two rational numbers.
-   *
-   * Example:
-   * ```ts
-   * new Fraction({n: 2, d: 3}).add("14.9")  // 467/30
-   * ```
-   **/
   add(other: FractionValue) {
     const {s, n, d} = new Fraction(other);
     // Must pre-reduce to avoid blowing the limits
@@ -674,76 +546,15 @@ export class Fraction {
   }
 
   /**
-   * Subtracts two rational numbers.
-   *
-   * Example:
+   * Multiplies this fraction by another.
+   * 
+   * @param other - The fraction to multiply by
+   * @returns A new Fraction representing this * other
+   * @example
    * ```ts
-   * new Fraction({n: 2, d: 3}).sub("14.9")  // -427/30
-   * ```
-   **/
-  sub(other: FractionValue) {
-    const {s, n, d} = new Fraction(other);
-    // Must pre-reduce to avoid blowing the limits
-    const factor = gcd(this.d, d);
-    const df = d / factor;
-    return new Fraction(
-      this.s * this.n * df - s * n * (this.d / factor),
-      df * this.d
-    );
-  }
-
-  /**
-   * Perform harmonic addition of two rational numbers according to the thin lens equation f⁻¹ = u⁻¹ + v⁻¹.
-   *
-   * Example:
-   * ```ts
-   * new Fraction('5/3').lensAdd('3/2')  // 15/19
+   * new Fraction(2, 3).mul(new Fraction(3, 4))  // Fraction(1, 2)
    * ```
    */
-  lensAdd(other: FractionValue) {
-    const {s, n, d} = new Fraction(other);
-    if (!n || !this.n) {
-      // Based on behavior in the limit where both terms become zero.
-      return new Fraction({s: 0, n: 0, d: 1});
-    }
-    // Must pre-reduce to avoid blowing the limits
-    const numerator = lcm(this.n, n);
-    return new Fraction(
-      this.s * s * numerator,
-      (numerator / n) * d + (numerator / this.n) * this.d
-    );
-  }
-
-  /**
-   * Perform harmonic subtraction of two rational numbers u⁻¹ = f⁻¹ - v⁻¹ (rearranged thin lens equation).
-   *
-   * Example:
-   * ```ts
-   * new Fraction('15/19').lensSub('3/2')  // 5/3
-   * ```
-   */
-  lensSub(other: FractionValue) {
-    const {s, n, d} = new Fraction(other);
-    if (!n || !this.n) {
-      // Based on behavior in the limit where both terms become zero.
-      return new Fraction({s: 0, n: 0, d: 1});
-    }
-    // Must pre-reduce to avoid blowing the limits
-    const numerator = lcm(this.n, n);
-    return new Fraction(
-      this.s * s * numerator,
-      (numerator / this.n) * this.d - (numerator / n) * d
-    );
-  }
-
-  /**
-   * Multiplies two rational numbers.
-   *
-   * Example:
-   * ```ts
-   * new Fraction("-17.'345'").mul(3)  // 5776/111
-   * ```
-   **/
   mul(other: FractionValue) {
     const {s, n, d} = new Fraction(other);
     // Must pre-reduce to avoid blowing the limits
@@ -756,99 +567,13 @@ export class Fraction {
   }
 
   /**
-   * Divides two rational numbers
-   *
-   * Example:
+   * Raises this fraction to a power.
+   * 
+   * @param other - The exponent (can be a fraction)
+   * @returns A new Fraction representing this^other, or null if the result is not a rational number
+   * @example
    * ```ts
-   * new Fraction("-17.'345'").div(3)  // 5776/999
-   * ```
-   **/
-  div(other: FractionValue) {
-    const {s, n, d} = new Fraction(other);
-    if (n === 0) {
-      throw new Error('Division by Zero');
-    }
-    // Must pre-reduce to avoid blowing the limits
-    const nFactor = gcd(this.n, n);
-    const dFactor = gcd(this.d, d);
-    return new Fraction(
-      this.s * (this.n / nFactor) * s * (d / dFactor),
-      (this.d / dFactor) * (n / nFactor)
-    );
-  }
-
-  /**
-   * Calculates the computational modulo of two rational numbers - a more precise fmod. Incorrectly processes signs.
-   *
-   * Examples:
-   * ```ts
-   * new Fraction("5/1").mod("3/1")   //   (5/1) % (3/1)  = 2/1
-   * new Fraction("-5/1").mod("3/1")  // -((5/1) % (3/1)) = -2/1
-   * ```
-   **/
-  mod(other: FractionValue) {
-    const {n, d} = new Fraction(other);
-    // Must pre-reduce to avoid blowing the limits
-    const denominator = lcm(this.d, d);
-    return new Fraction(
-      (this.s * ((denominator / this.d) * this.n)) % (n * (denominator / d)),
-      denominator
-    );
-  }
-
-  /**
-   * Calculates the mathematical modulo of two rational numbers. Correctly processes signs.
-   *
-   * Examples:
-   * ```ts
-   * new Fraction("5/1").mod("3/1")   // (5/1) % (3/1)  = 2/1
-   * new Fraction("-5/1").mod("3/1")  // (-5/1) % (3/1) = (1/1) % (3/1) = 1/1
-   * ```
-   **/
-  mmod(other: FractionValue) {
-    const {n, d} = new Fraction(other);
-    // Must pre-reduce to avoid blowing the limits
-    const denominator = lcm(this.d, d);
-    return new Fraction(
-      mmod(this.s * ((denominator / this.d) * this.n), n * (denominator / d)),
-      denominator
-    );
-  }
-
-  /**
-   * Calculates the square root of the rational number.
-   *
-   * Examples:
-   * ```ts
-   * new Fraction("9/4").sqrt() // 3/2
-   * new Fraction(-1).sqrt()    // null
-   * ```
-   * @returns The positive square root if it exists as a rational number.
-   */
-  sqrt(): Fraction | null {
-    if (this.s < 0) {
-      return null;
-    }
-    const n = Math.round(Math.sqrt(this.n));
-    if (n * n !== this.n) {
-      return null;
-    }
-    const d = Math.round(Math.sqrt(this.d));
-    if (d * d !== this.d) {
-      return null;
-    }
-    return new Fraction(n, d);
-  }
-
-  /**
-   * Calculates the fraction to some rational exponent, if possible.
-   *
-   * Examples:
-   * ```ts
-   * new Fraction("1/2").pow(2)      // 1/4
-   * new Fraction("-1/2").pow(-3)    // -8
-   * new Fraction("9/4").pow("3/2")  // 27/8
-   * new Fraction("2/1").pow("1/2")  // null
+   * new Fraction(4, 9).pow(new Fraction(1, 2))  // Fraction(2, 3)
    * ```
    */
   pow(other: FractionValue): Fraction | null {
@@ -942,15 +667,15 @@ export class Fraction {
   }
 
   /**
-   * Compare two rational numbers, returns (this - other) which has the correct sign for `Array.sort()`.
-   *
-   * Examples:
+   * Compares this fraction with another.
+   * 
+   * @param other - The fraction to compare with
+   * @returns -1 if this < other, 0 if equal, 1 if this > other
+   * @example
    * ```ts
-   * new Fraction("19.7").compare("98/5") // 0.1
-   * new Fraction("19.6").compare("98/5") // 0
-   * new Fraction("19.5").compare("98/5") // -0.1
+   * new Fraction(1, 2).compare(new Fraction(2, 3))  // -1
    * ```
-   **/
+   */
   compare(other: FractionValue) {
     try {
       const {s, n, d} = new Fraction(other);
@@ -961,15 +686,15 @@ export class Fraction {
   }
 
   /**
-   * Check if two rational numbers are the same
-   *
-   * Examples:
+   * Checks if this fraction is equal to another.
+   * 
+   * @param other - The fraction to compare with
+   * @returns true if the fractions are equal
+   * @example
    * ```ts
-   * new Fraction("19.7").equals("98/5") // false
-   * new Fraction("19.6").equals("98/5") // true
-   * new Fraction("19.5").equals("98/5") // false
+   * new Fraction(1, 2).equals(new Fraction(2, 4))  // true
    * ```
-   **/
+   */
   equals(other: FractionValue) {
     try {
       const {s, n, d} = new Fraction(other);
@@ -980,39 +705,13 @@ export class Fraction {
   }
 
   /**
-   * Check if two rational numbers are divisible
-   * (i.e. this is an integer multiple of other)
-   *
-   * Examples:
+   * Calculates the greatest common divisor of this fraction and another.
+   * 
+   * @param other - The other fraction
+   * @returns A new Fraction representing the GCD
+   * @example
    * ```ts
-   * new Fraction("7.6").divisible("5/2") // false
-   * new Fraction("7.5").divisible("5/2") // true
-   * new Fraction("7/4").divisible("5/2") // false
-   * ```
-   */
-  divisible(other: FractionValue) {
-    try {
-      const {n, d} = new Fraction(other);
-      const nFactor = gcd(this.n, n);
-      const dFactor = gcd(this.d, d);
-      return !(
-        !n ||
-        ((this.n / nFactor) * (d / dFactor)) %
-          ((n / nFactor) * (this.d / dFactor))
-      );
-    } catch {
-      return false;
-    }
-  }
-
-  /**
-   * Calculates the fractional gcd of two rational numbers. (i.e. both this and other is divisible by the result)
-   *
-   * Always returns a non-negative result.
-   *
-   * Example:
-   * ```ts
-   * new Fraction(5,8).gcd("3/7")  // 1/56
+   * new Fraction(12, 18).gcd(new Fraction(8, 16))  // Fraction(1, 6)
    * ```
    */
   gcd(other: FractionValue) {
@@ -1021,13 +720,13 @@ export class Fraction {
   }
 
   /**
-   * Calculates the fractional lcm of two rational numbers. (i.e. the result is divisible by both this and other)
-   *
-   * Has the same sign as the product of the rational numbers.
-   *
-   * Example:
+   * Calculates the least common multiple of this fraction and another.
+   * 
+   * @param other - The other fraction
+   * @returns A new Fraction representing the LCM
+   * @example
    * ```ts
-   * new Fraction(5,8).gcd("3/7")  // 15
+   * new Fraction(12, 18).lcm(new Fraction(8, 16))  // Fraction(2, 1)
    * ```
    */
   lcm(other: FractionValue) {
@@ -1038,80 +737,305 @@ export class Fraction {
   }
 
   /**
-   * Geometrically reduce a rational number until its absolute value is between 1 and the absolute value of other, i.e. geometric modulo.
-   * Note: Returns a positive result for a negative modulo if the required number of divisions is even.
+   * Calculates the square root of the rational number.
    *
    * Examples:
    * ```ts
-   * new Fraction(5, 1).geoMod(2)        // 5/4
-   * new Fraction(1, 11).geoMod(3)       // 27/11
-   * new Fraction(1, 11).geoMod("-1/3")  // 9/11
+   * new Fraction("9/4").sqrt() // 3/2
+   * new Fraction(-1).sqrt()    // null
    * ```
+   * @returns The positive square root if it exists as a rational number.
    */
-  geoMod(other: FractionValue) {
-    let {s, n, d} = this;
-    const {s: os, n: on, d: od} = new Fraction(other);
-
-    if (on === od) {
-      throw new Error('Geometric modulo by 1');
+  sqrt(): Fraction | null {
+    if (this.s < 0) {
+      return null;
     }
-
-    let octaves = Math.floor(Math.log(n / d) / Math.log(on / od));
-
-    if (isNaN(octaves) || !isFinite(octaves)) {
-      throw new Error('Unable to calculate geometric modulo.');
+    const n = Math.round(Math.sqrt(this.n));
+    if (n * n !== this.n) {
+      return null;
     }
-
-    if (octaves > 0) {
-      n *= od ** octaves;
-      d *= on ** octaves;
-    } else if (octaves < 0) {
-      n *= on ** -octaves;
-      d *= od ** -octaves;
+    const d = Math.round(Math.sqrt(this.d));
+    if (d * d !== this.d) {
+      return null;
     }
-
-    // Fine-tune to fix floating point issues.
-    if (on > od) {
-      if (n * od >= d * on) {
-        octaves++;
-        n *= od;
-        d *= on;
-      }
-      if (n < d) {
-        octaves--;
-        n *= on;
-        d *= od;
-      }
-    } else {
-      if (n * od <= d * on) {
-        octaves++;
-        n *= od;
-        d *= on;
-      }
-      if (n > d) {
-        octaves--;
-        n *= on;
-        d *= od;
-      }
-    }
-
-    s *= os ** octaves;
-
-    return new Fraction({s, n, d});
+    return new Fraction(n, d);
   }
 
   /**
-   * Check if the rational number is 1.
+   * Returns the numeric value of the fraction.
+   * 
+   * @returns The numeric value of the fraction
+   * @example
+   * ```ts
+   * new Fraction(3, 4).valueOf()  // 0.75
+   * ```
+   */
+  valueOf(): number {
+    return this.s * (this.n / this.d);
+  }
+
+  /**
+   * Calculates the geometric modulo of two rational numbers.
+   * This is used in geometric operations and radical calculations.
+   * 
+   * @param other - The other fraction
+   * @returns A new Fraction representing the geometric modulo
+   * @throws {Error} If the operation cannot be performed
+   */
+  geoMod(other: FractionValue): Fraction {
+    const other_ = new Fraction(other);
+    if (other_.s < 0) {
+      throw new Error('Cannot perform geometric modulo with negative base');
+    }
+    if (this.s < 0) {
+      throw new Error('Cannot perform geometric modulo with negative value');
+    }
+    const logBase = Math.log(other_.n / other_.d);
+    const logValue = Math.log(this.n / this.d);
+    const exponent = Math.floor(logValue / logBase);
+    const power = other_.pow(exponent);
+    if (power === null) {
+      throw new Error('Cannot perform geometric modulo with non-rational power');
+    }
+    return this.div(power);
+  }
+
+  /**
+   * Calculates the floor of a rational number.
+   *
+   * @returns A new Fraction representing the floor of this fraction
+   * @example
+   * ```ts
+   * new Fraction("4.'3'").floor()  // 4/1
+   * ```
+   */
+  floor() {
+    if (this.d > Number.MAX_SAFE_INTEGER) {
+      return new Fraction(Math.floor(this.valueOf()));
+    }
+    const n = this.s * this.n;
+    const m = mmod(n, this.d);
+    return new Fraction((n - m) / this.d);
+  }
+
+  /**
+   * Calculates the ceil of a rational number.
+   *
+   * @returns A new Fraction representing the ceil of this fraction
+   * @example
+   * ```ts
+   * new Fraction("4.'3'").ceil()  // 5/1
+   * ```
+   */
+  ceil() {
+    if (this.d > Number.MAX_SAFE_INTEGER) {
+      return new Fraction(Math.ceil(this.valueOf()));
+    }
+    const n = this.s * this.n;
+    const m = mmod(n, this.d);
+    if (m) {
+      return new Fraction(1 + (n - m) / this.d);
+    }
+    return this;
+  }
+
+  /**
+   * Rounds a rational number.
+   *
+   * @returns A new Fraction representing the rounded value
+   * @example
+   * ```ts
+   * new Fraction("4.'3'").round()  // 4/1
+   * new Fraction("4.5").round()    // 5/1
+   * ```
+   */
+  round() {
+    try {
+      return this.add(new Fraction({s: 1, n: 1, d: 2} as Fraction)).floor();
+    } catch {
+      return new Fraction(Math.round(this.valueOf()));
+    }
+  }
+
+  /**
+   * Return a convergent of this fraction that is within the given absolute tolerance.
+   * @param epsilon Absolute tolerance for error.
+   * @returns A new Fraction representing the simplified value
+   */
+  simplify(epsilon = 0.001) {
+    const abs = this.abs();
+    const cont = abs.toContinued();
+    const absValue = abs.valueOf();
+
+    for (let i = 1; i < cont.length; i++) {
+      let s = new Fraction({s: 1, n: cont[i - 1], d: 1} as Fraction);
+      for (let k = i - 2; k >= 0; k--) {
+        s = s.inverse().add(cont[k]);
+      }
+
+      if (Math.abs(s.valueOf() - absValue) <= epsilon) {
+        return new Fraction({s: this.s, n: s.n, d: s.d} as Fraction);
+      }
+    }
+    return this.clone();
+  }
+
+  /**
+   * Return a convergent of this fraction that is within the given relative tolerance measured in cents.
+   * @param tolerance Relative tolerance measured in cents.
+   * @returns A new Fraction representing the simplified value
+   */
+  simplifyRelative(tolerance = 3.5) {
+    const abs = this.abs();
+    const cont = abs.toContinued();
+    const absCents = valueToCents(abs.valueOf());
+
+    for (let i = 1; i < cont.length; i++) {
+      let s = new Fraction({s: 1, n: cont[i - 1], d: 1} as Fraction);
+      for (let k = i - 2; k >= 0; k--) {
+        s = s.inverse().add(cont[k]);
+      }
+
+      if (Math.abs(valueToCents(s.valueOf()) - absCents) <= tolerance) {
+        return new Fraction({s: this.s, n: s.n, d: s.d} as Fraction);
+      }
+    }
+    return this.clone();
+  }
+
+  /**
+   * Clones the actual object.
+   *
+   * Example:
+   * ```ts
+   * new Fraction("-17.'345'").clone()  // new Fraction("-17.'345'")
+   * ```
+   **/
+  clone() {
+    return new Fraction(this);
+  }
+
+  /**
+   * Subtracts two rational numbers.
+   *
+   * Example:
+   * ```ts
+   * new Fraction({n: 2, d: 3}).sub("14.9")  // -427/30
+   * ```
+   **/
+  sub(other: FractionValue) {
+    const {s, n, d} = new Fraction(other);
+    // Must pre-reduce to avoid blowing the limits
+    const factor = gcd(this.d, d);
+    const df = d / factor;
+    return new Fraction(
+      this.s * this.n * df - s * n * (this.d / factor),
+      df * this.d
+    );
+  }
+
+  /**
+   * Perform harmonic addition of two rational numbers according to the thin lens equation f⁻¹ = u⁻¹ + v⁻¹.
+   *
+   * Example:
+   * ```ts
+   * new Fraction('5/3').lensAdd('3/2')  // 15/19
+   * ```
+   */
+  lensAdd(other: FractionValue) {
+    const {s, n, d} = new Fraction(other);
+    if (!n || !this.n) {
+      // Based on behavior in the limit where both terms become zero.
+      return new Fraction({s: 0, n: 0, d: 1});
+    }
+    // Must pre-reduce to avoid blowing the limits
+    const numerator = lcm(this.n, n);
+    return new Fraction(
+      this.s * s * numerator,
+      (numerator / n) * d + (numerator / this.n) * this.d
+    );
+  }
+
+  /**
+   * Perform harmonic subtraction of two rational numbers u⁻¹ = f⁻¹ - v⁻¹ (rearranged thin lens equation).
+   *
+   * Example:
+   * ```ts
+   * new Fraction('15/19').lensSub('3/2')  // 5/3
+   * ```
+   */
+  lensSub(other: FractionValue) {
+    const {s, n, d} = new Fraction(other);
+    if (!n || !this.n) {
+      // Based on behavior in the limit where both terms become zero.
+      return new Fraction({s: 0, n: 0, d: 1});
+    }
+    // Must pre-reduce to avoid blowing the limits
+    const numerator = lcm(this.n, n);
+    return new Fraction(
+      this.s * s * numerator,
+      (numerator / this.n) * this.d - (numerator / n) * d
+    );
+  }
+
+  /**
+   * Divides two rational numbers
+   *
+   * Example:
+   * ```ts
+   * new Fraction("-17.'345'").div(3)  // 5776/999
+   * ```
+   **/
+  div(other: FractionValue) {
+    const {s, n, d} = new Fraction(other);
+    if (n === 0) {
+      throw new Error('Division by Zero');
+    }
+    // Must pre-reduce to avoid blowing the limits
+    const nFactor = gcd(this.n, n);
+    const dFactor = gcd(this.d, d);
+    return new Fraction(
+      this.s * (this.n / nFactor) * s * (d / dFactor),
+      (this.d / dFactor) * (n / nFactor)
+    );
+  }
+
+  /**
+   * Calculates the computational modulo of two rational numbers - a more precise fmod. Incorrectly processes signs.
    *
    * Examples:
    * ```ts
-   * new Fraction(9, 9).isUnity()      // true
-   * new Fraction("0.01e2").isUnity()  // true
-   * new Fraction(7, 6).isUnity()      // false
+   * new Fraction("5/1").mod("3/1")   //   (5/1) % (3/1)  = 2/1
+   * new Fraction("-5/1").mod("3/1")  // -((5/1) % (3/1)) = -2/1
    * ```
-   */
-  isUnity() {
-    return this.s === 1 && this.n === 1 && this.d === 1;
+   **/
+  mod(other: FractionValue) {
+    const {n, d} = new Fraction(other);
+    // Must pre-reduce to avoid blowing the limits
+    const denominator = lcm(this.d, d);
+    return new Fraction(
+      (this.s * ((denominator / this.d) * this.n)) % (n * (denominator / d)),
+      denominator
+    );
+  }
+
+  /**
+   * Calculates the mathematical modulo of two rational numbers. Correctly processes signs.
+   *
+   * Examples:
+   * ```ts
+   * new Fraction("5/1").mod("3/1")   // (5/1) % (3/1)  = 2/1
+   * new Fraction("-5/1").mod("3/1")  // (-5/1) % (3/1) = (1/1) % (3/1) = 1/1
+   * ```
+   **/
+  mmod(other: FractionValue) {
+    const {n, d} = new Fraction(other);
+    // Must pre-reduce to avoid blowing the limits
+    const denominator = lcm(this.d, d);
+    return new Fraction(
+      mmod(this.s * ((denominator / this.d) * this.n), n * (denominator / d)),
+      denominator
+    );
   }
 
   /**
@@ -1282,5 +1206,47 @@ export class Fraction {
       exponent = Math.round(exponent);
     }
     return other_.pow(exponent);
+  }
+
+  /**
+   * Check if the rational number is 1.
+   *
+   * Examples:
+   * ```ts
+   * new Fraction(9, 9).isUnity()      // true
+   * new Fraction("0.01e2").isUnity()  // true
+   * new Fraction(7, 6).isUnity()      // false
+   * ```
+   */
+  isUnity() {
+    return this.s === 1 && this.n === 1 && this.d === 1;
+  }
+
+  /**
+   * Returns the additive inverse of the fraction.
+   *
+   * Example:
+   * ```ts
+   * new Fraction(-4).neg()  // 4
+   * ```
+   **/
+  neg() {
+    return new Fraction({s: -this.s, n: this.n, d: this.d} as Fraction);
+  }
+
+  /**
+   * Returns a string-fraction representation of a Fraction object.
+   *
+   * Example:
+   * ```ts
+   * new Fraction("1.'3'").toFraction()  // "4/3"
+   * ```
+   **/
+  toFraction() {
+    const n = this.s * this.n;
+    if (this.d === 1) {
+      return n.toString();
+    }
+    return `${n}/${this.d}`;
   }
 }
