@@ -88,25 +88,25 @@ export function modc(a: number | bigint, b: typeof a): typeof a {
  * A class representing rational numbers (fractions) with precise arithmetic operations.
  * This implementation handles fractions with arbitrary precision and provides various
  * mathematical operations while maintaining exact rational values.
- * 
+ *
  * The class supports:
  * - Basic arithmetic operations (add, subtract, multiply, divide)
  * - Comparison operations (equals, compare)
  * - Mathematical functions (abs, inverse, pow)
  * - Conversion to different formats (toString, toContinued)
- * 
+ *
  * @example
  * ```ts
  * // Create a fraction from numerator and denominator
  * const f1 = new Fraction(3, 4);  // 3/4
- * 
+ *
  * // Create from decimal
  * const f2 = new Fraction(0.75);  // 3/4
- * 
+ *
  * // Create from string
  * const f3 = new Fraction("3/4");  // 3/4
  * const f4 = new Fraction("0.75"); // 3/4
- * 
+ *
  * // Basic arithmetic
  * f1.add(f2)      // 3/2
  * f1.multiply(f2) // 9/16
@@ -123,19 +123,19 @@ export class Fraction {
 
   /**
    * Creates a new Fraction instance.
-   * 
+   *
    * @param numerator - Can be one of:
    *   - A number (integer or decimal)
    *   - A string in various formats ("3/4", "0.75", "1.5e-2")
    *   - Another Fraction instance
    *   - An object with {n, d} properties
    * @param denominator - Optional denominator when numerator is a number
-   * 
+   *
    * @throws {Error} If the input cannot be represented as a valid fraction
    * @throws {Error} If the denominator is zero
    * @throws {Error} If the numerator or denominator exceeds Number.MAX_SAFE_INTEGER
    * @throws {Error} If trying to represent Infinity or NaN
-   * 
+   *
    * @example
    * ```ts
    * new Fraction(3, 4)      // 3/4
@@ -295,7 +295,7 @@ export class Fraction {
   /**
    * Validates the fraction's internal state.
    * Ensures the fraction is in a valid state with positive numerator and denominator.
-   * 
+   *
    * @throws {Error} If the fraction is in an invalid state
    */
   validate() {
@@ -383,7 +383,7 @@ export class Fraction {
 
   /**
    * Converts the fraction to a string representation.
-   * 
+   *
    * @returns A string representation of the fraction in the form "n/d" or "n" if denominator is 1
    * @example
    * ```ts
@@ -464,7 +464,7 @@ export class Fraction {
   /**
    * Converts the fraction to a continued fraction representation.
    * A continued fraction is a representation of a number as a sequence of integers.
-   * 
+   *
    * @returns An array of integers representing the continued fraction
    * @example
    * ```ts
@@ -489,7 +489,7 @@ export class Fraction {
 
   /**
    * Returns the absolute value of the fraction.
-   * 
+   *
    * @returns A new Fraction with the same magnitude but positive sign
    * @example
    * ```ts
@@ -508,7 +508,7 @@ export class Fraction {
   /**
    * Returns the multiplicative inverse of the fraction.
    * The inverse of a/b is b/a.
-   * 
+   *
    * @returns A new Fraction representing 1/this
    * @throws {Error} If the fraction is zero
    * @example
@@ -526,7 +526,7 @@ export class Fraction {
 
   /**
    * Adds another fraction to this one.
-   * 
+   *
    * @param other - The fraction to add
    * @returns A new Fraction representing this + other
    * @example
@@ -547,7 +547,7 @@ export class Fraction {
 
   /**
    * Multiplies this fraction by another.
-   * 
+   *
    * @param other - The fraction to multiply by
    * @returns A new Fraction representing this * other
    * @example
@@ -568,7 +568,7 @@ export class Fraction {
 
   /**
    * Raises this fraction to a power.
-   * 
+   *
    * @param other - The exponent (can be a fraction)
    * @returns A new Fraction representing this^other, or null if the result is not a rational number
    * @example
@@ -668,7 +668,7 @@ export class Fraction {
 
   /**
    * Compares this fraction with another.
-   * 
+   *
    * @param other - The fraction to compare with
    * @returns -1 if this < other, 0 if equal, 1 if this > other
    * @example
@@ -687,7 +687,7 @@ export class Fraction {
 
   /**
    * Checks if this fraction is equal to another.
-   * 
+   *
    * @param other - The fraction to compare with
    * @returns true if the fractions are equal
    * @example
@@ -706,7 +706,7 @@ export class Fraction {
 
   /**
    * Calculates the greatest common divisor of this fraction and another.
-   * 
+   *
    * @param other - The other fraction
    * @returns A new Fraction representing the GCD
    * @example
@@ -721,7 +721,7 @@ export class Fraction {
 
   /**
    * Calculates the least common multiple of this fraction and another.
-   * 
+   *
    * @param other - The other fraction
    * @returns A new Fraction representing the LCM
    * @example
@@ -763,7 +763,7 @@ export class Fraction {
 
   /**
    * Returns the numeric value of the fraction.
-   * 
+   *
    * @returns The numeric value of the fraction
    * @example
    * ```ts
@@ -776,7 +776,7 @@ export class Fraction {
 
   /**
    * Checks if this fraction is divisible by another.
-   * 
+   *
    * @param other - The fraction to check divisibility against
    * @returns true if this fraction is divisible by other
    * @example
@@ -807,7 +807,7 @@ export class Fraction {
   /**
    * Calculates the geometric modulo of two rational numbers.
    * This is used in geometric operations and radical calculations.
-   * 
+   *
    * @param other - The other fraction
    * @returns A new Fraction representing the geometric modulo
    * @throws {Error} If the operation cannot be performed
@@ -828,7 +828,9 @@ export class Fraction {
     const exponent = Math.floor(logValue / logBase);
     const power = other_.pow(exponent);
     if (power === null) {
-      throw new Error('Cannot perform geometric modulo with non-rational power');
+      throw new Error(
+        'Cannot perform geometric modulo with non-rational power'
+      );
     }
     return this.div(power);
   }
@@ -1285,7 +1287,7 @@ export class Fraction {
 
   /**
    * Rounds a rational number to a multiple of another rational number.
-   * 
+   *
    * @param other - The fraction to round to a multiple of
    * @returns A new Fraction representing the rounded value
    * @example

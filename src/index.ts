@@ -22,11 +22,11 @@ export interface AnyArray {
 /**
  * Check if the contents of two arrays are equal using '==='.
  * This function performs a deep comparison of array elements.
- * 
+ *
  * @param a - The first array to compare
  * @param b - The second array to compare
  * @returns True if the arrays have the same length and all elements are equal
- * 
+ *
  * @example
  * ```ts
  * arraysEqual([1, 2, 3], [1, 2, 3])  // true
@@ -52,11 +52,11 @@ export function arraysEqual(a: AnyArray, b: AnyArray) {
 /**
  * Floor division - returns the quotient of Euclidean division.
  * This is equivalent to Math.floor(a / b).
- * 
+ *
  * @param a - The dividend
  * @param b - The divisor
  * @returns The largest integer less than or equal to a/b
- * 
+ *
  * @example
  * ```ts
  * div(7, 3)   // 2
@@ -89,14 +89,14 @@ export type ExtendedEuclid = {
 /**
  * Extended Euclidean algorithm for integers a and b.
  * Finds x and y such that ax + by = gcd(a, b).
- * 
+ *
  * @param a - The first integer
  * @param b - The second integer
  * @returns An object containing:
  *   - Bézout coefficients (coefA, coefB)
  *   - Greatest common divisor (gcd)
  *   - Quotients (quotientA, quotientB)
- * 
+ *
  * @example
  * ```ts
  * const result = extendedEuclid(240, 46);
@@ -162,13 +162,13 @@ export function iteratedEuclid(params: Iterable<number>) {
 /**
  * Find modular inverse of a (mod b).
  * The modular inverse of a modulo b is a number x such that (a * x) mod b = 1.
- * 
+ *
  * @param a - Number to find modular inverse of
  * @param b - Modulus
  * @param strict - If true, ensures that a and b are coprime
  * @returns The modular inverse in the range {0, 1, ..., b - 1}
  * @throws {Error} If strict is true and a and b are not coprime
- * 
+ *
  * @example
  * ```ts
  * modInv(3, 11)    // 4
