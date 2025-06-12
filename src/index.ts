@@ -180,7 +180,7 @@ export function modInv(a: number, b: number, strict = true) {
   const {gcd, coefA} = extendedEuclid(a, b);
   if (strict && gcd !== 1) {
     throw new Error(
-      `${a} does not have a modular inverse modulo ${b} since they're not coprime`
+      `${a} does not have a modular inverse modulo ${b} since they're not coprime`,
     );
   }
   return mmod(coefA, b);
@@ -328,7 +328,7 @@ export function ceilPow2(x: number) {
  * @yields Fractions in ascending order starting from 0/1 and ending at 1/1.
  */
 export function* fareySequence(
-  maxDenominator: number
+  maxDenominator: number,
 ): Generator<Fraction, undefined, undefined> {
   let a = 0;
   let b = 1;
@@ -348,7 +348,7 @@ export function* fareySequence(
  * @yields Fractions in ascending order starting from 1/maxDenominator and ending at (maxDenominator-1)/maxDenominator.
  */
 export function* fareyInterior(
-  maxDenominator: number
+  maxDenominator: number,
 ): Generator<Fraction, undefined, undefined> {
   if (maxDenominator < 2) {
     return;
@@ -371,7 +371,7 @@ export function* fareyInterior(
  * @returns A pair of pairs of indices that have the same stepspan but different subtension. `null` if the scale has constant structure.
  */
 export function falsifyConstantStructure(
-  steps: number[]
+  steps: number[],
 ): [[number, number], [number, number]] | null {
   const n = steps.length;
   if (!n) {
@@ -422,7 +422,7 @@ export function falsifyConstantStructure(
  */
 export function hasMarginConstantStructure(
   scaleCents: number[],
-  margin: number
+  margin: number,
 ) {
   const n = scaleCents.length;
   if (!n) {
@@ -510,7 +510,7 @@ export function tenneyHeight(value: Monzo | FractionValue) {
   if (Array.isArray(value)) {
     return dotPrecise(
       value.map(x => Math.abs(x)),
-      LOG_PRIMES
+      LOG_PRIMES,
     );
   }
   const {s, n, d} = new Fraction(value);
@@ -526,12 +526,12 @@ export function tenneyHeight(value: Monzo | FractionValue) {
  * @returns Sum of prime factors with repetition of p*q.
  */
 export function wilsonHeight(
-  value: Monzo | FractionValue | Map<number, number>
+  value: Monzo | FractionValue | Map<number, number>,
 ) {
   if (Array.isArray(value)) {
     return dot(
       value.map(x => Math.abs(x)),
-      PRIMES
+      PRIMES,
     );
   }
   if (!(value instanceof Map)) {

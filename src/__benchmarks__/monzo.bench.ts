@@ -6,7 +6,7 @@ import {
   primeLimitLegacy,
   toMonzoAndResidualLegacy,
 } from '../../legacy/legacy';
-import {toMonzo, primeLimit, toMonzoAndResidual} from '../../dist';
+import {toMonzo, primeLimit, toMonzoAndResidual} from '../monzo';
 
 function randInt() {
   return Math.ceil(Math.random() * 1000000000);

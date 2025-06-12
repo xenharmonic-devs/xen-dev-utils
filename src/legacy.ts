@@ -41,7 +41,7 @@ export function toMonzoLegacy(n: FractionValue | bigint): Monzo {
 export function primeLimitLegacy(
   n: FractionValue | bigint,
   asOrdinal = false,
-  maxLimit = 7919
+  maxLimit = 7919,
 ): number {
   if (typeof n === 'bigint') {
     return bigIntPrimeLimit(n, asOrdinal, maxLimit);
@@ -50,7 +50,7 @@ export function primeLimitLegacy(
     n = new Fraction(n);
     return Math.max(
       primeLimitLegacy(n.n, asOrdinal, maxLimit),
-      primeLimitLegacy(n.d, asOrdinal, maxLimit)
+      primeLimitLegacy(n.d, asOrdinal, maxLimit),
     );
   }
   if (n < 1 || Math.round(n) !== n) {
@@ -128,7 +128,7 @@ function bigIntToMonzo(n: bigint) {
 function bigIntPrimeLimit(
   n: bigint,
   asOrdinal: boolean,
-  maxLimit: number
+  maxLimit: number,
 ): number {
   if (n < 1n) {
     return NaN;
@@ -171,15 +171,15 @@ function bigIntPrimeLimit(
  */
 export function toMonzoAndResidualLegacy(
   n: bigint,
-  numberOfComponents: number
+  numberOfComponents: number,
 ): [Monzo, bigint];
 export function toMonzoAndResidualLegacy(
   n: FractionValue,
-  numberOfComponents: number
+  numberOfComponents: number,
 ): [Monzo, Fraction];
 export function toMonzoAndResidualLegacy(
   n: FractionValue | bigint,
-  numberOfComponents: number
+  numberOfComponents: number,
 ): [Monzo, Fraction] | [Monzo, bigint] {
   if (typeof n === 'bigint') {
     return bigIntToMonzoAndResidualLegacy(n, numberOfComponents);
@@ -224,7 +224,7 @@ export function toMonzoAndResidualLegacy(
 
 function bigIntToMonzoAndResidualLegacy(
   n: bigint,
-  numberOfComponents: number
+  numberOfComponents: number,
 ): [Monzo, bigint] {
   if (!n) {
     return [Array(numberOfComponents).fill(0), 0n];

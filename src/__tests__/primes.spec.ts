@@ -140,13 +140,13 @@ describe('Prime range generator', () => {
 
   it('produces the larger primes', () => {
     expect(primeRange(1000, 1000 + LARGER_PRIMES.length)).toEqual(
-      LARGER_PRIMES
+      LARGER_PRIMES,
     );
   });
 
   it('produces the larger primes but one', () => {
     expect(primeRange(1001, 1000 + LARGER_PRIMES.length)).toEqual(
-      LARGER_PRIMES.slice(1)
+      LARGER_PRIMES.slice(1),
     );
   });
 });

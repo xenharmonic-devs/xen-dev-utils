@@ -62,7 +62,7 @@ describe('Monzo converter', () => {
       new Fraction(2)
         .pow(monzo[0])!
         .mul(3 ** monzo[1] * 7 ** monzo[3])
-        .equals('1029/1024')
+        .equals('1029/1024'),
     ).toBeTruthy();
   });
 
@@ -86,7 +86,7 @@ describe('Monzo converter', () => {
     expect(
       BigInt(2) ** BigInt(monzo[0]) *
         BigInt(3) ** BigInt(monzo[1]) *
-        BigInt(5) ** BigInt(monzo[2])
+        BigInt(5) ** BigInt(monzo[2]),
     ).toBe(BigInt('360000000000000000000000'));
   });
 
@@ -140,7 +140,7 @@ describe('Monzo converter', () => {
 
   it('refuses to factor a negative fraction', () => {
     expect(() => toMonzo('-1/2')).toThrow(
-      'Cannot convert fraction -1/2 to monzo'
+      'Cannot convert fraction -1/2 to monzo',
     );
   });
 });
@@ -157,7 +157,7 @@ describe('Fraction to monzo converter', () => {
         .pow(monzo[0])!
         .mul(3 ** monzo[1])
         .mul(5 ** monzo[2])
-        .equals(new Fraction(45, 32))
+        .equals(new Fraction(45, 32)),
     ).toBeTruthy();
   });
 
@@ -174,7 +174,7 @@ describe('Fraction to monzo converter', () => {
         .mul(3 ** monzo[1])
         .mul(5 ** monzo[2])
         .mul(residual)
-        .equals('12345/678')
+        .equals('12345/678'),
     ).toBeTruthy();
   });
 
@@ -200,7 +200,7 @@ describe('Fraction to monzo converter', () => {
   it('leaves a residue if everything cannot be converted', () => {
     const [monzo, residual] = toMonzoAndResidual(
       BigInt('123456789000000000000'),
-      3
+      3,
     );
     expect(residual).toBe(BigInt(13717421));
     expect(monzo).toHaveLength(3);
@@ -211,7 +211,7 @@ describe('Fraction to monzo converter', () => {
       BigInt(2) ** BigInt(monzo[0]) *
         BigInt(3) ** BigInt(monzo[1]) *
         BigInt(5) ** BigInt(monzo[2]) *
-        residual
+        residual,
     ).toBe(BigInt('123456789000000000000'));
   });
 
@@ -295,7 +295,7 @@ describe('Fraction to monzo converter', () => {
 describe('Monzo to fraction converter', () => {
   it('multiplies the prime components', () => {
     expect(
-      monzoToFraction([3, -2, -1]).equals(new Fraction(8, 45))
+      monzoToFraction([3, -2, -1]).equals(new Fraction(8, 45)),
     ).toBeTruthy();
   });
 });
@@ -303,7 +303,7 @@ describe('Monzo to fraction converter', () => {
 describe('Monzo to BigInt converter', () => {
   it('multiplies the prime components', () => {
     expect(monzoToBigInt([30, 20, 10])).toBe(
-      BigInt('36561584400629760000000000')
+      BigInt('36561584400629760000000000'),
     );
   });
 });
@@ -337,10 +337,10 @@ describe('Prime limit calculator', () => {
     const limit = primeLimit(
       new Fraction(
         Math.ceil(Math.random() * 10000),
-        Math.ceil(Math.random() * 10000)
+        Math.ceil(Math.random() * 10000),
       ),
       false,
-      97
+      97,
     );
     if (limit < Infinity) {
       expect(limit).toBeLessThanOrEqual(97);
@@ -476,7 +476,7 @@ describe('Fractional monzo methods', () => {
   it('test for equality between two monzos (equal)', () => {
     const yes = fractionalMonzosEqual(
       ['1/2', '7/9'],
-      [0.5, new Fraction(14, 18), 0]
+      [0.5, new Fraction(14, 18), 0],
     );
     expect(yes).toBe(true);
   });
@@ -484,7 +484,7 @@ describe('Fractional monzo methods', () => {
   it('test for equality between two monzos (not equal)', () => {
     const no = fractionalMonzosEqual(
       ['1/2', '7/9'],
-      [0.75, new Fraction(7, 9)]
+      [0.75, new Fraction(7, 9)],
     );
     expect(no).toBe(false);
   });

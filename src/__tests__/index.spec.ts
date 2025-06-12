@@ -60,7 +60,7 @@ describe('iterated (extended) Euclidean algorithm', () => {
       expect(coefs.length).toBe(0);
     } else {
       expect(params.map((p, i) => p * coefs[i]).reduce((a, b) => a + b)).toBe(
-        params.reduce(gcd)
+        params.reduce(gcd),
       );
     }
   });
@@ -140,7 +140,7 @@ describe('Pitch difference with circle equivalence', () => {
     const diff = circleDifference(
       valueToCents(5),
       valueToCents(13),
-      valueToCents(3)
+      valueToCents(3),
     );
     expect(diff).toBeCloseTo(247.741);
   });
@@ -161,7 +161,7 @@ describe('Pitch distance with circle equivalence', () => {
     const diff = circleDistance(
       valueToCents(5),
       valueToCents(13),
-      valueToCents(3)
+      valueToCents(3),
     );
     expect(diff).toBeCloseTo(247.741);
   });
@@ -398,28 +398,28 @@ describe('Monzo size measure', () => {
   it('calculates the size of the rascal accurately', () => {
     expect(monzoToCents([-7470, 2791, 1312])).toBeCloseTo(
       5.959563411893381e-6,
-      24
+      24,
     );
   });
 
   it('calculates the size of the neutrino accurately', () => {
     expect(monzoToCents([1889, -2145, 138, 424])).toBeCloseTo(
       1.6361187484440885e-10,
-      24
+      24,
     );
   });
 
   it('calculates the size of the demiquartervice comma accurately', () => {
     expect(monzoToCents([-3, 2, -1, -1, 0, 0, -1, 0, 2])).toBeCloseTo(
       0.3636664332386927,
-      15
+      15,
     );
   });
 
   it('calculates the size of the negative junebug comma accurately', () => {
     expect(monzoToCents([-1, 1, -1, -1, 1, -1, -1, 1, 1, -1, 1])).toBeCloseTo(
       -6.104006661651758,
-      15
+      15,
     );
   });
 });
@@ -451,7 +451,7 @@ describe('Tenney complexity measure', () => {
       const d = Math.floor(Math.random() * (Number.MAX_SAFE_INTEGER - 1)) + 1;
       const f = new Fraction(n, d);
       expect(tenneyHeight(f.n) + tenneyHeight(f.d)).toBeCloseTo(
-        tenneyHeight(f)
+        tenneyHeight(f),
       );
     }
   });
@@ -461,7 +461,7 @@ describe('Tenney complexity measure', () => {
       const x = Math.floor(Math.random() * 94906265);
       const y = Math.floor(Math.random() * 94906265);
       expect(tenneyHeight(x) + tenneyHeight(y)).toBeCloseTo(
-        tenneyHeight(x * y)
+        tenneyHeight(x * y),
       );
     }
   });
@@ -491,8 +491,8 @@ describe('Wilson complexity measure', () => {
           [-1, 1],
           [2, 3],
           [11, -1],
-        ])
-      )
+        ]),
+      ),
     ).toBe(17);
   });
 
@@ -618,7 +618,7 @@ describe('Wilson complexity measure', () => {
       const x = Math.floor(Math.random() * 32768);
       const y = Math.floor(Math.random() * 32768);
       expect(wilsonHeight(x) + wilsonHeight(y), `Failed on ${x} * ${y}`).toBe(
-        wilsonHeight(x * y)
+        wilsonHeight(x * y),
       );
     }
   });

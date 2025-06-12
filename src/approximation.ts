@@ -18,7 +18,7 @@ export function getConvergents(
   maxDenominator?: number,
   maxLength?: number,
   includeSemiconvergents = false,
-  includeNonMonotonic = false
+  includeNonMonotonic = false,
 ) {
   const value_ = new Fraction(value);
   /*
@@ -172,7 +172,7 @@ export function approximatePrimeLimitWithErrors(
   limitIndex: number,
   maxExponent: number,
   maxError = 600,
-  maxLength = 100
+  maxLength = 100,
 ) {
   if (maxError > 600) {
     throw new Error('Maximum search distance is 600 cents');
@@ -205,7 +205,7 @@ export function approximatePrimeLimitWithErrors(
   function accumulate(
     approximation: Fraction,
     approximationCents: number,
-    index: number
+    index: number,
   ) {
     if (approximation.n > 10e10 || approximation.d > 10e10) {
       return;
@@ -219,7 +219,7 @@ export function approximatePrimeLimitWithErrors(
           return;
         }
         const exponent = Math.round(
-          (cents - approximationCents - remainder) / 1200
+          (cents - approximationCents - remainder) / 1200,
         );
         if (Math.abs(exponent) > 52) {
           return;
@@ -246,12 +246,12 @@ export function approximatePrimeLimitWithErrors(
       accumulate(
         approximation.mul(PRIMES[index] ** i),
         approximationCents + PRIME_CENTS[index] * i,
-        index + 1
+        index + 1,
       );
       accumulate(
         approximation.div(PRIMES[index] ** i),
         approximationCents - PRIME_CENTS[index] * i,
-        index + 1
+        index + 1,
       );
     }
   }
@@ -276,14 +276,14 @@ export function approximatePrimeLimit(
   limitIndex: number,
   maxExponent: number,
   maxError = 600,
-  maxLength = 100
+  maxLength = 100,
 ) {
   return approximatePrimeLimitWithErrors(
     cents,
     limitIndex,
     maxExponent,
     maxError,
-    maxLength
+    maxLength,
   ).map(result => result[0]);
 }
 
@@ -317,7 +317,7 @@ export function continuedFraction(value: number) {
 export function approximateRadical(
   value: number,
   maxIndex = 5,
-  maxHeight = 50000
+  maxHeight = 50000,
 ) {
   let index = 1;
   let radicand = new Fraction(1);

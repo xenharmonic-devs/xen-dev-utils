@@ -541,7 +541,7 @@ export class Fraction {
     const df = d / factor;
     return new Fraction(
       this.s * this.n * df + s * n * (this.d / factor),
-      df * this.d
+      df * this.d,
     );
   }
 
@@ -562,7 +562,7 @@ export class Fraction {
     const dnFactor = gcd(this.d, n);
     return new Fraction(
       this.s * (this.n / ndFactor) * s * (n / dnFactor),
-      (this.d / dnFactor) * (d / ndFactor)
+      (this.d / dnFactor) * (d / ndFactor),
     );
   }
 
@@ -796,7 +796,7 @@ export class Fraction {
       const dFactor = gcd(this.d, d);
       const result = new Fraction(
         this.s * (this.n / nFactor) * s * (d / dFactor),
-        (this.d / dFactor) * (n / nFactor)
+        (this.d / dFactor) * (n / nFactor),
       );
       return result.n === Math.floor(result.n) && result.d === 1;
     } catch {
@@ -829,7 +829,7 @@ export class Fraction {
     const power = other_.pow(exponent);
     if (power === null) {
       throw new Error(
-        'Cannot perform geometric modulo with non-rational power'
+        'Cannot perform geometric modulo with non-rational power',
       );
     }
     return this.div(power);
@@ -965,7 +965,7 @@ export class Fraction {
     const df = d / factor;
     return new Fraction(
       this.s * this.n * df - s * n * (this.d / factor),
-      df * this.d
+      df * this.d,
     );
   }
 
@@ -987,7 +987,7 @@ export class Fraction {
     const numerator = lcm(this.n, n);
     return new Fraction(
       this.s * s * numerator,
-      (numerator / n) * d + (numerator / this.n) * this.d
+      (numerator / n) * d + (numerator / this.n) * this.d,
     );
   }
 
@@ -1009,7 +1009,7 @@ export class Fraction {
     const numerator = lcm(this.n, n);
     return new Fraction(
       this.s * s * numerator,
-      (numerator / this.n) * this.d - (numerator / n) * d
+      (numerator / this.n) * this.d - (numerator / n) * d,
     );
   }
 
@@ -1031,7 +1031,7 @@ export class Fraction {
     const dFactor = gcd(this.d, d);
     return new Fraction(
       this.s * (this.n / nFactor) * s * (d / dFactor),
-      (this.d / dFactor) * (n / nFactor)
+      (this.d / dFactor) * (n / nFactor),
     );
   }
 
@@ -1050,7 +1050,7 @@ export class Fraction {
     const denominator = lcm(this.d, d);
     return new Fraction(
       (this.s * ((denominator / this.d) * this.n)) % (n * (denominator / d)),
-      denominator
+      denominator,
     );
   }
 
@@ -1069,7 +1069,7 @@ export class Fraction {
     const denominator = lcm(this.d, d);
     return new Fraction(
       mmod(this.s * ((denominator / this.d) * this.n), n * (denominator / d)),
-      denominator
+      denominator,
     );
   }
 
@@ -1300,7 +1300,7 @@ export class Fraction {
     const {n, d} = new Fraction(other);
     return new Fraction(
       this.s * Math.round((this.n * d) / (this.d * n)) * n,
-      d
+      d,
     );
   }
 }

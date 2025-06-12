@@ -172,7 +172,7 @@ describe('LLL basis reduction', () => {
     for (let i = 0; i < 3; ++i) {
       for (let j = 0; j < i; ++j) {
         expect(
-          Math.abs(dot(lll.basis[i], lll.gram.dual[j]))
+          Math.abs(dot(lll.basis[i], lll.gram.dual[j])),
         ).toBeLessThanOrEqual(0.5);
       }
     }
@@ -247,7 +247,7 @@ describe('LLL basis reduction', () => {
         for (let i = 0; i < basis.length; ++i) {
           for (let j = 0; j < i; ++j) {
             expect(
-              Math.abs(dot(lll.basis[i], lll.gram.dual[j]))
+              Math.abs(dot(lll.basis[i], lll.gram.dual[j])),
             ).toBeLessThanOrEqual(0.5);
           }
         }
@@ -276,7 +276,7 @@ describe('Precise LLL basis reduction', () => {
     for (let i = 0; i < 3; ++i) {
       for (let j = 0; j < i; ++j) {
         expect(
-          fractionalDot(lll.basis[i], lll.gram.dual[j]).compare(0.5)
+          fractionalDot(lll.basis[i], lll.gram.dual[j]).compare(0.5),
         ).toBeLessThanOrEqual(0);
       }
     }
@@ -287,7 +287,7 @@ describe('Precise LLL basis reduction', () => {
       const mu = fractionalDot(lll.basis[k], lll.gram.dual[k - 1]);
       const n1 = fractionalDot(ok1, ok1);
       expect(
-        n1.mul('3/4').compare(fractionalDot(ok, ok).add(n1.mul(mu.mul(mu))))
+        n1.mul('3/4').compare(fractionalDot(ok, ok).add(n1.mul(mu.mul(mu)))),
       ).toBeLessThanOrEqual(0);
     }
 
@@ -332,7 +332,9 @@ describe('Precise LLL basis reduction', () => {
           for (let i = 0; i < basis.length; ++i) {
             for (let j = 0; j < i; ++j) {
               expect(
-                fractionalDot(lll.basis[i], lll.gram.dual[j]).abs().compare(0.5)
+                fractionalDot(lll.basis[i], lll.gram.dual[j])
+                  .abs()
+                  .compare(0.5),
               ).toBeLessThanOrEqual(0);
             }
           }
@@ -345,12 +347,13 @@ describe('Precise LLL basis reduction', () => {
             expect(
               n1
                 .mul('3/4')
-                .compare(fractionalDot(ok, ok).add(n1.mul(mu).mul(mu)))
+                .compare(fractionalDot(ok, ok).add(n1.mul(mu).mul(mu))),
             ).toBeLessThanOrEqual(0);
           }
         }
       } catch (e) {
-        expect(e.message).includes('above safe limit');
+        const message = e instanceof Error ? e.message : String(e);
+        expect(message).includes('above safe limit');
       }
     }
   });
@@ -493,10 +496,10 @@ describe('Matrix inverse', () => {
       }
       expect(
         matmul(mat, inv(mat)).map(row =>
-          row.map(x => Math.round(10000 * x) / 10000 || 0)
-        )
+          row.map(x => Math.round(10000 * x) / 10000 || 0),
+        ),
       ).toEqual(eye(N));
-    }
+    },
   );
 
   it('throws for non-square matrix', () => {
@@ -505,7 +508,7 @@ describe('Matrix inverse', () => {
         [1, 2],
         [3, 4],
         [5, 6],
-      ])
+      ]),
     ).toThrow('Non-square matrix');
   });
 
@@ -514,7 +517,7 @@ describe('Matrix inverse', () => {
       inv([
         [1, 0],
         [0, 0],
-      ])
+      ]),
     ).toThrow('Matrix is singular');
   });
 
@@ -556,10 +559,10 @@ describe('Matrix inverse', () => {
       }
       expect(
         fractionalMatmul(mat, fractionalInv(mat)).map(row =>
-          row.map(x => x.valueOf())
-        )
+          row.map(x => x.valueOf()),
+        ),
       ).toEqual(eye(N));
-    }
+    },
   );
 
   it('throws for non-square matrix with fractional entries', () => {
@@ -568,7 +571,7 @@ describe('Matrix inverse', () => {
         [1, 2],
         [3, 4],
         [5, 6],
-      ])
+      ]),
     ).toThrow('Non-square matrix');
   });
 
@@ -577,7 +580,7 @@ describe('Matrix inverse', () => {
       fractionalInv([
         [1, 0],
         [0, 0],
-      ])
+      ]),
     ).toThrow('Matrix is singular');
   });
 
@@ -594,7 +597,7 @@ describe('Matrix inverse', () => {
       }
       const inverse = inv(mat);
       const I = matmul(mat, inverse).map(row =>
-        row.map(x => Math.round(x * 1024) / 1024 || 0)
+        row.map(x => Math.round(x * 1024) / 1024 || 0),
       );
       expect(I).toEqual(eye(N));
     }
@@ -616,8 +619,9 @@ describe('Matrix inverse', () => {
       try {
         inverse = fractionalInv(mat);
       } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
         if (!determinant) {
-          expect(e.message).toBe('Matrix is singular');
+          expect(message).toBe('Matrix is singular');
         }
         /** empty */
       }
@@ -656,7 +660,7 @@ describe('Determinant', () => {
         }
       }
       expect(det(mat) / analytic).toBeCloseTo(1, 1);
-    }
+    },
   );
 
   it('computes 0 for the origin', () => {
@@ -753,7 +757,7 @@ describe('Transpose', () => {
   it('transposes a 3x2 matrix with rational entries', () => {
     const mat = [[1, 0.5], [3], ['2/7', 5]];
     expect(
-      fractionalTranspose(mat).map(row => row.map(f => f.toFraction()))
+      fractionalTranspose(mat).map(row => row.map(f => f.toFraction())),
     ).toEqual([
       ['1', '3', '2/7'],
       ['1/2', '0', '5'],
@@ -772,7 +776,7 @@ describe('Auxiliary matrix methods', () => {
       [6, 8],
     ]);
     expect(
-      fractionalMatscale(A, 2).map(row => row.map(f => f.valueOf()))
+      fractionalMatscale(A, 2).map(row => row.map(f => f.valueOf())),
     ).toEqual([
       [2, 4],
       [6, 8],
@@ -793,7 +797,7 @@ describe('Auxiliary matrix methods', () => {
       [9, 11],
     ]);
     expect(
-      fractionalMatadd(A, B).map(row => row.map(f => f.valueOf()))
+      fractionalMatadd(A, B).map(row => row.map(f => f.valueOf())),
     ).toEqual([
       [0, 7],
       [9, 11],
@@ -814,7 +818,7 @@ describe('Auxiliary matrix methods', () => {
       [-3, -3],
     ]);
     expect(
-      fractionalMatsub(A, B).map(row => row.map(f => f.valueOf()))
+      fractionalMatsub(A, B).map(row => row.map(f => f.valueOf())),
     ).toEqual([
       [2, -3],
       [-3, -3],
@@ -897,7 +901,7 @@ describe('Diophantine equation solver', () => {
     const commas = ['676/675', '1216/1215'].map(toMonzo);
     const subgroupMonzos = solveDiophantine(
       transpose(subgroup),
-      transpose(commas)
+      transpose(commas),
     );
     expect(transpose(subgroupMonzos)).toEqual([
       [2, -3, 2, 0],

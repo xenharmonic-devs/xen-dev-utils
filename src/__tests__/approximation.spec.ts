@@ -30,7 +30,7 @@ describe('Prime limit approximator', () => {
     const approximation = approximatePrimeLimit(
       valueToCents(Math.PI),
       PRIMES.indexOf(11),
-      3
+      3,
     )[0];
     expect(approximation.equals('12544/3993')).toBeTruthy();
     expect(approximation.valueOf()).toBeCloseTo(Math.PI);
@@ -42,7 +42,7 @@ describe('Prime limit approximator', () => {
       PRIMES.indexOf(13),
       3,
       15,
-      4
+      4,
     );
     expect(approximations).toHaveLength(4);
   });
@@ -52,7 +52,7 @@ describe('Prime limit approximator', () => {
       600,
       PRIMES.indexOf(7),
       5,
-      10
+      10,
     );
     expect(approximationsAndErrors).toHaveLength(28);
     approximationsAndErrors.forEach(([approximation, error]) => {
@@ -65,7 +65,7 @@ describe('Prime limit approximator', () => {
 
   it('has somewhat sane default behavior', () => {
     expect(() =>
-      approximatePrimeLimit(valueToCents(Math.PI), 8, 2)
+      approximatePrimeLimit(valueToCents(Math.PI), 8, 2),
     ).not.toThrow();
   });
 });
@@ -123,7 +123,7 @@ describe('Convergent calculator', () => {
 
   it('calculates convergents for 1\\5', () => {
     expect(() =>
-      getConvergents(1.148698354997035, undefined, 256, true, false)
+      getConvergents(1.148698354997035, undefined, 256, true, false),
     ).not.toThrow();
   });
 });

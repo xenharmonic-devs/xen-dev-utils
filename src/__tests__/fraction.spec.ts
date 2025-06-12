@@ -59,7 +59,7 @@ describe('gcd with lcm', () => {
       for (let j = -10; j <= 10; ++j) {
         // We need to bypass (+0).toBe(-0) here...
         expect(gcd(i, j) * lcm(i, j) === i * j, `failed with ${i}, ${j}`).toBe(
-          true
+          true,
         );
         // This works, though.
         const x = BigInt(i);
@@ -248,7 +248,7 @@ describe('Fraction', () => {
   it.skip('produces a finite continued fraction from a balanced high complexity value', () => {
     const fraction = new Fraction(
       Number.MAX_SAFE_INTEGER + Math.random() * 1e18,
-      Number.MAX_SAFE_INTEGER + Math.random() * 1e18
+      Number.MAX_SAFE_INTEGER + Math.random() * 1e18,
     );
     expect(fraction.toContinued().length).toBeLessThan(Infinity);
   });
@@ -256,7 +256,7 @@ describe('Fraction', () => {
   it.skip('produces a finite continued fraction from an imbalanced high complexity value', () => {
     const fraction = new Fraction(
       Math.floor(Math.random() * 1000),
-      Number.MAX_SAFE_INTEGER + Math.random() * 1e18
+      Number.MAX_SAFE_INTEGER + Math.random() * 1e18,
     );
     expect(fraction.toContinued().length).toBeLessThan(Infinity);
   });
@@ -292,7 +292,7 @@ describe('Fraction', () => {
     const simplified = fraction.simplifyRelative().valueOf();
     expect(Math.sign(simplified)).toBe(Math.sign(value));
     expect(
-      Math.abs(Math.log(Math.abs(simplified)) - Math.log(Math.abs(value)))
+      Math.abs(Math.log(Math.abs(simplified)) - Math.log(Math.abs(value))),
     ).toBeLessThanOrEqual((Math.LN2 / 1200) * 3.5);
   });
 
@@ -353,7 +353,7 @@ describe('Fraction', () => {
 
   it('gives the correct error for too large components', () => {
     expect(() => new Fraction(1.1231233477899796e16, 1)).toThrowError(
-      'Numerator above safe limit'
+      'Numerator above safe limit',
     );
   });
 
@@ -531,7 +531,7 @@ describe('Fraction', () => {
         }
         const lcr = particular.lcr(j)!;
         expect(lcr.log(particular)!.equals(new Fraction(j).log(gcr)!)).toBe(
-          true
+          true,
         );
 
         expect(new Fraction(j).gcr(particular)!.equals(gcr)).toBe(true);
@@ -609,11 +609,11 @@ describe('Fraction', () => {
   it('cancels harmonic addition with harmonic subtraction', () => {
     const a = new Fraction(
       Math.floor(Math.random() * 1000),
-      Math.floor(Math.random() * 1000) + 1
+      Math.floor(Math.random() * 1000) + 1,
     );
     const b = new Fraction(
       Math.floor(Math.random() * 1000),
-      Math.floor(Math.random() * 1000) + 1
+      Math.floor(Math.random() * 1000) + 1,
     );
     const lensSum = a.lensAdd(b);
     expect(lensSum.lensSub(b).equals(a)).toBe(true);
@@ -637,7 +637,7 @@ describe('Fraction', () => {
 
   it('multiplies large cancelling factors', () => {
     const one = new Fraction('1234567890/987654321').mul(
-      '987654321/1234567890'
+      '987654321/1234567890',
     );
     expect(one.equals(1)).toBe(true);
   });
@@ -704,7 +704,7 @@ describe('Fraction', () => {
             .gcd(j)
             .mul(f.lcm(j))
             .equals(i * j),
-          `failed with ${i}, ${j}`
+          `failed with ${i}, ${j}`,
         ).toBe(true);
       }
     }
@@ -747,37 +747,37 @@ describe('Fraction', () => {
 
   it('throws an informative error for (Infinity, 1)', () => {
     expect(() => new Fraction(Infinity, 1)).throws(
-      'Cannot represent Infinity as a fraction'
+      'Cannot represent Infinity as a fraction',
     );
   });
 
   it('throws an informative error for (-Infinity, 1)', () => {
     expect(() => new Fraction(-Infinity, 1)).throws(
-      'Cannot represent Infinity as a fraction'
+      'Cannot represent Infinity as a fraction',
     );
   });
 
   it('throws an informative error for Infinity', () => {
     expect(() => new Fraction(Infinity)).throws(
-      'Cannot represent Infinity as a fraction'
+      'Cannot represent Infinity as a fraction',
     );
   });
 
   it('throws an informative error for {n: Infinity, d:1}', () => {
     expect(() => new Fraction({n: Infinity, d: 1})).throws(
-      'Cannot represent Infinity as a fraction'
+      'Cannot represent Infinity as a fraction',
     );
   });
 
   it('throws for NaN (literal)', () => {
     expect(() => new Fraction(NaN)).throws(
-      'Cannot represent NaN as a fraction'
+      'Cannot represent NaN as a fraction',
     );
   });
 
   it('throws for NaN (implicit)', () => {
     expect(() => new Fraction(Infinity, Infinity)).throws(
-      'Cannot represent NaN as a fraction'
+      'Cannot represent NaN as a fraction',
     );
   });
 
@@ -819,7 +819,7 @@ describe('JSON serialization', () => {
     ]);
 
     expect(serialized).toBe(
-      '[{"n":42,"d":1},2,{"n":-5,"d":3},{"n":617,"d":500},"hello",{"n":0,"d":1},null]'
+      '[{"n":42,"d":1},2,{"n":-5,"d":3},{"n":617,"d":500},"hello",{"n":0,"d":1},null]',
     );
   });
 
@@ -854,7 +854,8 @@ describe('JSON serialization', () => {
         const f = new Fraction('0.' + '9'.repeat(i));
         expect(f.toFraction()).toBe('9'.repeat(i) + '/' + '1' + '0'.repeat(i));
       } catch (e) {
-        expect(e.message).toBe('Decimal string too complex');
+        const message = e instanceof Error ? e.message : String(e);
+        expect(message).toBe('Decimal string too complex');
       }
     }
   });
