@@ -55,17 +55,17 @@ Convert fractions to their prime components:
 toMonzo("225/224");  // [ -5, 2, 2, -1 ]
 ```
 
-Convert frequencies to cents (comparing to 440Hz).
+Convert frequencies to cents (comparing to 440Hz):
 ```typescript
 frequencyToCentOffset(660);  // 701.9550008653874
 ```
 
-Convert semitones to natural logarithmic units.
+Convert semitones to natural logarithmic units:
 ```typescript
 semitonesToNats(5);  // 0.28881132523331055
 ```
 
-Get all combinatios of given length
+Get all combinations of given length:
 ```typescript
 kCombinations([1, 2, 3], 2)  // [[1, 2], [1, 3], [2, 3]]
 ```
