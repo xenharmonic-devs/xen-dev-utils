@@ -129,9 +129,9 @@ export function isPrime(n: number) {
 }
 
 /**
- * Obtain the nth odd prime.
- * @param n 1-based ordinal of the nth odd prime, or zero to obtain prime two.
- * @returns The nth odd prime number or `2` if `n === 0`.
+ * Obtain the prime at index `n` in the sequence `[2, 3, 5, 7, ...]`.
+ * @param n Zero-based index into the prime sequence. Non-integer or negative inputs return `undefined`.
+ * @returns The prime at the given index.
  */
 export function nthPrime(n: number) {
   if (n < PRIMES.length) {
@@ -206,10 +206,10 @@ export function primes(start: number, end?: number) {
 }
 
 /**
- * Obtain a range of primes starting at the given ordinal. Prime 2 has ordinal 0.
- * @param start 1-based ordinal of the nth odd prime to start from, or zero to include prime two.
- * @param end Range end. `end - start` elements are returned.
- * @returns The primes in the range.
+ * Obtain a range of primes by zero-based index. Prime 2 has index 0.
+ * @param start Inclusive start index in the prime sequence.
+ * @param end Exclusive end index. `end - start` elements are returned.
+ * @returns The primes in the requested half-open range.
  */
 export function primeRange(start: number, end?: number) {
   if (end === undefined) {

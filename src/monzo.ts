@@ -439,7 +439,7 @@ export function monzoToBigInt(monzo: Iterable<number>) {
 /**
  * Convert a monzo to the BigInt fraction it represents.
  * @param monzo Iterable of prime exponents.
- * @returns Record with keys 'numerator' and 'denominator containing BigInts.
+ * @returns Record with keys 'numerator' and 'denominator' containing BigInts.
  */
 export function monzoToBigNumeratorDenominator(monzo: Iterable<number>) {
   let numerator = 1n;

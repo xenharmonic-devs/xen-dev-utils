@@ -68,7 +68,7 @@ import {Fraction, getConvergents} from 'xen-dev-utils';
 
 // Convergents are in some sense the best rational approximations of given complexity.
 getConvergents(Math.PI);  // ["3/1", "22/7", "333/106", "355/113", ...].map(f => new Fraction(f))
-// Each semi-convergents is more accurate than the previous one.
+// Each semiconvergent is more accurate than the previous one.
 getConvergents(Math.PI, 100, 5, true);  // 3/1, 13/4, 16/5, 19/6, 22/7
 // Non-monotonic convergents cover even more ground.
 getConvergents(Math.PI, 100, 8, true, true);  // 3/1, 4/1, 7/2, 10/3, 13/4, 16/5, 19/6, 22/7

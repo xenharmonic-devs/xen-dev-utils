@@ -59,9 +59,10 @@ export function mtof(index: number) {
 }
 
 /**
- * Convert frequency to MTS number (semitones with A440=69).
+ * Convert frequency to an MTS pitch value (semitones with A440 = 69).
  * @param frequency Frequency in Hertz.
- * @returns MTS value
+ * @param ignoreLimit Allow values above the highest representable 3-byte MTS pitch.
+ * @returns MTS pitch value.
  */
 export function ftomts(frequency: number, ignoreLimit = false): number {
   if (frequency <= 0) return 0;
@@ -112,9 +113,9 @@ export function frequencyToMtsBytes(frequency: number): Uint8Array {
 }
 
 /**
- * Convert 3-byte MTS value to frequency
- * @param mtsBytes Uint8Array of 3-bytes of 7-bit MTS values
- * @returns frequency Frequency in Hertz
+ * Convert a 3-byte MTS value to an MTS pitch value.
+ * @param mtsBytes Uint8Array of 3 bytes of 7-bit MTS values.
+ * @returns MTS pitch value.
  */
 export function mtsBytesToMts(mtsBytes: Uint8Array): number {
   const msb = mtsBytes[1] > 0x7f ? 0x7f : mtsBytes[1];
@@ -130,9 +131,9 @@ export function mtsBytesToMts(mtsBytes: Uint8Array): number {
 }
 
 /**
- * Convert 3-byte MTS value to frequency
- * @param mtsBytes Uint8Array of 3-bytes of 7-bit MTS values
- * @returns frequency Frequency in Hertz
+ * Convert a 3-byte MTS value to frequency.
+ * @param mtsBytes Uint8Array of 3 bytes of 7-bit MTS values.
+ * @returns Frequency in Hertz.
  */
 export function mtsBytesToFrequency(mtsBytes: Uint8Array): number {
   const mts = mtsBytesToMts(mtsBytes);
@@ -184,7 +185,7 @@ export function semitonesToNats(semitones: number) {
 }
 
 /**
- * Convert natural units to cents.
+ * Convert natural units to semitones.
  * @param nats Musical interval in natural units.
  * @returns Musical interval in semitones.
  */
