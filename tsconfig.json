@@ -7,8 +7,17 @@
       "es2020"
     ],
     "target": "es2020",
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "types": [
+      "node"
+    ]
   },
   "include": [
-    "src/index.ts"
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "src/__tests__/**",
+    "src/__benchmarks__/**"
   ]
 }
