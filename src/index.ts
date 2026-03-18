@@ -219,9 +219,12 @@ const BINOMIALS = [
  * Calculate the Binomial coefficient *n choose k*.
  * @param n Size of the set to choose from.
  * @param k Number of elements to choose.
- * @returns The number of ways to choose `k` (unordered) elements from a set size `n`.
+ * @returns The number of ways to choose `k` (unordered) elements from a set size `n`, or `0` when `k` is outside the range `[0, n]`.
  */
 export function binomial(n: number, k: number) {
+  if (k < 0 || n < 0 || k > n) {
+    return 0;
+  }
   while (n >= BINOMIALS.length) {
     const s = BINOMIALS.length;
     const lastRow = BINOMIALS[s - 1];
