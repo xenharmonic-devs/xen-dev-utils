@@ -890,7 +890,7 @@ export function nearestPlane(
 }
 
 /**
- * Respell a monzo represting a rational number to a simpler form.
+ * Respell a monzo representing a rational number in a simpler form.
  * @param monzo Array of prime exponents to simplify.
  * @param commas Monzos representing near-unisons to simplify by. Should be LLL reduced to work properly.
  * @param commaOrthoDuals Optional precalculated geometric duals of the orthogonalized comma basis.

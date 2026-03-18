@@ -288,7 +288,7 @@ export function kernel<T extends number | bigint>(A: T[][]): T[][] {
 /**
  * Find the right kernel (nullspace) of the input matrix.
  * @param A The input matrix.
- * @returns The kernel matrix.
+ * @returns The right-kernel matrix.
  */
 export function cokernel<T extends number | bigint>(A: T[][]): T[][] {
   return transpose(kernel(transpose(A)));

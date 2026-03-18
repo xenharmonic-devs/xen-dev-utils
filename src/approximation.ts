@@ -27,8 +27,8 @@ export function getConvergents(
       num : the convergent numerator
       den : the convergent denominator
       scnum : the semiconvergent numerator
-      scden : the semiconvergen denominator
-      cind : tracks indicies of convergents
+      scden : the semiconvergent denominator
+      cind : tracks indices of convergents
   */
   const result: Fraction[] = [];
   const cf = value_.toContinued();
@@ -160,9 +160,10 @@ export function approximateOddLimit(cents: number, limit: number) {
 
 /**
  * Approximate a musical interval by ratios of which are within a prime limit with
- * exponents that do not exceed the maximimum, exponent of 2 ignored.
+ * exponents that do not exceed the maximum, exponent of 2 ignored.
  * @param cents Size of the musical interval measured in cents.
  * @param limitIndex The ordinal of the prime of the limit.
+ * @param maxExponent Maximum absolute exponent allowed for each odd prime in the search.
  * @param maxError Maximum error from the interval for inclusion in the result.
  * @param maxLength Maximum number of approximations to return.
  * @returns All valid fractions within `maxError` cents of the input value sorted by closeness with cent offsets attached.
@@ -264,12 +265,13 @@ export function approximatePrimeLimitWithErrors(
 
 /**
  * Approximate a musical interval by ratios of which are within a prime limit with
- * exponents that do not exceed the maximimum, exponent of 2 ignored.
+ * exponents that do not exceed the maximum, exponent of 2 ignored.
  * @param cents Size of the musical interval measured in cents.
  * @param limitIndex The ordinal of the prime of the limit.
+ * @param maxExponent Maximum absolute exponent allowed for each odd prime in the search.
  * @param maxError Maximum error from the interval for inclusion in the result.
  * @param maxLength Maximum number of approximations to return.
- * @returns All valid fractions within `maxError` cents of the input value sorted by closenesss.
+ * @returns All valid fractions within `maxError` cents of the input value sorted by closeness.
  */
 export function approximatePrimeLimit(
   cents: number,
@@ -312,7 +314,7 @@ export function continuedFraction(value: number) {
  * @param value Value to approximate.
  * @param maxIndex Maximum index of the radical. 2 means square root, 3 means cube root, etc.
  * @param maxHeight Maximum Benedetti height of the radicand in the approximation.
- * @returns Object with index of the radical and the radicand. Result is "index'th root or radicand".
+ * @returns Object with index of the radical and the radicand. The approximation represents the `index`th root of `radicand`.
  */
 export function approximateRadical(
   value: number,
