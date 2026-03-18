@@ -105,6 +105,12 @@ describe('binomial coefficient', () => {
   it('calculates 11 choose 7', () => {
     expect(binomial(11, 7)).toBe(330);
   });
+
+  it('returns zero for impossible selections', () => {
+    expect(binomial(3, 5)).toBe(0);
+    expect(binomial(3, -1)).toBe(0);
+    expect(binomial(-1, 0)).toBe(0);
+  });
 });
 
 describe('Dot product', () => {
