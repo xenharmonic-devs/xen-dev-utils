@@ -93,12 +93,23 @@ export function extendedEuclid(a: number, b: number): ExtendedEuclid {
     [tOld, t] = [t, tOld - quotient * t];
   }
 
+  const quotientA = a
+    ? Math.sign(a) === Math.sign(rOld)
+      ? Math.abs(t)
+      : -Math.abs(t)
+    : 0;
+  const quotientB = b
+    ? Math.sign(b) === Math.sign(rOld)
+      ? Math.abs(s)
+      : -Math.abs(s)
+    : 0;
+
   return {
     coefA: sOld,
     coefB: tOld,
     gcd: rOld,
-    quotientA: t,
-    quotientB: Math.abs(s),
+    quotientA,
+    quotientB,
   };
 }
 

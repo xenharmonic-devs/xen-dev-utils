@@ -46,6 +46,26 @@ describe('extended Euclidean algorithm', () => {
     expect(div(a, gcd(a, b))).toBe(result.quotientA);
     expect(div(b, gcd(a, b))).toBe(result.quotientB);
   });
+
+  it('reports the correct quotients when the first argument is larger', () => {
+    const a = 42;
+    const b = 15;
+    const result = extendedEuclid(a, b);
+    expect(a * result.coefA + b * result.coefB).toBe(result.gcd);
+    expect(result.gcd).toBe(3);
+    expect(result.quotientA).toBe(14);
+    expect(result.quotientB).toBe(5);
+  });
+
+  it('follows gcd sign conventions for negative inputs', () => {
+    const a = 6;
+    const b = -9;
+    const result = extendedEuclid(a, b);
+    expect(result.gcd).toBe(gcd(a, b));
+    expect(a * result.coefA + b * result.coefB).toBe(result.gcd);
+    expect(result.quotientA).toBe(div(a, result.gcd));
+    expect(result.quotientB).toBe(div(b, result.gcd));
+  });
 });
 
 describe('iterated (extended) Euclidean algorithm', () => {
