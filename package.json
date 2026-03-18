@@ -46,7 +46,7 @@
     "compile-legacy": "tsc -p tsconfig-legacy.json",
     "prebench": "npm run compile && npm run compile-legacy",
     "bench": "vitest bench",
-    "doc": "typedoc src/index.ts . --name xen-dev-utils"
+    "doc": "typedoc src/index.ts --name xen-dev-utils"
   },
   "engines": {
     "node": ">=18.18.0"

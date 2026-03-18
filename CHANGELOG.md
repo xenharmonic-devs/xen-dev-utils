@@ -1,5 +1,12 @@
 # Change log
 
+## 0.11.2
+ * Maintenance: update dependencies and refresh README formatting.
+
+## 0.11.1
+ * Documentation: fix a minor Typedoc typo.
+ * Maintenance: update dependencies.
+
 ## 0.11.0
  * Feature: `hnf` for converting integer matrices to Hermite normal form. [#43](https://github.com/xenharmonic-devs/xen-dev-utils/issues/43)
  * Feature: Other related tools such as `defactoredHnf`, `canonical`, `integerDet`, `kernel`, `cokernel`, `preimage` and `respell`.
