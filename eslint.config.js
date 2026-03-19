@@ -1,23 +1,21 @@
-const tsParser = require('@typescript-eslint/parser');
-const tsPlugin = require('@typescript-eslint/eslint-plugin');
-
 module.exports = [
+  ...require('gts'),
   {
-    ignores: ['legacy/**', 'dist/**', 'docs/**', '**/*.js'],
+    ignores: [
+      'legacy/**',
+      'dist/**',
+      'docs/**',
+      'src/__tests__/**',
+      'src/__benchmarks__/**',
+      '**/*.js',
+    ],
   },
   {
     files: ['**/*.ts'],
     languageOptions: {
-      parser: tsParser,
       parserOptions: {
-        project: ['./tsconfig.eslint.json'],
-        tsconfigRootDir: __dirname,
-        sourceType: 'module',
-        ecmaVersion: 2020,
+        project: './tsconfig.eslint.json',
       },
-    },
-    plugins: {
-      '@typescript-eslint': tsPlugin,
     },
     rules: {
       'no-empty': 0,

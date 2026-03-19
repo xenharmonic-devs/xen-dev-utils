@@ -7,7 +7,6 @@
       "es2020"
     ],
     "target": "es2020",
-    "skipLibCheck": true,
     "moduleResolution": "node",
     "types": [
       "node"
