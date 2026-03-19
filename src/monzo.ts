@@ -68,7 +68,7 @@ export function monzosEqual(a: Monzo, b: Monzo) {
  */
 export function fractionalMonzosEqual(
   a: ProtoFractionalMonzo,
-  b: ProtoFractionalMonzo
+  b: ProtoFractionalMonzo,
 ): boolean {
   if (a === b) {
     return true;
@@ -118,7 +118,7 @@ export function add(a: Monzo, b: Monzo): Monzo {
  */
 export function fractionalAdd(
   a: ProtoFractionalMonzo,
-  b: ProtoFractionalMonzo
+  b: ProtoFractionalMonzo,
 ): FractionalMonzo {
   const result: FractionalMonzo = a.map(f => new Fraction(f));
   for (let i = Math.min(a.length, b.length) - 1; i >= 0; --i) {
@@ -155,7 +155,7 @@ export function sub(a: Monzo, b: Monzo): Monzo {
  */
 export function fractionalSub(
   a: ProtoFractionalMonzo,
-  b: ProtoFractionalMonzo
+  b: ProtoFractionalMonzo,
 ): FractionalMonzo {
   const result: FractionalMonzo = a.map(f => new Fraction(f));
   for (let i = Math.min(a.length, b.length) - 1; i >= 0; --i) {
@@ -185,7 +185,7 @@ export function scale(monzo: Monzo, amount: number) {
  */
 export function fractionalScale(
   monzo: ProtoFractionalMonzo,
-  amount: FractionValue
+  amount: FractionValue,
 ): FractionalMonzo {
   return monzo.map(component => new Fraction(component).mul(amount));
 }
@@ -198,7 +198,7 @@ export function fractionalScale(
  */
 export function fractionalDot(
   a: ProtoFractionalMonzo,
-  b: ProtoFractionalMonzo
+  b: ProtoFractionalMonzo,
 ): Fraction {
   let result = new Fraction(0);
   for (let i = Math.min(a.length, b.length) - 1; i >= 0; --i) {
@@ -215,7 +215,7 @@ export function fractionalDot(
  */
 export function fractionalNorm(
   array: ProtoFractionalMonzo,
-  type: 'L2' | 'taxicab' | 'maximum' = 'L2'
+  type: 'L2' | 'taxicab' | 'maximum' = 'L2',
 ): Fraction {
   let result = new Fraction(0);
   for (let i = 0; i < array.length; ++i) {
@@ -313,7 +313,7 @@ export function toMonzo(n: FractionValue | bigint): Monzo {
     n = new Fraction(n);
     if ((n as Fraction).s !== 1) {
       throw new Error(
-        `Cannot convert fraction ${(n as Fraction).toFraction()} to monzo`
+        `Cannot convert fraction ${(n as Fraction).toFraction()} to monzo`,
       );
     }
     return sub(toMonzo(n.n), toMonzo(n.d));
@@ -467,7 +467,7 @@ export function monzoToBigNumeratorDenominator(monzo: Iterable<number>) {
 export function primeLimit(
   n: FractionValue | bigint,
   asOrdinal = false,
-  maxLimit = 7919
+  maxLimit = 7919,
 ): number {
   if (typeof n === 'bigint') {
     return bigIntPrimeLimit(n, asOrdinal, maxLimit);
@@ -476,7 +476,7 @@ export function primeLimit(
     n = new Fraction(n);
     return Math.max(
       primeLimit(n.n, asOrdinal, maxLimit),
-      primeLimit(n.d, asOrdinal, maxLimit)
+      primeLimit(n.d, asOrdinal, maxLimit),
     );
   }
   if (n < 1 || Math.round(n) !== n) {
@@ -518,7 +518,7 @@ export function primeLimit(
 function bigIntPrimeLimit(
   n: bigint,
   asOrdinal: boolean,
-  maxLimit: number
+  maxLimit: number,
 ): number {
   if (n < 1n) {
     return NaN;
@@ -561,15 +561,15 @@ function bigIntPrimeLimit(
  */
 export function toMonzoAndResidual(
   n: bigint,
-  numberOfComponents: number
+  numberOfComponents: number,
 ): [Monzo, bigint];
 export function toMonzoAndResidual(
   n: FractionValue,
-  numberOfComponents: number
+  numberOfComponents: number,
 ): [Monzo, Fraction];
 export function toMonzoAndResidual(
   n: FractionValue | bigint,
-  numberOfComponents: number
+  numberOfComponents: number,
 ): [Monzo, Fraction] | [Monzo, bigint] {
   if (typeof n === 'bigint') {
     return bigIntToMonzoAndResidual(n, numberOfComponents);
@@ -637,7 +637,7 @@ export function toMonzoAndResidual(
 
 function bigIntToMonzoAndResidual(
   n: bigint,
-  numberOfComponents: number
+  numberOfComponents: number,
 ): [Monzo, bigint] {
   if (!n) {
     return [Array(numberOfComponents).fill(0), 0n];
@@ -849,13 +849,13 @@ export function primeFactorize(value: FractionValue): Map<number, number> {
   }
   if (value > Number.MAX_SAFE_INTEGER) {
     throw new Error(
-      `Factorization not implemented above ${Number.MAX_SAFE_INTEGER}.`
+      `Factorization not implemented above ${Number.MAX_SAFE_INTEGER}.`,
     );
   }
   let [monzo, residual] = intToMonzo7(value);
   if (residual > 1073741823) {
     throw new Error(
-      'Factorization not implemented when 7-limit residual > 1073741823.'
+      'Factorization not implemented when 7-limit residual > 1073741823.',
     );
   }
   for (let i = 0; i < monzo.length; ++i) {

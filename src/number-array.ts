@@ -45,7 +45,7 @@ export function dotPrecise(a: NumberArray, b: NumberArray): number {
  */
 export function norm(
   array: NumberArray,
-  type: 'euclidean' | 'L2' | 'taxicab' | 'maximum' = 'euclidean'
+  type: 'euclidean' | 'L2' | 'taxicab' | 'maximum' = 'euclidean',
 ) {
   let result = 0;
   for (let i = 0; i < array.length; ++i) {

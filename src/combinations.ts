@@ -141,7 +141,7 @@ export function combinations<T>(set: T[]): T[][] {
  */
 export function* iterKCombinations<T>(
   set: T[],
-  k: number
+  k: number,
 ): Generator<T[], number, undefined> {
   // There is no way to take e.g. sets of 5 elements from
   // a set of 4.
@@ -187,7 +187,7 @@ export function* iterKCombinations<T>(
  * @returns Generator of arrays representing all possible non-empty combinations of elements in a set.
  */
 export function* iterCombinations<T>(
-  set: T[]
+  set: T[],
 ): Generator<T[], number, undefined> {
   // Calculate all non-empty k-combinations
   let total = 0;

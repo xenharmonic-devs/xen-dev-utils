@@ -1,7 +1,17 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "./node_modules/gts/tsconfig-google.json",
+  "compilerOptions": {
+    "lib": [
+      "es2020"
+    ],
+    "target": "es2020",
+    "moduleResolution": "node",
+    "types": [
+      "node"
+    ],
+    "noEmit": true
+  },
   "include": [
     "src/**/*.ts"
-  ],
-  "exclude": []
+  ]
 }

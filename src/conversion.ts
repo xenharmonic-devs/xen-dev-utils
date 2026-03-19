@@ -146,7 +146,7 @@ export function mtsBytesToFrequency(mtsBytes: Uint8Array): number {
  * @returns String representation of MTS value in hexadecimal
  *          can be used in MIDI messages
  */
-export function mtsBytesToHex(mtsBytes: Uint8Array): String {
+export function mtsBytesToHex(mtsBytes: Uint8Array): string {
   const noteNumber = mtsBytes[0] > 0x7f ? 0x7f : mtsBytes[0];
   const msb = mtsBytes[1] > 0x7f ? 0x7f : mtsBytes[1];
   const lsb = mtsBytes[2] > 0x7f ? 0x7f : mtsBytes[2];
