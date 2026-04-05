@@ -1,5 +1,12 @@
 # Change log
 
+## 0.12.0
+ * Bug fix: Correct quotient sign computation in `extendedEuclid` and add regression tests.
+ * Bug fix: Handle out-of-range inputs in `binomial`.
+ * Maintenance: Fix linter configuration and dist generation.
+ * Documentation: Refresh project docs and polish source-level documentation.
+ * Maintenance: update dependencies.
+
 ## 0.11.2
  * Maintenance: update dependencies and refresh README formatting.
 
