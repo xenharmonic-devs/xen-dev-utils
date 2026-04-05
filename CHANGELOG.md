@@ -1,5 +1,8 @@
 # Change log
 
+## 0.12.1
+ * Add exports fields to package.json
+
 ## 0.12.0
  * Bug fix: Correct quotient sign computation in `extendedEuclid` and add regression tests.
  * Bug fix: Handle out-of-range inputs in `binomial`.
