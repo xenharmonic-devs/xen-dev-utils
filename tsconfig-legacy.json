@@ -11,10 +11,11 @@
     ],
     "target": "es2020",
     "skipLibCheck": true,
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "types": [
       "node"
-    ]
+    ],
+    "module": "NodeNext"
   },
   "include": [
     "src/**/*.ts"

@@ -4,7 +4,7 @@ import {
   iterCombinations,
   iterKCombinations,
   kCombinations,
-} from '../combinations';
+} from '../combinations.js';
 
 describe('K-combinations generator', () => {
   it('produces all subsets of size 3 of the set {a, b, c, d}', () => {

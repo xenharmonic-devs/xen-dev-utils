@@ -4,7 +4,7 @@
   "version": "0.12.1",
   "description": "Utility functions used by the Scale Workshop ecosystem",
   "license": "MIT",
-  "main": "dist/index",
+  "main": "dist/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xenharmonic-devs/xen-dev-utils.git"
@@ -58,5 +58,6 @@
       "require": "./dist/index.js",
       "default": "./dist/index.js"
     }
-  }
+  },
+  "type": "module"
 }

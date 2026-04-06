@@ -1,5 +1,5 @@
-import {Fraction, FractionValue, gcd} from './fraction';
-import {BIG_INT_PRIMES, PRIMES} from './primes';
+import {Fraction, FractionValue, gcd} from './fraction.js';
+import {BIG_INT_PRIMES, PRIMES} from './primes.js';
 
 /**
  * Array of integers representing the exponents of prime numbers in the unique factorization of a rational number.

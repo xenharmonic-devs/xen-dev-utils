@@ -5,9 +5,9 @@ import {
   approximatePrimeLimitWithErrors,
   approximateRadical,
   getConvergents,
-} from '../approximation';
-import {valueToCents} from '../conversion';
-import {PRIMES} from '../primes';
+} from '../approximation.js';
+import {valueToCents} from '../conversion.js';
+import {PRIMES} from '../primes.js';
 
 describe('Odd limit approximator', () => {
   it('can approximate tau in the 15-odd-limit', () => {

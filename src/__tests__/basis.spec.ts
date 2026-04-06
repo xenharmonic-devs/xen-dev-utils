@@ -23,7 +23,7 @@ import {
   canonical,
   respell,
   solveDiophantine,
-} from '../basis';
+} from '../basis.js';
 import {
   FractionalMonzo,
   applyWeights,
@@ -33,11 +33,11 @@ import {
   monzosEqual,
   toMonzo,
   unapplyWeights,
-} from '../monzo';
-import {dot} from '../number-array';
-import {LOG_PRIMES, PRIMES} from '../primes';
-import {Fraction} from '../fraction';
-import {cokernel, kernel, preimage, transpose} from '../hnf';
+} from '../monzo.js';
+import {dot} from '../number-array.js';
+import {LOG_PRIMES, PRIMES} from '../primes.js';
+import {Fraction} from '../fraction.js';
+import {cokernel, kernel, preimage, transpose} from '../hnf.js';
 
 const FUZZ = 'FUZZ' in process.env;
 

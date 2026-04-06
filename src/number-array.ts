@@ -1,4 +1,4 @@
-import {sum} from './polyfills/sum-precise';
+import {sum} from './polyfills/sum-precise.js';
 
 export interface NumberArray {
   [key: number]: number;

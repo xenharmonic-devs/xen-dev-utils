@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {Fraction} from '../fraction';
+import {Fraction} from '../fraction.js';
 import {
   fractionalAdd,
   fractionalMonzosEqual,
@@ -10,8 +10,8 @@ import {
   primeLimit,
   toMonzo,
   toMonzoAndResidual,
-} from '../monzo';
-import {isPrime} from '../primes';
+} from '../monzo.js';
+import {isPrime} from '../primes.js';
 
 const FUZZ = 'FUZZ' in process.env;
 

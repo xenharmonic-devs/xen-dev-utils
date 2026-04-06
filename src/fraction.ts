@@ -1,8 +1,8 @@
 // I'm rolling my own because fraction.js has trouble with TypeScript https://github.com/rawify/Fraction.js/issues/72
 // -Lumi
 
-import {valueToCents} from './conversion';
-import {PRIMES} from './primes';
+import {valueToCents} from './conversion.js';
+import {PRIMES} from './primes.js';
 
 export type UnsignedFraction = {n: number; d: number};
 

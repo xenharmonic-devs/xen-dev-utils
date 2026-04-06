@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {Fraction, gcd, lcm, mmod, modc} from '../fraction';
+import {Fraction, gcd, lcm, mmod, modc} from '../fraction.js';
 
 describe('gcd', () => {
   it('can find the greatest common divisor of 12 and 15 (number)', () => {

@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {antitranspose, hnf, integerDet, preimage, transpose} from '../hnf';
+import {antitranspose, hnf, integerDet, preimage, transpose} from '../hnf.js';
 
 describe('Hermite normal form', () => {
   it('works on a small matrix', () => {

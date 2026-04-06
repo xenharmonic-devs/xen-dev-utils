@@ -1,6 +1,6 @@
-import {valueToCents} from './conversion';
-import {Fraction, FractionValue, mmod} from './fraction';
-import {PRIMES, PRIME_CENTS} from './primes';
+import {valueToCents} from './conversion.js';
+import {Fraction, FractionValue, mmod} from './fraction.js';
+import {PRIMES, PRIME_CENTS} from './primes.js';
 
 /**
  * Calculate best rational approximations to a given fraction that are

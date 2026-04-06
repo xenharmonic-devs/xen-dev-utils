@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {Fraction, FractionValue} from '../fraction';
+import {Fraction, FractionValue} from '../fraction.js';
 
 // License: MIT
 // Copyright (c) 2023 Robert Eisele
