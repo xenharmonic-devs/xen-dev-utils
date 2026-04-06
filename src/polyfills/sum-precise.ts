@@ -29,7 +29,7 @@ function twosum(x: number, y: number) {
  * @param iterable Numbers to sum together.
  * @returns The sum of the elements.
  */
-export function sum(iterable: Iterable<number>) {
+function polyfillSum(iterable: Iterable<number>) {
   const partials: number[] = [];
 
   let overflow = 0; // conceptually 2**1024 times this value; the final partial
@@ -200,3 +200,15 @@ export function sum(iterable: Iterable<number>) {
 
   return hi;
 }
+
+type SumPrecise = (iterable: Iterable<number>) => number;
+const maybeSumPrecise = (Math as Partial<Math & {sumPrecise: SumPrecise}>)
+  .sumPrecise;
+
+/**
+ * Accurately add up elements from an iterable.
+ *
+ * Uses `Math.sumPrecise` when the runtime supports it and falls back to the
+ * local polyfill otherwise.
+ */
+export const sum: SumPrecise = maybeSumPrecise ?? polyfillSum;
