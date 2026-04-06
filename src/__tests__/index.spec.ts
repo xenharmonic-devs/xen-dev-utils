@@ -24,6 +24,7 @@ import {
   wilsonHeight,
   modInv,
   mmod,
+  sum,
 } from '../index.js';
 
 const FUZZ = 'FUZZ' in process.env;
@@ -119,6 +120,12 @@ describe('Dot product', () => {
     const b = new Int8Array([5, 6, 7]);
     expect(dot(a, b)).toBe(38);
     expect(dot(b, a)).toBe(38);
+  });
+});
+
+describe('Precise sum', () => {
+  it('falls back to the polyfill implementation', () => {
+    expect(sum([1e308, 1e-100, -1e308])).toBe(1e-100);
   });
 });
 
