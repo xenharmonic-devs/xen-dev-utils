@@ -1,5 +1,11 @@
 # Change log
 
+## 0.12.2
+ * Feature: Add `sum` as a precise-sum wrapper with `Math.sumPrecise` fallback behavior, with tests.
+ * Maintenance: Migrate the TypeScript project to NodeNext ESM and fix imports.
+ * Testing: Disable test timeout when fuzzing.
+ * Maintenance: Update development dependencies.
+
 ## 0.12.1
  * Add exports fields to package.json
 
