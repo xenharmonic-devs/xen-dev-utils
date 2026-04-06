@@ -5,11 +5,12 @@
       "es2020"
     ],
     "target": "es2020",
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "types": [
       "node"
     ],
-    "noEmit": true
+    "noEmit": true,
+    "module": "NodeNext"
   },
   "include": [
     "src/**/*.ts"

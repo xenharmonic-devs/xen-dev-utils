@@ -1,18 +1,22 @@
-import {Fraction, FractionValue, mmod} from './fraction';
-import {Monzo, monzoToBigNumeratorDenominator, primeFactorize} from './monzo';
-import {dot, dotPrecise} from './number-array';
-import {LOG_PRIMES, PRIMES, PRIME_CENTS} from './primes';
+import {Fraction, FractionValue, mmod} from './fraction.js';
+import {
+  Monzo,
+  monzoToBigNumeratorDenominator,
+  primeFactorize,
+} from './monzo.js';
+import {dot, dotPrecise} from './number-array.js';
+import {LOG_PRIMES, PRIMES, PRIME_CENTS} from './primes.js';
 
-export * from './fraction';
-export * from './primes';
-export * from './conversion';
-export * from './combinations';
-export * from './monzo';
-export * from './approximation';
-export * from './number-array';
-export * from './basis';
-export * from './hnf';
-export {sum} from './polyfills/sum-precise';
+export * from './fraction.js';
+export * from './primes.js';
+export * from './conversion.js';
+export * from './combinations.js';
+export * from './monzo.js';
+export * from './approximation.js';
+export * from './number-array.js';
+export * from './basis.js';
+export * from './hnf.js';
+export {sum} from './polyfills/sum-precise.js';
 
 export interface AnyArray {
   [key: number]: any;

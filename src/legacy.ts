@@ -1,8 +1,8 @@
 // Legacy implementations that need to be tsc compiled for fair benchmark comparison.
 
-import {Fraction, FractionValue} from './fraction';
-import {Monzo, sub} from './monzo';
-import {BIG_INT_PRIMES, PRIMES} from './primes';
+import {Fraction, FractionValue} from './fraction.js';
+import {Monzo, sub} from './monzo.js';
+import {BIG_INT_PRIMES, PRIMES} from './primes.js';
 
 // Old implementation to test how the compiled package performs
 export function toMonzoLegacy(n: FractionValue | bigint): Monzo {

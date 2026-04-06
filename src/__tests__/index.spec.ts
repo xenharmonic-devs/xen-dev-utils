@@ -24,7 +24,7 @@ import {
   wilsonHeight,
   modInv,
   mmod,
-} from '../index';
+} from '../index.js';
 
 const FUZZ = 'FUZZ' in process.env;
 

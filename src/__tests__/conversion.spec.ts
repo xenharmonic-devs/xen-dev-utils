@@ -11,7 +11,7 @@ import {
   mtsToMtsBytes,
   mtsBytesToHex,
   mtsBytesToFrequency,
-} from '../conversion';
+} from '../conversion.js';
 
 describe('Ratio to cents converter', () => {
   it('converts a known value', () => {

@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {PRIMES, isPrime, nthPrime, primeRange, primes} from '../primes';
+import {PRIMES, isPrime, nthPrime, primeRange, primes} from '../primes.js';
 
 describe('Array of prime numbers', () => {
   it('has no gaps', () => {

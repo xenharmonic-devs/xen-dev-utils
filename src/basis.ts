@@ -1,4 +1,4 @@
-import {Fraction, FractionValue} from './fraction';
+import {Fraction, FractionValue} from './fraction.js';
 import {
   FractionalMonzo,
   Monzo,
@@ -11,9 +11,9 @@ import {
   monzosEqual,
   scale,
   sub,
-} from './monzo';
-import {dot} from './number-array';
-import {transpose, hnf, integerDet, antitranspose, padMatrix} from './hnf';
+} from './monzo.js';
+import {dot} from './number-array.js';
+import {transpose, hnf, integerDet, antitranspose, padMatrix} from './hnf.js';
 
 /**
  * Result of Gram–Schmidt process without normalization.

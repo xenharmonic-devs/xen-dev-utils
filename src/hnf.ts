@@ -2,7 +2,7 @@
  * Algorithm adapted from https://github.com/lan496/hsnf
  * Guaranteed to not overflow with BigInt matrices
  */
-import {bigAbs} from './monzo';
+import {bigAbs} from './monzo.js';
 
 function abs<T extends number | bigint>(x: T): T {
   if (typeof x === 'number') {
