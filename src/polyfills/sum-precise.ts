@@ -201,8 +201,9 @@ function polyfillSum(iterable: Iterable<number>) {
   return hi;
 }
 
-const maybeSumPrecise = (Math as Partial<Math & {sumPrecise: (iterable: Iterable<number>) => number}>)
-  .sumPrecise;
+const maybeSumPrecise = (
+  Math as Partial<Math & {sumPrecise: (iterable: Iterable<number>) => number}>
+).sumPrecise;
 
 /**
  * Accurately add up elements from an iterable.
