@@ -201,8 +201,7 @@ function polyfillSum(iterable: Iterable<number>) {
   return hi;
 }
 
-type SumPrecise = (iterable: Iterable<number>) => number;
-const maybeSumPrecise = (Math as Partial<Math & {sumPrecise: SumPrecise}>)
+const maybeSumPrecise = (Math as Partial<Math & {sumPrecise: (iterable: Iterable<number>) => number}>)
   .sumPrecise;
 
 /**
@@ -211,4 +210,5 @@ const maybeSumPrecise = (Math as Partial<Math & {sumPrecise: SumPrecise}>)
  * Uses `Math.sumPrecise` when the runtime supports it and falls back to the
  * local polyfill otherwise.
  */
-export const sum: SumPrecise = maybeSumPrecise ?? polyfillSum;
+export const sum: (iterable: Iterable<number>) => number =
+  maybeSumPrecise ?? polyfillSum;
