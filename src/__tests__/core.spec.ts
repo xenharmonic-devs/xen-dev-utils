@@ -1,6 +1,5 @@
 import {describe, it, expect} from 'vitest';
 import {
-  Fraction,
   FractionSet,
   arraysEqual,
   binomial,
@@ -9,23 +8,21 @@ import {
   circleDistance,
   clamp,
   div,
-  dot,
   extendedEuclid,
   fareyInterior,
   fareySequence,
-  gcd,
   falsifyConstantStructure,
   hasMarginConstantStructure,
   iteratedEuclid,
-  norm,
-  valueToCents,
   monzoToCents,
   tenneyHeight,
   wilsonHeight,
   modInv,
-  mmod,
-  sum,
-} from '../index.js';
+} from '../core.js';
+import {Fraction, gcd, mmod} from '../fraction.js';
+import {valueToCents} from '../conversion.js';
+import {dot, norm} from '../number-array.js';
+import {sum} from '../polyfills/sum-precise.js';
 
 const FUZZ = 'FUZZ' in process.env;
 
