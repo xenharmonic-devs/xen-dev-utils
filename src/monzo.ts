@@ -580,8 +580,10 @@ export function toMonzoAndResidual(
     return [Array(numberOfComponents).fill(0), new Fraction(0)];
   }
 
-  let [n7, numerator] = intToMonzo7(n.n);
-  let [d7, denominator] = intToMonzo7(n.d);
+  const [n7, initialNumerator] = intToMonzo7(n.n);
+  const [d7, initialDenominator] = intToMonzo7(n.d);
+  let numerator = initialNumerator;
+  let denominator = initialDenominator;
 
   const result: Monzo = Array(numberOfComponents).fill(-1);
 
@@ -643,7 +645,8 @@ function bigIntToMonzoAndResidual(
     return [Array(numberOfComponents).fill(0), 0n];
   }
 
-  let [result, residual] = bigIntToMonzo7(bigAbs(n));
+  const [result, initialResidual] = bigIntToMonzo7(bigAbs(n));
+  let residual = initialResidual;
 
   let probe = 1n;
 
@@ -852,7 +855,8 @@ export function primeFactorize(value: FractionValue): Map<number, number> {
       `Factorization not implemented above ${Number.MAX_SAFE_INTEGER}.`,
     );
   }
-  let [monzo, residual] = intToMonzo7(value);
+  const [monzo, initialResidual] = intToMonzo7(value);
+  let residual = initialResidual;
   if (residual > 1073741823) {
     throw new Error(
       'Factorization not implemented when 7-limit residual > 1073741823.',

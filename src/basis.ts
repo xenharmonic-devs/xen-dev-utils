@@ -725,7 +725,7 @@ export function fractionalTranspose(matrix: ProtoFractionalMonzo[]) {
  * @param j The column to remove.
  * @returns The spliced matrix.
  */
-export function minor(matrix: any[][], i: number, j: number) {
+export function minor<T>(matrix: T[][], i: number, j: number): T[][] {
   matrix = matrix.map(row => [...row]);
   matrix.splice(i, 1);
   for (const row of matrix) {
