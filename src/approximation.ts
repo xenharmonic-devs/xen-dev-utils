@@ -66,7 +66,9 @@ export function getConvergents(
               if (halfRule) {
                 result.push(convergent);
               }
-            } catch {}
+            } catch {
+              // Ignore comparison edge-cases and skip this semiconvergent.
+            }
           }
         }
         if (result.length >= maxLength!) {

@@ -16,7 +16,7 @@ function floorDiv<T extends number | bigint>(x: T, y: T): T {
     return Math.floor(x / (y as typeof x)) as T;
   }
   if (x >= 0n !== y >= 0n && x % (y as typeof x)) {
-    // @ts-ignore
+    // @ts-expect-error: numeric and bigint generic arithmetic
     return x / y - 1n;
   }
   return (x / y) as T;
@@ -59,7 +59,7 @@ export function padMatrix<T extends number | bigint>(M: T[][]) {
   for (const row of M) {
     width = Math.max(width, row.length);
     if (row.length) {
-      // @ts-ignore
+      // @ts-expect-error: numeric and bigint generic arithmetic
       zero = typeof row[0] === 'number' ? 0 : 0n;
     }
   }
@@ -98,7 +98,7 @@ export function hnf<T extends number | bigint>(A: T[][]): T[][] {
   let si = 0;
   let sj = 0;
 
-  // @ts-ignore
+  // @ts-expect-error: numeric and bigint generic arithmetic
   const negOne: T = -one;
 
   while (true) {
@@ -122,7 +122,7 @@ export function hnf<T extends number | bigint>(A: T[][]): T[][] {
       if (M[i][sj]) {
         const k = floorDiv(M[i][sj], M[si][sj]);
         for (let j = 0; j < width; ++j) {
-          // @ts-ignore
+          // @ts-expect-error: numeric and bigint generic arithmetic
           M[i][j] -= k * M[si][j];
         }
       }
@@ -138,7 +138,7 @@ export function hnf<T extends number | bigint>(A: T[][]): T[][] {
     if (rowDone) {
       if (M[si][sj] < zero) {
         for (let j = 0; j < width; ++j) {
-          // @ts-ignore
+          // @ts-expect-error: numeric and bigint generic arithmetic
           M[si][j] *= negOne;
         }
       }
@@ -148,7 +148,7 @@ export function hnf<T extends number | bigint>(A: T[][]): T[][] {
           const k = floorDiv(M[i][sj], M[si][sj]);
           if (k) {
             for (let j = 0; j < width; ++j) {
-              // @ts-ignore
+              // @ts-expect-error: numeric and bigint generic arithmetic
               M[i][j] -= k * M[si][j];
             }
           }
@@ -165,7 +165,7 @@ export function hnf<T extends number | bigint>(A: T[][]): T[][] {
  * Prune rows filled with falsy values from a 2-D matrix.
  * @param A Matrix to prune in-place.
  */
-export function pruneZeroRows(A: any[][]) {
+export function pruneZeroRows<T>(A: T[][]): void {
   for (let i = 0; i < A.length; ++i) {
     if (!A[i].some(Boolean)) {
       A.splice(i, 1);
@@ -210,13 +210,13 @@ export function integerDet<T extends number | bigint>(A: T[][]): T {
     for (let j = i + 1; j < height; ++j) {
       for (let k = i + 1; k < width; ++k) {
         // assert (M[j, k] * M[i, i] - M[j, i] * M[i, k]) % prev == 0
-        // @ts-ignore
+        // @ts-expect-error: numeric and bigint generic arithmetic
         M[j][k] = floorDiv(M[j][k] * M[i][i] - M[j][i] * M[i][k], prev);
       }
     }
     prev = M[i][i];
   }
-  // @ts-ignore
+  // @ts-expect-error: numeric and bigint generic arithmetic
   return sign * M.pop()!.pop()!;
 }
 
@@ -304,7 +304,7 @@ export function preimage<T extends number | bigint>(A: T[][]): T[][] {
   const B = transpose(M);
   for (let i = 0; i < width; ++i) {
     for (let j = 0; j < width; ++j) {
-      // @ts-ignore
+      // @ts-expect-error: numeric and bigint generic arithmetic
       B[i].push(i === j ? one : zero);
     }
   }

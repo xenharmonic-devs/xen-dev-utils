@@ -18,8 +18,8 @@ export * from './basis.js';
 export * from './hnf.js';
 export {sum} from './polyfills/sum-precise.js';
 
-export interface AnyArray {
-  [key: number]: any;
+export interface AnyArray<T = unknown> {
+  [key: number]: T;
   length: number;
 }
 
@@ -29,7 +29,7 @@ export interface AnyArray {
  * @param b The second array.
  * @returns True if the arrays are component-wise equal.
  */
-export function arraysEqual(a: AnyArray, b: AnyArray) {
+export function arraysEqual<T>(a: AnyArray<T>, b: AnyArray<T>) {
   if (a === b) {
     return true;
   }
@@ -466,7 +466,9 @@ export function monzoToCents(monzo: Monzo) {
       return result;
     }
   }
-  let {numerator, denominator} = monzoToBigNumeratorDenominator(monzo);
+  const {numerator, denominator: initialDenominator} =
+    monzoToBigNumeratorDenominator(monzo);
+  let denominator = initialDenominator;
   let delta = numerator - denominator;
   // The answer is smaller than 10 cents so no need to check delta here or worry about its sign
   while (denominator >= IEEE_LIMIT) {

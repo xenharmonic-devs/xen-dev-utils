@@ -29,10 +29,10 @@ export function gcd(a: number | bigint, b: typeof a): typeof a {
   if (!b) return a;
   while (true) {
     // XXX: TypeScript trips up here for no reason.
-    // @ts-ignore
+    // @ts-expect-error: numeric and bigint generic arithmetic
     a %= b;
     if (!a) return b;
-    // @ts-ignore
+    // @ts-expect-error: numeric and bigint generic arithmetic
     b %= a;
     if (!b) return a;
   }
@@ -51,7 +51,7 @@ export function gcd(a: number | bigint, b: typeof a): typeof a {
 export function lcm(a: number, b: number): number;
 export function lcm(a: bigint, b: bigint): bigint;
 export function lcm(a: number | bigint, b: typeof a): typeof a {
-  // @ts-ignore
+  // @ts-expect-error: numeric and bigint generic arithmetic
   return a ? (a / gcd(a, b)) * b : a;
 }
 
@@ -64,7 +64,7 @@ export function lcm(a: number | bigint, b: typeof a): typeof a {
 export function mmod(a: number, b: number): number;
 export function mmod(a: bigint, b: bigint): bigint;
 export function mmod(a: number | bigint, b: typeof a): typeof a {
-  // @ts-ignore
+  // @ts-expect-error: numeric and bigint generic arithmetic
   return ((a % b) + b) % b;
 }
 
@@ -80,7 +80,7 @@ export function modc(a: number | bigint, b: typeof a): typeof a {
   if (!b) {
     return b;
   }
-  // @ts-ignore
+  // @ts-expect-error: numeric and bigint generic arithmetic
   return ((a % b) + b) % b || b;
 }
 
@@ -414,7 +414,7 @@ export class Fraction {
    * @returns Deserialized {@link Fraction} instance or other data without modifications.
    * @throws An error if the numerator or denominator exceeds `Number.MAX_SAFE_INTEGER`.
    */
-  static reviver(key: string, value: any) {
+  static reviver(key: string, value: unknown) {
     if (
       typeof value === 'object' &&
       value !== null &&
