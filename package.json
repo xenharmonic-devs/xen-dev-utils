@@ -57,7 +57,62 @@
       "import": "./dist/index.js",
       "require": "./dist/index.js",
       "default": "./dist/index.js"
-    }
+    },
+    "./core": {
+      "types": "./dist/core.d.ts",
+      "import": "./dist/core.js",
+      "require": "./dist/core.js",
+      "default": "./dist/core.js"
+    },
+    "./fraction": {
+      "types": "./dist/fraction.d.ts",
+      "import": "./dist/fraction.js",
+      "require": "./dist/fraction.js",
+      "default": "./dist/fraction.js"
+    },
+    "./primes": {
+      "types": "./dist/primes.d.ts",
+      "import": "./dist/primes.js",
+      "require": "./dist/primes.js",
+      "default": "./dist/primes.js"
+    },
+    "./conversion": {
+      "types": "./dist/conversion.d.ts",
+      "import": "./dist/conversion.js",
+      "require": "./dist/conversion.js",
+      "default": "./dist/conversion.js"
+    },
+    "./combinations": {
+      "types": "./dist/combinations.d.ts",
+      "import": "./dist/combinations.js",
+      "require": "./dist/combinations.js",
+      "default": "./dist/combinations.js"
+    },
+    "./monzo": {
+      "types": "./dist/monzo.d.ts",
+      "import": "./dist/monzo.js",
+      "require": "./dist/monzo.js",
+      "default": "./dist/monzo.js"
+    },
+    "./approximation": {
+      "types": "./dist/approximation.d.ts",
+      "import": "./dist/approximation.js",
+      "require": "./dist/approximation.js",
+      "default": "./dist/approximation.js"
+    },
+    "./number-array": {
+      "types": "./dist/number-array.d.ts",
+      "import": "./dist/number-array.js",
+      "require": "./dist/number-array.js",
+      "default": "./dist/number-array.js"
+    },
+    "./matrix": {
+      "types": "./dist/matrix.d.ts",
+      "import": "./dist/matrix.js",
+      "require": "./dist/matrix.js",
+      "default": "./dist/matrix.js"
+    },
+    "./package.json": "./package.json"
   },
   "type": "module"
 }

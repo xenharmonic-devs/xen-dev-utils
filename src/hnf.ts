@@ -2,13 +2,11 @@
  * Algorithm adapted from https://github.com/lan496/hsnf
  * Guaranteed to not overflow with BigInt matrices
  */
-import {bigAbs} from './monzo.js';
-
 function abs<T extends number | bigint>(x: T): T {
   if (typeof x === 'number') {
     return Math.abs(x) as T;
   }
-  return bigAbs(x) as T;
+  return (x < 0n ? -x : x) as T;
 }
 
 function floorDiv<T extends number | bigint>(x: T, y: T): T {
