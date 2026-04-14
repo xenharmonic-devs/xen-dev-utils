@@ -6,6 +6,7 @@ import {
 } from './monzo.js';
 import {dot, dotPrecise} from './number-array.js';
 import {LOG_PRIMES, PRIMES, PRIME_CENTS} from './primes.js';
+export {sum} from './polyfills/sum-precise.js';
 
 export interface AnyArray<T = unknown> {
   [key: number]: T;
