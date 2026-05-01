@@ -20,7 +20,8 @@ This package currently targets Node.js 18.18.0 or newer.
 
 ## Documentation
 
-API documentation can be generated locally with:
+- Hosted docs: <https://xenharmonic-devs.github.io/xen-dev-utils>
+- Generate locally with:
 
 ```bash
 npm run doc
