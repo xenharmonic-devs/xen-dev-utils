@@ -1,5 +1,17 @@
 # Change log
 
+## 0.15.0
+ * Feature: Implement geometric modulo `geoMod` for floating point numbers.
+
+## 0.14.0
+ * Feature: Implement backslash notation conversion utilities `equaveDivisionToValue` and `valueToequaveDivision`.
+
+## 0.13.1
+ * Bug fix: Export the polyfill from a public submodule.
+
+## 0.13.0
+ * Bug fix: Refine submodule exports and decouple matrix helpers.
+
 ## 0.12.2
  * Feature: Add `sum` as a precise-sum wrapper with `Math.sumPrecise` fallback behavior, with tests.
  * Maintenance: Migrate the TypeScript project to NodeNext ESM and fix imports.
