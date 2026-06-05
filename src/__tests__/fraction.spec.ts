@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {Fraction, gcd, lcm, mmod, modc} from '../fraction.js';
+import {Fraction, gcd, lcm, mmod, modc, geoMod} from '../fraction.js';
 
 describe('gcd', () => {
   it('can find the greatest common divisor of 12 and 15 (number)', () => {
@@ -87,6 +87,34 @@ describe('mmod', () => {
     expect(() => mmod(1n, 0n)).toThrow();
   });
 });
+
+describe('geoMod', () => {
+  it('works on integers', () => {
+    const fraction = new Fraction(5);
+    expect(geoMod(5, 2)).toBe(1.25);
+  });
+
+  it('works on fractions', () => {
+    expect(geoMod(19/5, 3/2)).toBeCloseTo(152/135);
+  });
+
+  it('works with sub-unity modulus', () => {
+    expect(geoMod(7, 0.5)).toBe(7/8);
+  });
+
+  it('works with negative numbers', () => {
+    const fraction = new Fraction(11);
+    expect(geoMod(11, -2)).toBe(-11/8);
+  });
+
+  it('works on unity', () => {
+    expect(geoMod(1, 3)).toBe(1);
+  });
+
+  it('works on self', () => {
+    expect(geoMod(4/3, 4/3)).toBe(1);
+  });
+})
 
 describe('Ceiling modulo', () => {
   it('works like clockwork', () => {

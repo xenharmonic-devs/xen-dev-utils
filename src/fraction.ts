@@ -85,6 +85,60 @@ export function modc(a: number | bigint, b: typeof a): typeof a {
 }
 
 /**
+ * Geometrically reduce a number until its absolute value is between 1 and the absolute value of other, i.e. geometric modulo.
+ * Note: Returns a positive result for a negative modulo if the required number of divisions is even.
+ *
+ * Examples:
+ * ```ts
+ * geoMod(5, 2)        // 5/4
+ * geoMod(1/11, 3)     // 27/11
+ * geoMod(1/11, -1/3)  // 9/11
+ * ```
+ */
+export function geoMod(a: number, b: number) {
+  if (b === 1) {
+    throw new Error('Geometric modulo by 1');
+  }
+  if (b === -1) {
+    throw new Error('Geometric modulo by -1');
+  }
+
+  let absA = Math.abs(a);
+  const absB = Math.abs(b);
+
+  let octaves = Math.floor(Math.log(absA) / Math.log(absB));
+
+  if (isNaN(octaves) || !isFinite(octaves)) {
+    throw new Error('Unable to calculate geometric modulo.');
+  }
+
+  absA *= absB ** -octaves;
+
+  // Fine-tune to fix floating point issues.
+  if (absB > 1) {
+    if (absA >= absB) {
+      octaves++;
+      absA /= absB;
+    }
+    if (absA < 1) {
+      octaves--;
+      absA *= absB;
+    }
+  } else {
+    if (absA <= absB) {
+      octaves++;
+      absA /= absB;
+    }
+    if (absA > 1) {
+      octaves--;
+      absA *= absB;
+    }
+  }
+
+  return Math.sign(a) * absA * Math.sign(b) ** octaves;
+}
+
+/**
  *
  * This class offers the possibility to calculate fractions.
  * You can pass a fraction in different formats: either as two integers, an integer, a floating point number or a string.
