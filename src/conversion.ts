@@ -192,3 +192,35 @@ export function semitonesToNats(semitones: number) {
 export function natsToSemitones(nats: number) {
   return (nats / Math.LN2) * 12;
 }
+
+/**
+ * Convert equal divisions of an equave to a floating point ratio.
+ * In backslash notation: steps \ stepsPerEquave <equave>.
+ * @param steps How many equally-tempered steps from unison to take (zero-indexed).
+ * @param stepsPerEquave How many steps there are per equave.
+ * @param equave Interval of equivalence. Defaults to the octave 2/1.
+ * @returns Musical interval in multiplicative representation.
+ */
+export function equaveDivisionToValue(
+  steps: number,
+  stepsPerEquave: number,
+  equave: number = 2,
+): number {
+  return Math.pow(equave, steps / stepsPerEquave);
+}
+
+/**
+ * Convert a floating point ratio to equal divisions of an equave.
+ * In backslash notation {returnValue} \ stepsPerEquave <equave>.
+ * @param value Musical interval in multiplicative representation to convert.
+ * @param stepsPerEquave How many equally-tempered steps there are per equave.
+ * @param equave Interval of equivalence. Defaults to the octave 2/1.
+ * @returns Musical interval in additive representation measured in steps.
+ */
+export function valueToEquaveDivision(
+  value: number,
+  stepsPerEquave: number,
+  equave: number = 2,
+) {
+  return (stepsPerEquave * Math.log(value)) / Math.log(equave);
+}

@@ -11,6 +11,8 @@ import {
   mtsToMtsBytes,
   mtsBytesToHex,
   mtsBytesToFrequency,
+  equaveDivisionToValue,
+  valueToEquaveDivision,
 } from '../conversion.js';
 
 describe('Ratio to cents converter', () => {
@@ -285,3 +287,25 @@ describe('Frequency to MIDI converter', () => {
     expect(offset).toBeCloseTo(0);
   });
 });
+
+describe('Backslash notation converter', () => {
+  it('should convert 4\\12', () => {
+    expect(equaveDivisionToValue(4, 12)).toBeCloseTo(1.2599210498948732)
+  })
+  it('should convert 6\\6<2>', () => {
+    expect(equaveDivisionToValue(6, 6, 2)).toBe(2)
+  })
+  it('should convert 5\\13<3>', () => {
+    expect(equaveDivisionToValue(5, 13, 3)).toBeCloseTo(1.5258371159564499)
+  })
+})
+
+describe('Inverse backslash notation converter', () => {
+  it('should convert 3/2 to semitones', () => {
+    expect(valueToEquaveDivision(3/2, 12)).toBeCloseTo(7.019550008653875)
+  })
+
+  it('should convert 7/5 to Bohlen-Pierce steps', () => {
+    expect(valueToEquaveDivision(1.4, 13, 3)).toBeCloseTo(3.9815129697654355)
+  })
+})
