@@ -4,7 +4,7 @@
  * Feature: Implement geometric modulo `geoMod` for floating point numbers.
 
 ## 0.14.0
- * Feature: Implement backslash notation conversion utilities `equaveDivisionToValue` and `valueToequaveDivision`.
+ * Feature: Implement backslash notation conversion utilities `equaveDivisionToValue` and `valueToEquaveDivision`.
 
 ## 0.13.1
  * Bug fix: Export the polyfill from a public submodule.
