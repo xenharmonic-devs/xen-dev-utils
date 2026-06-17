@@ -65,7 +65,10 @@ export type FractionalLLLResult = {
  * @param epsilon Threshold for zero.
  * @returns The orthogonalized basis and its dual (duals of near-zero basis elements are coerced to zero).
  */
-export function gram(basis: number[][], epsilon = 1e-12): GramResult {
+export function gram(
+  basis: readonly (readonly number[])[],
+  epsilon = 1e-12,
+): GramResult {
   const ortho: number[][] = [];
   const squaredLengths: number[] = [];
   const dual: number[][] = [];
@@ -90,7 +93,7 @@ export function gram(basis: number[][], epsilon = 1e-12): GramResult {
  * @returns The orthogonalized basis and its dual as arrays of fractions (duals of zero basis elements are coerced to zero).
  */
 export function fractionalGram(
-  basis: ProtoFractionalMonzo[],
+  basis: readonly (readonly FractionValue[])[],
 ): FractionalGramResult {
   const ortho: Fraction[][] = [];
   const squaredLengths: Fraction[] = [];
@@ -122,42 +125,42 @@ export function fractionalGram(
  * @returns The basis processed to be short and nearly orthogonal alongside Gram-Schmidt coefficients.
  */
 export function lenstraLenstraLovasz(
-  basis: number[][],
+  basis: readonly (readonly number[])[],
   delta = 0.75,
   epsilon = 1e-12,
   maxIterations = 10000,
 ): LLLResult {
   // https://en.wikipedia.org/wiki/Lenstra%E2%80%93Lenstra%E2%80%93Lov%C3%A1sz_lattice_basis_reduction_algorithm#LLL_algorithm_pseudocode
-  basis = basis.map(row => [...row]);
-  let {ortho, squaredLengths, dual} = gram(basis, epsilon);
+  const result = basis.map(row => [...row]);
+  let {ortho, squaredLengths, dual} = gram(result, epsilon);
   let k = 1;
-  while (k < basis.length && maxIterations--) {
+  while (k < result.length && maxIterations--) {
     for (let j = k - 1; j >= 0; --j) {
-      const mu = dot(basis[k], dual[j]);
+      const mu = dot(result[k], dual[j]);
       if (Math.abs(mu) > 0.5) {
-        basis[k] = sub(basis[k], scale(basis[j], Math.round(mu)));
+        result[k] = sub(result[k], scale(result[j], Math.round(mu)));
 
-        ({ortho, squaredLengths, dual} = gram(basis, epsilon));
+        ({ortho, squaredLengths, dual} = gram(result, epsilon));
       }
     }
-    const mu = dot(basis[k], dual[k - 1]);
+    const mu = dot(result[k], dual[k - 1]);
     if (
       squaredLengths[k] > (delta - mu * mu) * squaredLengths[k - 1] ||
       !squaredLengths[k - 1]
     ) {
       k++;
     } else {
-      const bk = basis[k];
-      basis[k] = basis[k - 1];
-      basis[k - 1] = bk;
+      const bk = result[k];
+      result[k] = result[k - 1];
+      result[k - 1] = bk;
 
-      ({ortho, squaredLengths, dual} = gram(basis, epsilon));
+      ({ortho, squaredLengths, dual} = gram(result, epsilon));
 
       k = Math.max(k - 1, 1);
     }
   }
   return {
-    basis,
+    basis: result,
     gram: {
       ortho,
       squaredLengths,
@@ -176,7 +179,7 @@ const HALF = new Fraction(1, 2);
  * @returns The basis processed to be short and nearly orthogonal alongside Gram-Schmidt coefficients.
  */
 export function fractionalLenstraLenstraLovasz(
-  basis: ProtoFractionalMonzo[],
+  basis: readonly (readonly FractionValue[])[],
   delta: FractionValue = '3/4',
   maxIterations = 10000,
 ): FractionalLLLResult {
@@ -449,21 +452,36 @@ export function fractionalInv(matrix: ProtoFractionalMonzo[]) {
  * @param B The right operand.
  * @returns The matrix product of the operands.
  */
-export function matmul(A: number[], B: number[]): number;
-export function matmul(A: number[], B: number[][]): number[];
-export function matmul(A: number[][], B: number[]): number[];
-export function matmul(A: number[][], B: number[][]): number[][];
-export function matmul(A: number[] | number[][], B: number[] | number[][]) {
+export function matmul(A: readonly number[], B: readonly number[]): number;
+export function matmul(
+  A: readonly number[],
+  B: readonly (readonly number[])[],
+): number[];
+export function matmul(
+  A: readonly (readonly number[])[],
+  B: readonly number[],
+): number[];
+export function matmul(
+  A: readonly (readonly number[])[],
+  B: readonly (readonly number[])[],
+): number[][];
+export function matmul(
+  A: readonly number[] | readonly (readonly number[])[],
+  B: readonly number[] | readonly (readonly number[])[],
+) {
   let numVectors = 0;
   if (!Array.isArray(A[0])) {
-    A = [A as number[]];
+    A = [A as readonly number[]];
     numVectors++;
   }
   if (!Array.isArray(B[0])) {
-    B = (B as number[]).map(c => [c]);
+    B = (B as readonly number[]).map(c => [c]);
     numVectors++;
   }
-  const result = matmul_(A as number[][], B as number[][]);
+  const result = matmul_(
+    A as readonly (readonly number[])[],
+    B as readonly (readonly number[])[],
+  );
   if (numVectors === 1) {
     return result.flat();
   } else if (numVectors === 2) {
@@ -472,7 +490,10 @@ export function matmul(A: number[] | number[][], B: number[] | number[][]) {
   return result;
 }
 
-function matmul_(A: number[][], B: number[][]) {
+function matmul_(
+  A: readonly (readonly number[])[],
+  B: readonly (readonly number[])[],
+) {
   const height = A.length;
   let width = 0;
   for (const row of B) {
@@ -482,9 +503,9 @@ function matmul_(A: number[][], B: number[][]) {
   for (const row of A) {
     n = Math.max(n, row.length);
   }
-  B = [...B];
-  while (B.length < n) {
-    B.push([]);
+  const B_ = [...B];
+  while (B_.length < n) {
+    B_.push([]);
   }
   const result: number[][] = [];
   for (let i = 0; i < height; ++i) {
@@ -492,7 +513,7 @@ function matmul_(A: number[][], B: number[][]) {
     const rowA = A[i];
     for (let j = 0; j < width; ++j) {
       for (let k = 0; k < rowA.length; ++k) {
-        row[j] += rowA[k] * (B[k][j] ?? 0);
+        row[j] += rowA[k] * (B_[k][j] ?? 0);
       }
     }
     result.push(row);
@@ -507,37 +528,37 @@ function matmul_(A: number[][], B: number[][]) {
  * @returns The matrix product of the operands.
  */
 export function fractionalMatmul(
-  A: ProtoFractionalMonzo,
-  B: ProtoFractionalMonzo,
+  A: readonly FractionValue[],
+  B: readonly FractionValue[],
 ): Fraction;
 export function fractionalMatmul(
-  A: ProtoFractionalMonzo,
-  B: ProtoFractionalMonzo[],
+  A: readonly FractionValue[],
+  B: readonly (readonly FractionValue[])[],
 ): FractionalMonzo;
 export function fractionalMatmul(
-  A: ProtoFractionalMonzo[],
-  B: ProtoFractionalMonzo,
+  A: readonly (readonly FractionValue[])[],
+  B: readonly FractionValue[],
 ): FractionalMonzo;
 export function fractionalMatmul(
-  A: ProtoFractionalMonzo[],
-  B: ProtoFractionalMonzo[],
+  A: readonly (readonly FractionValue[])[],
+  B: readonly (readonly FractionValue[])[],
 ): FractionalMonzo[];
 export function fractionalMatmul(
-  A: ProtoFractionalMonzo | ProtoFractionalMonzo[],
-  B: ProtoFractionalMonzo | ProtoFractionalMonzo[],
+  A: readonly FractionValue[] | readonly (readonly FractionValue[])[],
+  B: readonly FractionValue[] | readonly (readonly FractionValue[])[],
 ) {
   let numVectors = 0;
   if (!Array.isArray(A[0])) {
-    A = [A as ProtoFractionalMonzo];
+    A = [A as readonly FractionValue[]];
     numVectors++;
   }
   if (!Array.isArray(B[0])) {
-    B = (B as ProtoFractionalMonzo).map(c => [c]);
+    B = (B as readonly FractionValue[]).map(c => [c]);
     numVectors++;
   }
   const result = fractionalMatmul_(
-    A as ProtoFractionalMonzo[],
-    B as ProtoFractionalMonzo[],
+    A as readonly (readonly FractionValue[])[],
+    B as readonly (readonly FractionValue[])[],
   );
   if (numVectors === 1) {
     return result.flat();
@@ -548,8 +569,8 @@ export function fractionalMatmul(
 }
 
 export function fractionalMatmul_(
-  A: ProtoFractionalMonzo[],
-  B: ProtoFractionalMonzo[],
+  A: readonly (readonly FractionValue[])[],
+  B: readonly (readonly FractionValue[])[],
 ): FractionalMonzo[] {
   const height = A.length;
   let width = 0;
@@ -591,7 +612,7 @@ export function fractionalMatmul_(
  * @param matrix Array of arrays of numbers to calculate determinant for.
  * @returns The determinant.
  */
-export function det(matrix: number[][]) {
+export function det(matrix: readonly (readonly number[])[]) {
   let width = 0;
   const height = matrix.length;
   for (const row of matrix) {
@@ -600,41 +621,41 @@ export function det(matrix: number[][]) {
   if (width !== height) {
     throw new Error('Non-square matrix');
   }
-  matrix = matrix.map(row => [...row]);
+  const matrix_ = matrix.map(row => [...row]);
   let result = 1;
   for (let x = 0; x < width; ++x) {
     // Maintain row echelon form by pivoting on the most dominant row.
     let pivot: number | undefined;
     let d = 0;
     for (let y = x; y < height; ++y) {
-      if (Math.abs(matrix[y][x]) > Math.abs(d)) {
+      if (Math.abs(matrix_[y][x]) > Math.abs(d)) {
         pivot = y;
-        d = matrix[y][x];
+        d = matrix_[y][x];
       }
     }
     if (pivot === undefined) {
       return 0;
     }
     if (x !== pivot) {
-      const temp = matrix[pivot];
-      matrix[pivot] = matrix[x];
-      matrix[x] = temp;
+      const temp = matrix_[pivot];
+      matrix_[pivot] = matrix_[x];
+      matrix_[x] = temp;
 
       result = -result;
     }
     result *= d;
     d = 1 / d;
     for (let y = x + 1; y < height; ++y) {
-      const row = matrix[y];
+      const row = matrix_[y];
       const s = row[x] * d;
       if (s) {
         // Skip over entries that are not used later.
-        const upperRow = matrix[x];
+        const upperRow = matrix_[x];
         for (let i = x + 1; i < upperRow.length; ++i) {
           row[i] -= s * upperRow[i];
         }
         // Full row operation for reference:
-        // matrix[y] = matrix[y].map((a, i) => a - s * (matrix[x][i] ?? 0));
+        // matrix_[y] = matrix_[y].map((a, i) => a - s * (matrix_[x][i] ?? 0));
       }
     }
   }
@@ -646,7 +667,7 @@ export function det(matrix: number[][]) {
  * @param matrix Array of arrays of fractions to calculate determinant for.
  * @returns The determinant.
  */
-export function fractionalDet(matrix: ProtoFractionalMonzo[]) {
+export function fractionalDet(matrix: readonly (readonly FractionValue[])[]) {
   let width = 0;
   const height = matrix.length;
   for (const row of matrix) {
@@ -702,7 +723,9 @@ export function fractionalDet(matrix: ProtoFractionalMonzo[]) {
  * @param matrix Matrix to transpose.
  * @returns The transpose.
  */
-export function fractionalTranspose(matrix: ProtoFractionalMonzo[]) {
+export function fractionalTranspose(
+  matrix: readonly (readonly FractionValue[])[],
+) {
   let width = 0;
   for (const row of matrix) {
     width = Math.max(row.length, width);
@@ -725,13 +748,17 @@ export function fractionalTranspose(matrix: ProtoFractionalMonzo[]) {
  * @param j The column to remove.
  * @returns The spliced matrix.
  */
-export function minor<T>(matrix: T[][], i: number, j: number): T[][] {
-  matrix = matrix.map(row => [...row]);
-  matrix.splice(i, 1);
-  for (const row of matrix) {
+export function minor<T>(
+  matrix: readonly (readonly T[])[],
+  i: number,
+  j: number,
+): T[][] {
+  const result = matrix.map(row => [...row]);
+  result.splice(i, 1);
+  for (const row of result) {
     row.splice(j, 1);
   }
-  return matrix;
+  return result;
 }
 
 /**
@@ -740,7 +767,10 @@ export function minor<T>(matrix: T[][], i: number, j: number): T[][] {
  * @param amount The amount to scale by.
  * @returns The scalar multiple.
  */
-export function matscale(matrix: number[][], amount: number) {
+export function matscale(
+  matrix: readonly (readonly number[])[],
+  amount: number,
+) {
   return matrix.map(row => scale(row, amount));
 }
 
@@ -750,7 +780,10 @@ export function matscale(matrix: number[][], amount: number) {
  * @param B The second matrix.
  * @returns The sum.
  */
-export function matadd(A: number[][], B: number[][]) {
+export function matadd(
+  A: readonly (readonly number[])[],
+  B: readonly (readonly number[])[],
+) {
   const result: number[][] = [];
   const numRows = Math.max(A.length, B.length);
   for (let i = 0; i < numRows; ++i) {
@@ -765,7 +798,10 @@ export function matadd(A: number[][], B: number[][]) {
  * @param B The matrix to subtract by.
  * @returns The difference.
  */
-export function matsub(A: number[][], B: number[][]) {
+export function matsub(
+  A: readonly (readonly number[])[],
+  B: readonly (readonly number[])[],
+) {
   const result: number[][] = [];
   const numRows = Math.max(A.length, B.length);
   for (let i = 0; i < numRows; ++i) {
@@ -781,7 +817,7 @@ export function matsub(A: number[][], B: number[][]) {
  * @returns The scalar multiple.
  */
 export function fractionalMatscale(
-  matrix: ProtoFractionalMonzo[],
+  matrix: readonly (readonly FractionValue[])[],
   amount: FractionValue,
 ) {
   return matrix.map(row => fractionalScale(row, amount));
@@ -794,8 +830,8 @@ export function fractionalMatscale(
  * @returns The sum.
  */
 export function fractionalMatadd(
-  A: ProtoFractionalMonzo[],
-  B: ProtoFractionalMonzo[],
+  A: readonly (readonly FractionValue[])[],
+  B: readonly (readonly FractionValue[])[],
 ) {
   const result: FractionalMonzo[] = [];
   const numRows = Math.max(A.length, B.length);
@@ -812,8 +848,8 @@ export function fractionalMatadd(
  * @returns The difference.
  */
 export function fractionalMatsub(
-  A: ProtoFractionalMonzo[],
-  B: ProtoFractionalMonzo[],
+  A: readonly (readonly FractionValue[])[],
+  B: readonly (readonly FractionValue[])[],
 ) {
   const result: FractionalMonzo[] = [];
   const numRows = Math.max(A.length, B.length);
