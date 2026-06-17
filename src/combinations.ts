@@ -52,7 +52,7 @@
  * @param k Size of combinations to search for.
  * @returns Array of found non-empty combinations, size of a combination is k.
  */
-export function kCombinations<T>(set: T[], k: number): T[][] {
+export function kCombinations<T>(set: readonly T[], k: number): T[][] {
   // There is no way to take e.g. sets of 5 elements from
   // a set of 4.
   // All sets with 0 elements are empty.
@@ -63,7 +63,7 @@ export function kCombinations<T>(set: T[], k: number): T[][] {
 
   // K-sized set has only one K-sized subset.
   if (k === set.length) {
-    return [set];
+    return [Array.from(set)];
   }
 
   // There is N 1-sized subsets in a N-sized set.
@@ -120,7 +120,7 @@ export function kCombinations<T>(set: T[], k: number): T[][] {
  * @param set Array of objects of any type. They are treated as unique.
  * @returns Array of arrays representing all possible non-empty combinations of elements in a set.
  */
-export function combinations<T>(set: T[]): T[][] {
+export function combinations<T>(set: readonly T[]): T[][] {
   const combs: T[][] = [];
 
   // Calculate all non-empty k-combinations
@@ -140,7 +140,7 @@ export function combinations<T>(set: T[]): T[][] {
  * @returns Generator of found combinations, size of a combination is k.
  */
 export function* iterKCombinations<T>(
-  set: T[],
+  set: readonly T[],
   k: number,
 ): Generator<T[], number, undefined> {
   // There is no way to take e.g. sets of 5 elements from
@@ -153,7 +153,7 @@ export function* iterKCombinations<T>(
 
   // K-sized set has only one K-sized subset.
   if (k === set.length) {
-    yield set;
+    yield Array.from(set);
     return 1;
   }
 
@@ -187,7 +187,7 @@ export function* iterKCombinations<T>(
  * @returns Generator of arrays representing all possible non-empty combinations of elements in a set.
  */
 export function* iterCombinations<T>(
-  set: T[],
+  set: readonly T[],
 ): Generator<T[], number, undefined> {
   // Calculate all non-empty k-combinations
   let total = 0;

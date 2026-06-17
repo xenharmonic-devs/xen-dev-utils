@@ -34,7 +34,7 @@ export function bigAbs(n: bigint) {
  * @param b The second monzo.
  * @returns `true` if the two values are equal when interpreted as fractions.
  */
-export function monzosEqual(a: Monzo, b: Monzo) {
+export function monzosEqual(a: readonly number[], b: readonly number[]) {
   if (a === b) {
     return true;
   }
@@ -67,8 +67,8 @@ export function monzosEqual(a: Monzo, b: Monzo) {
  * @returns `true` if the two values are equal.
  */
 export function fractionalMonzosEqual(
-  a: ProtoFractionalMonzo,
-  b: ProtoFractionalMonzo,
+  a: readonly FractionValue[],
+  b: readonly FractionValue[],
 ): boolean {
   if (a === b) {
     return true;
@@ -101,7 +101,7 @@ export function fractionalMonzosEqual(
  * @param b The second monzo.
  * @returns A monzo that represents the product of the two numbers represented by `a` and `b`.
  */
-export function add(a: Monzo, b: Monzo): Monzo {
+export function add(a: readonly number[], b: readonly number[]): Monzo {
   const result = [...a];
   for (let i = Math.min(a.length, b.length) - 1; i >= 0; --i) {
     result[i] += b[i];
@@ -117,10 +117,10 @@ export function add(a: Monzo, b: Monzo): Monzo {
  * @returns A monzo that represents the product of the two numbers represented by `a` and `b`.
  */
 export function fractionalAdd(
-  a: ProtoFractionalMonzo,
-  b: ProtoFractionalMonzo,
+  a: readonly FractionValue[],
+  b: readonly FractionValue[],
 ): FractionalMonzo {
-  const result: FractionalMonzo = a.map(f => new Fraction(f));
+  const result: Fraction[] = a.map(f => new Fraction(f));
   for (let i = Math.min(a.length, b.length) - 1; i >= 0; --i) {
     result[i] = result[i].add(b[i]);
   }
@@ -136,7 +136,7 @@ export function fractionalAdd(
  * @param b The second monzo.
  * @returns A monzo that represents the division of the two numbers represented by `a` and `b`.
  */
-export function sub(a: Monzo, b: Monzo): Monzo {
+export function sub(a: readonly number[], b: readonly number[]): Monzo {
   const result = [...a];
   for (let i = Math.min(a.length, b.length) - 1; i >= 0; --i) {
     result[i] -= b[i];
@@ -154,10 +154,10 @@ export function sub(a: Monzo, b: Monzo): Monzo {
  * @returns A monzo that represents the division of the two numbers represented by `a` and `b`.
  */
 export function fractionalSub(
-  a: ProtoFractionalMonzo,
-  b: ProtoFractionalMonzo,
+  a: readonly FractionValue[],
+  b: readonly FractionValue[],
 ): FractionalMonzo {
-  const result: FractionalMonzo = a.map(f => new Fraction(f));
+  const result: Fraction[] = a.map(f => new Fraction(f));
   for (let i = Math.min(a.length, b.length) - 1; i >= 0; --i) {
     result[i] = result[i].sub(b[i]);
   }
@@ -173,7 +173,7 @@ export function fractionalSub(
  * @param amount The amount to scale by.
  * @returns The scalar multiple.
  */
-export function scale(monzo: Monzo, amount: number) {
+export function scale(monzo: readonly number[], amount: number) {
   return monzo.map(component => component * amount);
 }
 
@@ -184,7 +184,7 @@ export function scale(monzo: Monzo, amount: number) {
  * @returns The scalar multiple.
  */
 export function fractionalScale(
-  monzo: ProtoFractionalMonzo,
+  monzo: readonly FractionValue[],
   amount: FractionValue,
 ): FractionalMonzo {
   return monzo.map(component => new Fraction(component).mul(amount));
@@ -197,8 +197,8 @@ export function fractionalScale(
  * @returns The dot product.
  */
 export function fractionalDot(
-  a: ProtoFractionalMonzo,
-  b: ProtoFractionalMonzo,
+  a: readonly FractionValue[],
+  b: readonly FractionValue[],
 ): Fraction {
   let result = new Fraction(0);
   for (let i = Math.min(a.length, b.length) - 1; i >= 0; --i) {
@@ -214,7 +214,7 @@ export function fractionalDot(
  * @returns The length of the vector.
  */
 export function fractionalNorm(
-  array: ProtoFractionalMonzo,
+  array: readonly FractionValue[],
   type: 'L2' | 'taxicab' | 'maximum' = 'L2',
 ): Fraction {
   let result = new Fraction(0);
@@ -239,7 +239,10 @@ export function fractionalNorm(
  * @param weights The second monzo. Missing values interpreted as 1 (no change).
  * @returns The first monzo weighted by the second.
  */
-export function applyWeights(monzo: Monzo, weights: Monzo) {
+export function applyWeights(
+  monzo: readonly number[],
+  weights: readonly number[],
+) {
   const result = [...monzo];
   for (let i = Math.min(monzo.length, weights.length) - 1; i >= 0; --i) {
     result[i] *= weights[i];
@@ -253,7 +256,10 @@ export function applyWeights(monzo: Monzo, weights: Monzo) {
  * @param weights The second monzo. Missing values interpreted as 1 (no change).
  * @returns The first monzo unweighted by the second.
  */
-export function unapplyWeights(monzo: Monzo, weights: Monzo) {
+export function unapplyWeights(
+  monzo: readonly number[],
+  weights: readonly number[],
+) {
   const result = [...monzo];
   for (let i = Math.min(monzo.length, weights.length) - 1; i >= 0; --i) {
     result[i] /= weights[i];
@@ -267,7 +273,7 @@ export function unapplyWeights(monzo: Monzo, weights: Monzo) {
  * @param source The monzo to add.
  * @returns The (modified) target monzo.
  */
-export function accumulate(target: Monzo, source: Monzo) {
+export function accumulate(target: number[], source: readonly number[]) {
   for (let i = 0; i < Math.min(target.length, source.length); ++i) {
     target[i] += source[i];
   }
@@ -280,7 +286,7 @@ export function accumulate(target: Monzo, source: Monzo) {
  * @param source The monzo to subtract.
  * @returns The (modified) target monzo.
  */
-export function decumulate(target: Monzo, source: Monzo) {
+export function decumulate(target: number[], source: readonly number[]) {
   for (let i = 0; i < Math.min(target.length, source.length); ++i) {
     target[i] -= source[i];
   }
@@ -293,7 +299,7 @@ export function decumulate(target: Monzo, source: Monzo) {
  * @param amount The amount to scale by.
  * @returns The (modified) target monzo.
  */
-export function rescale(target: Monzo, amount: number) {
+export function rescale(target: number[], amount: number) {
   for (let i = 0; i < target.length; ++i) {
     target[i] *= amount;
   }
@@ -585,7 +591,7 @@ export function toMonzoAndResidual(
   let numerator = initialNumerator;
   let denominator = initialDenominator;
 
-  const result: Monzo = Array(numberOfComponents).fill(-1);
+  const result: number[] = Array(numberOfComponents).fill(-1);
 
   result[0] = n7[0] - d7[0];
   result[1] = n7[1] - d7[1];
